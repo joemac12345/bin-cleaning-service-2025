@@ -24,9 +24,9 @@ async function readBookings() {
     await ensureDataDirectory();
     const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
     const fileBookings = JSON.parse(data);
-    // Merge with shared storage for Vercel
-    const sharedBookings = sharedStorage.getBookings();
-    return [...fileBookings, ...sharedBookings];
+    // Update shared storage to match file system
+    sharedStorage.setBookings(fileBookings);
+    return fileBookings;
   } catch (error) {
     // Fallback to shared storage (Vercel serverless)
     return sharedStorage.getBookings();
@@ -256,12 +256,20 @@ export async function DELETE(request: NextRequest) {
     
     // Special endpoint to clear all data
     if (clearAll === 'true') {
-      await writeBookings([]);
+      // Clear both file system and shared storage completely
+      try {
+        await fs.writeFile(BOOKINGS_FILE, JSON.stringify([], null, 2));
+      } catch (error) {
+        console.log('File system clear failed (expected in Vercel):', error);
+      }
+      
       sharedStorage.setBookings([]);
-      console.log('🧹 All bookings cleared from storage');
+      console.log('🧹 All bookings cleared from both file system and shared storage');
+      
       return NextResponse.json({
         success: true,
-        message: 'All bookings cleared successfully'
+        message: 'All bookings cleared successfully',
+        cleared: 'Both file system and memory storage'
       });
     }
     
@@ -273,7 +281,7 @@ export async function DELETE(request: NextRequest) {
     }
     
     const bookings = await readBookings();
-    console.log('📊 Current bookings before delete:', bookings.length, bookings.map(b => b.bookingId));
+    console.log('📊 Current bookings before delete:', bookings.length, bookings.map((b: any) => b.bookingId));
     
     const filteredBookings = bookings.filter((booking: any) => booking.bookingId !== bookingId);
     console.log('📊 Bookings after filter:', filteredBookings.length);
