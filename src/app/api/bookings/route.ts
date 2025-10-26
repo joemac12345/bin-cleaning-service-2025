@@ -252,6 +252,18 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const bookingId = searchParams.get('bookingId');
+    const clearAll = searchParams.get('clearAll');
+    
+    // Special endpoint to clear all data
+    if (clearAll === 'true') {
+      await writeBookings([]);
+      sharedStorage.setBookings([]);
+      console.log('🧹 All bookings cleared from storage');
+      return NextResponse.json({
+        success: true,
+        message: 'All bookings cleared successfully'
+      });
+    }
     
     if (!bookingId) {
       return NextResponse.json(
@@ -261,9 +273,13 @@ export async function DELETE(request: NextRequest) {
     }
     
     const bookings = await readBookings();
+    console.log('📊 Current bookings before delete:', bookings.length, bookings.map(b => b.bookingId));
+    
     const filteredBookings = bookings.filter((booking: any) => booking.bookingId !== bookingId);
+    console.log('📊 Bookings after filter:', filteredBookings.length);
     
     if (filteredBookings.length === bookings.length) {
+      console.log('❌ Booking not found:', bookingId);
       return NextResponse.json(
         { success: false, error: 'Booking not found' },
         { status: 404 }
@@ -271,6 +287,7 @@ export async function DELETE(request: NextRequest) {
     }
     
     await writeBookings(filteredBookings);
+    console.log('✅ Booking deleted successfully:', bookingId);
     
     return NextResponse.json({
       success: true,

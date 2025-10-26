@@ -42,19 +42,43 @@ interface AdminNotificationData {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: nodemailer.Transporter | null;
+  private isConfigured: boolean;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_EMAIL,
-        pass: process.env.GMAIL_APP_PASSWORD,
-      },
+    const gmailEmail = process.env.GMAIL_EMAIL;
+    const gmailPassword = process.env.GMAIL_APP_PASSWORD;
+    
+    console.log('Email Service Configuration:', {
+      hasEmail: !!gmailEmail,
+      hasPassword: !!gmailPassword,
+      email: gmailEmail ? `${gmailEmail.substring(0, 3)}***` : 'undefined'
     });
+
+    this.isConfigured = !!(gmailEmail && gmailPassword);
+    
+    if (this.isConfigured) {
+      this.transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailEmail,
+          pass: gmailPassword,
+        },
+      });
+    } else {
+      this.transporter = null;
+      console.warn('Email service not configured - missing GMAIL_EMAIL or GMAIL_APP_PASSWORD');
+    }
   }
 
   async sendEmail({ to, subject, html }: EmailConfig, type: string = 'unknown', metadata?: any) {
+    console.log('Attempting to send email:', { to, subject, type, isConfigured: this.isConfigured });
+    
+    if (!this.isConfigured || !this.transporter) {
+      console.warn('Email service not configured, skipping email send');
+      return { success: false, error: 'Email service not configured' };
+    }
+
     try {
       const mailOptions = {
         from: `${process.env.COMPANY_NAME} <${process.env.GMAIL_EMAIL}>`,
