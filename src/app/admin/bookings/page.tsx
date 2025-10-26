@@ -62,15 +62,22 @@ export default function BookingsAdmin() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
+      console.log('🔍 Admin: Fetching bookings from /api/bookings...');
+      
       const response = await fetch('/api/bookings');
+      console.log('📡 Admin: Response status:', response.status);
       
       if (!response.ok) {
         throw new Error('Failed to fetch bookings');
       }
       
       const data = await response.json();
+      console.log('📋 Admin: Received data:', data);
+      console.log('📊 Admin: Bookings count:', data.bookings?.length || 0);
+      
       setBookings(data.bookings || []);
     } catch (err) {
+      console.error('❌ Admin: Error fetching bookings:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);

@@ -24,12 +24,15 @@ async function readBookings() {
     await ensureDataDirectory();
     const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
     const fileBookings = JSON.parse(data);
+    console.log('📂 File system bookings found:', fileBookings.length);
     // Update shared storage to match file system
     sharedStorage.setBookings(fileBookings);
     return fileBookings;
   } catch (error) {
     // Fallback to shared storage (Vercel serverless)
-    return sharedStorage.getBookings();
+    const sharedBookings = sharedStorage.getBookings();
+    console.log('💾 Shared storage bookings found:', sharedBookings.length);
+    return sharedBookings;
   }
 }
 
@@ -50,7 +53,9 @@ async function writeBookings(bookings: any[]) {
 // GET - Fetch all bookings (for admin)
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 GET /api/bookings called');
     const bookings = await readBookings();
+    console.log('📊 Total bookings found:', bookings.length);
     
     // Optional: Add query parameters for filtering
     const { searchParams } = new URL(request.url);
