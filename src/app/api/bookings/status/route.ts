@@ -2,28 +2,48 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { emailService } from '@/lib/emailService';
+import { sharedStorage } from '@/lib/sharedStorage';
 
 const BOOKINGS_FILE = path.join(process.cwd(), 'data', 'bookings.json');
 
-// Read bookings from file
-async function readBookings() {
-  try {
-    const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-// Write bookings to file
-async function writeBookings(bookings: any[]) {
+// Ensure data directory exists
+async function ensureDataDirectory() {
   const dataDir = path.dirname(BOOKINGS_FILE);
   try {
     await fs.access(dataDir);
   } catch {
     await fs.mkdir(dataDir, { recursive: true });
   }
-  await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
+}
+
+// Read bookings with Vercel fallback
+async function readBookings() {
+  try {
+    // Try file system first (works locally)
+    await ensureDataDirectory();
+    const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
+    const fileBookings = JSON.parse(data);
+    // Merge with shared storage for Vercel
+    const sharedBookings = sharedStorage.getBookings();
+    return [...fileBookings, ...sharedBookings];
+  } catch (error) {
+    // Fallback to shared storage (Vercel serverless)
+    return sharedStorage.getBookings();
+  }
+}
+
+// Write bookings with Vercel fallback
+async function writeBookings(bookings: any[]) {
+  try {
+    // Try file system first (works locally)
+    await ensureDataDirectory();
+    await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
+    // Also update shared storage for consistency
+    sharedStorage.setBookings(bookings);
+  } catch (error) {
+    // Fallback to shared storage (Vercel serverless)
+    sharedStorage.setBookings(bookings);
+  }
 }
 
 export async function PATCH(request: NextRequest) {

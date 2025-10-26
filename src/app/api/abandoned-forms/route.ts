@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { sharedStorage } from '@/lib/sharedStorage';
 
 // File path with Vercel fallback
 const ABANDONED_FORMS_FILE = path.join(process.cwd(), 'data', 'abandoned-forms.json');
-
-// In-memory storage for Vercel (temporary demo storage)
-let memoryAbandonedForms: any[] = [];
 
 // Ensure data directory exists
 async function ensureDataDirectory() {
@@ -25,11 +23,12 @@ async function readAbandonedForms() {
     await ensureDataDirectory();
     const data = await fs.readFile(ABANDONED_FORMS_FILE, 'utf8');
     const fileForms = JSON.parse(data);
-    // Merge with memory forms for Vercel
-    return [...fileForms, ...memoryAbandonedForms];
+    // Merge with shared storage for Vercel
+    const sharedForms = sharedStorage.getAbandonedForms();
+    return [...fileForms, ...sharedForms];
   } catch (error) {
-    // Fallback to memory storage (Vercel serverless)
-    return memoryAbandonedForms;
+    // Fallback to shared storage (Vercel serverless)
+    return sharedStorage.getAbandonedForms();
   }
 }
 
@@ -39,9 +38,11 @@ async function writeAbandonedForms(forms: any[]) {
     // Try file system first (works locally)
     await ensureDataDirectory();
     await fs.writeFile(ABANDONED_FORMS_FILE, JSON.stringify(forms, null, 2));
+    // Also update shared storage for consistency
+    sharedStorage.setAbandonedForms(forms);
   } catch (error) {
-    // Fallback to memory storage (Vercel serverless)
-    memoryAbandonedForms = forms;
+    // Fallback to shared storage (Vercel serverless)
+    sharedStorage.setAbandonedForms(forms);
   }
 }
 
