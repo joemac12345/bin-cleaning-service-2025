@@ -6,13 +6,14 @@ import { sharedStorage } from '@/lib/sharedStorage';
 // Database cleanup utility
 export async function DELETE(request: NextRequest) {
   try {
-    console.log('🧹 Starting complete database cleanup...');
+    console.log('🧹 Starting AGGRESSIVE database cleanup...');
     
     // Clear all storage layers
     const results = {
       fileSystemCleared: false,
       sharedStorageCleared: false,
       abandonedFormsCleared: false,
+      globalVariableCleared: false,
       errors: [] as string[]
     };
 
@@ -27,11 +28,25 @@ export async function DELETE(request: NextRequest) {
       console.log('⚠️ File system clear failed (expected in Vercel)');
     }
 
-    // 2. Clear shared storage bookings
+    // 2. Clear shared storage bookings AGGRESSIVELY
     try {
       sharedStorage.setBookings([]);
+      
+      // Force clear the global variable directly
+      if (global.__VERCEL_STORAGE__) {
+        global.__VERCEL_STORAGE__.bookings = [];
+        global.__VERCEL_STORAGE__.abandonedForms = [];
+        results.globalVariableCleared = true;
+      }
+      
+      // Double-check by re-initializing
+      global.__VERCEL_STORAGE__ = {
+        bookings: [],
+        abandonedForms: []
+      };
+      
       results.sharedStorageCleared = true;
-      console.log('✅ Shared storage bookings cleared');
+      console.log('✅ Shared storage AGGRESSIVELY cleared');
     } catch (error) {
       results.errors.push(`Shared storage: ${error}`);
     }
@@ -51,12 +66,25 @@ export async function DELETE(request: NextRequest) {
       console.log('✅ Garbage collection triggered');
     }
 
-    console.log('🎉 Database cleanup complete!');
+    // 5. Verify cleanup
+    const remainingBookings = sharedStorage.getBookings();
+    const remainingForms = sharedStorage.getAbandonedForms();
+    
+    console.log('🔍 Verification:', {
+      bookingsRemaining: remainingBookings.length,
+      formsRemaining: remainingForms.length
+    });
+
+    console.log('🎉 AGGRESSIVE database cleanup complete!');
 
     return NextResponse.json({
       success: true,
-      message: 'Database completely cleared',
+      message: 'Database AGGRESSIVELY cleared',
       details: results,
+      verification: {
+        bookingsRemaining: remainingBookings.length,
+        formsRemaining: remainingForms.length
+      },
       timestamp: new Date().toISOString()
     });
 

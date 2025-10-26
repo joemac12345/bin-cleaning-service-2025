@@ -256,20 +256,42 @@ export async function DELETE(request: NextRequest) {
     
     // Special endpoint to clear all data
     if (clearAll === 'true') {
-      // Clear both file system and shared storage completely
+      // NUCLEAR OPTION: Clear everything
       try {
         await fs.writeFile(BOOKINGS_FILE, JSON.stringify([], null, 2));
       } catch (error) {
         console.log('File system clear failed (expected in Vercel):', error);
       }
       
+      // Clear shared storage
       sharedStorage.setBookings([]);
-      console.log('🧹 All bookings cleared from both file system and shared storage');
+      
+      // NUCLEAR: Force clear global variables
+      if (global.__VERCEL_STORAGE__) {
+        delete global.__VERCEL_STORAGE__;
+      }
+      
+      // Re-initialize completely
+      global.__VERCEL_STORAGE__ = {
+        bookings: [],
+        abandonedForms: []
+      };
+      
+      // Force garbage collection
+      if (global.gc) {
+        global.gc();
+      }
+      
+      console.log('☢️ NUCLEAR CLEANUP: All storage layers destroyed and rebuilt');
       
       return NextResponse.json({
         success: true,
-        message: 'All bookings cleared successfully',
-        cleared: 'Both file system and memory storage'
+        message: 'NUCLEAR CLEANUP: All data destroyed',
+        cleared: 'File system, memory storage, and global variables',
+        verification: {
+          bookingsCount: sharedStorage.getBookings().length,
+          formsCount: sharedStorage.getAbandonedForms().length
+        }
       });
     }
     
