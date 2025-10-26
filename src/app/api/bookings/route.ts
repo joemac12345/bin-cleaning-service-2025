@@ -1,64 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { emailService } from '@/lib/emailService';
-import { sharedStorage } from '@/lib/sharedStorage';
+import { PersistentStorage } from '@/lib/persistentStorage';
 
-// File-based storage with Vercel fallback
-const BOOKINGS_FILE = path.join(process.cwd(), 'data', 'bookings.json');
-
-// Ensure data directory exists
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(BOOKINGS_FILE);
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-// Read bookings with Vercel fallback
-async function readBookings() {
-  try {
-    // Try file system first (works locally)
-    await ensureDataDirectory();
-    const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
-    const fileBookings = JSON.parse(data);
-    console.log('📂 File system bookings found:', fileBookings.length);
-    // Update shared storage to match file system
-    sharedStorage.setBookings(fileBookings);
-    return fileBookings;
-  } catch (error) {
-    // Fallback to shared storage (Vercel serverless)
-    const sharedBookings = sharedStorage.getBookings();
-    console.log('💾 Shared storage bookings found:', sharedBookings.length);
-    return sharedBookings;
-  }
-}
-
-// Write bookings with Vercel fallback
-async function writeBookings(bookings: any[]) {
-  console.log('💾 Writing bookings, count:', bookings.length);
-  
-  // Always update shared storage first (primary storage for Vercel)
-  sharedStorage.setBookings(bookings);
-  console.log('✅ Shared storage updated');
-  
-  try {
-    // Also try file system (works locally)
-    await ensureDataDirectory();
-    await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
-    console.log('✅ File system updated');
-  } catch (error) {
-    console.log('⚠️ File system write failed (expected in Vercel):', error);
-  }
-}
+// Using new persistent storage system
 
 // GET - Fetch all bookings (for admin)
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 GET /api/bookings called');
-    const bookings = await readBookings();
+    const bookings = await PersistentStorage.getBookings();
     console.log('📊 Total bookings found:', bookings.length);
     
     // Optional: Add query parameters for filtering
@@ -138,24 +88,17 @@ export async function POST(request: NextRequest) {
       bookingData.status = 'new-job';
     }
     
-    // Read existing bookings and add new one
-    const bookings = await readBookings();
-    console.log('📊 Before adding new booking, current count:', bookings.length);
-    
-    bookings.push(bookingData);
-    console.log('📊 After adding new booking, count:', bookings.length);
-    
-    // Save updated bookings (with error handling)
+    // Add new booking using persistent storage
     try {
-      await writeBookings(bookings);
+      await PersistentStorage.addBooking(bookingData);
       console.log('✅ Booking saved successfully:', bookingData.bookingId);
       
       // Immediately verify the save worked
-      const verifyBookings = await readBookings();
+      const verifyBookings = await PersistentStorage.getBookings();
       console.log('🔍 Verification: bookings count after save:', verifyBookings.length);
     } catch (writeError) {
-      console.error('⚠️ Write error, using memory storage:', writeError);
-      // Data still saved in memory for this session
+      console.error('⚠️ Write error:', writeError);
+      throw writeError;
     }
     
     // Send confirmation email to customer and admin notification
@@ -243,7 +186,7 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    const bookings = await readBookings();
+    const bookings = await PersistentStorage.getBookings();
     const bookingIndex = bookings.findIndex((booking: any) => booking.bookingId === bookingId);
     
     if (bookingIndex === -1) {
@@ -260,7 +203,7 @@ export async function PUT(request: NextRequest) {
       updatedAt: new Date().toISOString()
     };
     
-    await writeBookings(bookings);
+    await PersistentStorage.saveBookings(bookings);
     
     return NextResponse.json({
       success: true,
@@ -286,43 +229,22 @@ export async function DELETE(request: NextRequest) {
     
     // Special endpoint to clear all data
     if (clearAll === 'true') {
-      // NUCLEAR OPTION: Clear everything
       try {
-        await fs.writeFile(BOOKINGS_FILE, JSON.stringify([], null, 2));
+        await PersistentStorage.clearAll();
+        console.log('🧹 All bookings cleared from persistent storage');
+        
+        return NextResponse.json({
+          success: true,
+          message: 'All bookings cleared successfully',
+          cleared: 'Persistent file storage'
+        });
       } catch (error) {
-        console.log('File system clear failed (expected in Vercel):', error);
+        console.error('❌ Clear all failed:', error);
+        return NextResponse.json({
+          success: false,
+          error: 'Failed to clear all bookings'
+        }, { status: 500 });
       }
-      
-      // Clear shared storage
-      sharedStorage.setBookings([]);
-      
-      // NUCLEAR: Force clear global variables
-      if (global.__VERCEL_STORAGE__) {
-        delete global.__VERCEL_STORAGE__;
-      }
-      
-      // Re-initialize completely
-      global.__VERCEL_STORAGE__ = {
-        bookings: [],
-        abandonedForms: []
-      };
-      
-      // Force garbage collection
-      if (global.gc) {
-        global.gc();
-      }
-      
-      console.log('☢️ NUCLEAR CLEANUP: All storage layers destroyed and rebuilt');
-      
-      return NextResponse.json({
-        success: true,
-        message: 'NUCLEAR CLEANUP: All data destroyed',
-        cleared: 'File system, memory storage, and global variables',
-        verification: {
-          bookingsCount: sharedStorage.getBookings().length,
-          formsCount: sharedStorage.getAbandonedForms().length
-        }
-      });
     }
     
     if (!bookingId) {
@@ -332,13 +254,12 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    const bookings = await readBookings();
+    const bookings = await PersistentStorage.getBookings();
     console.log('📊 Current bookings before delete:', bookings.length, bookings.map((b: any) => b.bookingId));
     
-    const filteredBookings = bookings.filter((booking: any) => booking.bookingId !== bookingId);
-    console.log('📊 Bookings after filter:', filteredBookings.length);
+    const deleteSuccess = await PersistentStorage.deleteBooking(bookingId);
     
-    if (filteredBookings.length === bookings.length) {
+    if (!deleteSuccess) {
       console.log('❌ Booking not found:', bookingId);
       return NextResponse.json(
         { success: false, error: 'Booking not found' },
@@ -346,7 +267,6 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    await writeBookings(filteredBookings);
     console.log('✅ Booking deleted successfully:', bookingId);
     
     return NextResponse.json({
