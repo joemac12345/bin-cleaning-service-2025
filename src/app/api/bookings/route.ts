@@ -38,15 +38,19 @@ async function readBookings() {
 
 // Write bookings with Vercel fallback
 async function writeBookings(bookings: any[]) {
+  console.log('💾 Writing bookings, count:', bookings.length);
+  
+  // Always update shared storage first (primary storage for Vercel)
+  sharedStorage.setBookings(bookings);
+  console.log('✅ Shared storage updated');
+  
   try {
-    // Try file system first (works locally)
+    // Also try file system (works locally)
     await ensureDataDirectory();
     await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
-    // Also update shared storage for consistency
-    sharedStorage.setBookings(bookings);
+    console.log('✅ File system updated');
   } catch (error) {
-    // Fallback to shared storage (Vercel serverless)
-    sharedStorage.setBookings(bookings);
+    console.log('⚠️ File system write failed (expected in Vercel):', error);
   }
 }
 
@@ -136,12 +140,19 @@ export async function POST(request: NextRequest) {
     
     // Read existing bookings and add new one
     const bookings = await readBookings();
+    console.log('📊 Before adding new booking, current count:', bookings.length);
+    
     bookings.push(bookingData);
+    console.log('📊 After adding new booking, count:', bookings.length);
     
     // Save updated bookings (with error handling)
     try {
       await writeBookings(bookings);
       console.log('✅ Booking saved successfully:', bookingData.bookingId);
+      
+      // Immediately verify the save worked
+      const verifyBookings = await readBookings();
+      console.log('🔍 Verification: bookings count after save:', verifyBookings.length);
     } catch (writeError) {
       console.error('⚠️ Write error, using memory storage:', writeError);
       // Data still saved in memory for this session
