@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { emailService } from '@/lib/emailService';
-import { PersistentStorage } from '@/lib/persistentStorage';
+import { MemoryStorage } from '@/lib/memoryStorage';
 
 // Using new persistent storage system
 
@@ -8,7 +8,7 @@ import { PersistentStorage } from '@/lib/persistentStorage';
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 GET /api/bookings called');
-    const bookings = await PersistentStorage.getBookings();
+    const bookings = await MemoryStorage.getBookings();
     console.log('📊 Total bookings found:', bookings.length);
     
     // Optional: Add query parameters for filtering
@@ -90,11 +90,11 @@ export async function POST(request: NextRequest) {
     
     // Add new booking using persistent storage
     try {
-      await PersistentStorage.addBooking(bookingData);
+      await MemoryStorage.addBooking(bookingData);
       console.log('✅ Booking saved successfully:', bookingData.bookingId);
       
       // Immediately verify the save worked
-      const verifyBookings = await PersistentStorage.getBookings();
+      const verifyBookings = await MemoryStorage.getBookings();
       console.log('🔍 Verification: bookings count after save:', verifyBookings.length);
     } catch (writeError) {
       console.error('⚠️ Write error:', writeError);
@@ -186,7 +186,7 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    const bookings = await PersistentStorage.getBookings();
+    const bookings = await MemoryStorage.getBookings();
     const bookingIndex = bookings.findIndex((booking: any) => booking.bookingId === bookingId);
     
     if (bookingIndex === -1) {
@@ -203,7 +203,7 @@ export async function PUT(request: NextRequest) {
       updatedAt: new Date().toISOString()
     };
     
-    await PersistentStorage.saveBookings(bookings);
+    await MemoryStorage.saveBookings(bookings);
     
     return NextResponse.json({
       success: true,
@@ -230,7 +230,7 @@ export async function DELETE(request: NextRequest) {
     // Special endpoint to clear all data
     if (clearAll === 'true') {
       try {
-        await PersistentStorage.clearAll();
+        await MemoryStorage.clearAll();
         console.log('🧹 All bookings cleared from persistent storage');
         
         return NextResponse.json({
@@ -254,10 +254,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    const bookings = await PersistentStorage.getBookings();
+    const bookings = await MemoryStorage.getBookings();
     console.log('📊 Current bookings before delete:', bookings.length, bookings.map((b: any) => b.bookingId));
     
-    const deleteSuccess = await PersistentStorage.deleteBooking(bookingId);
+    const deleteSuccess = await MemoryStorage.deleteBooking(bookingId);
     
     if (!deleteSuccess) {
       console.log('❌ Booking not found:', bookingId);
