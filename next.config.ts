@@ -1,15 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Netlify deployment with full functionality
-  trailingSlash: true,
+  // Vercel deployment with full functionality
   images: {
     unoptimized: true
   },
-  // Ensure API routes work with Netlify Functions
+  // Ensure API routes work with Vercel Functions
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000", "*.netlify.app", "*.netlify.com"]
+      allowedOrigins: ["localhost:3000", "*.vercel.app", "*.vercel.com"]
     }
   }
 };

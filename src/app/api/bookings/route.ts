@@ -87,18 +87,32 @@ export async function GET(request: NextRequest) {
 // POST - Create new booking
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 Booking API POST endpoint called');
+    console.log('📋 Request URL:', request.url);
+    console.log('📋 Request method:', request.method);
+    
     const bookingData = await request.json();
+    
+    console.log('📝 Received booking data:', {
+      serviceType: bookingData.serviceType,
+      customerName: bookingData.customerInfo?.firstName,
+      hasCustomerInfo: !!bookingData.customerInfo,
+      hasBinSelection: !!bookingData.binSelection
+    });
     
     // Validate required fields
     const requiredFields = ['serviceType', 'customerInfo', 'binSelection'];
     for (const field of requiredFields) {
       if (!bookingData[field]) {
+        console.error(`❌ Missing required field: ${field}`);
         return NextResponse.json(
           { success: false, error: `Missing required field: ${field}` },
           { status: 400 }
         );
       }
     }
+    
+    console.log('✅ All required fields present');
     
     // Generate unique booking ID if not provided
     if (!bookingData.bookingId) {
