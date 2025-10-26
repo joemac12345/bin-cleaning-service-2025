@@ -3,8 +3,11 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { emailService } from '@/lib/emailService';
 
-// Netlify-compatible file-based storage 
+// File-based storage with Vercel fallback
 const BOOKINGS_FILE = path.join(process.cwd(), 'data', 'bookings.json');
+
+// In-memory storage for Vercel (temporary demo storage)
+let memoryBookings: any[] = [];
 
 // Ensure data directory exists
 async function ensureDataDirectory() {
@@ -16,22 +19,31 @@ async function ensureDataDirectory() {
   }
 }
 
-// Read bookings from file
+// Read bookings with Vercel fallback
 async function readBookings() {
   try {
+    // Try file system first (works locally)
     await ensureDataDirectory();
     const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
-    return JSON.parse(data);
+    const fileBookings = JSON.parse(data);
+    // Merge with memory bookings for Vercel
+    return [...fileBookings, ...memoryBookings];
   } catch (error) {
-    // File doesn't exist or is empty, return empty array
-    return [];
+    // Fallback to memory storage (Vercel serverless)
+    return memoryBookings;
   }
 }
 
-// Write bookings to file
+// Write bookings with Vercel fallback
 async function writeBookings(bookings: any[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
+  try {
+    // Try file system first (works locally)
+    await ensureDataDirectory();
+    await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
+  } catch (error) {
+    // Fallback to memory storage (Vercel serverless)
+    memoryBookings = bookings;
+  }
 }
 
 // GET - Fetch all bookings (for admin)
@@ -106,8 +118,14 @@ export async function POST(request: NextRequest) {
     const bookings = await readBookings();
     bookings.push(bookingData);
     
-    // Save updated bookings
-    await writeBookings(bookings);
+    // Save updated bookings (with error handling)
+    try {
+      await writeBookings(bookings);
+      console.log('✅ Booking saved successfully:', bookingData.bookingId);
+    } catch (writeError) {
+      console.error('⚠️ Write error, using memory storage:', writeError);
+      // Data still saved in memory for this session
+    }
     
     // Send confirmation email to customer and admin notification
     try {
@@ -166,8 +184,17 @@ export async function POST(request: NextRequest) {
     
   } catch (error) {
     console.error('Error creating booking:', error);
+    
+    // Provide more detailed error info for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    
     return NextResponse.json(
-      { success: false, error: 'Failed to create booking' },
+      { 
+        success: false, 
+        error: 'Failed to create booking',
+        details: errorMessage,
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }

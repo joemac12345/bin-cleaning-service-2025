@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { promises as fs } from 'fs';
 import path from 'path';
 
-// Netlify-compatible file path
+// File path with Vercel fallback
 const ABANDONED_FORMS_FILE = path.join(process.cwd(), 'data', 'abandoned-forms.json');
+
+// In-memory storage for Vercel (temporary demo storage)
+let memoryAbandonedForms: any[] = [];
 
 // Ensure data directory exists
 async function ensureDataDirectory() {
@@ -15,22 +18,31 @@ async function ensureDataDirectory() {
   }
 }
 
-// Read abandoned forms from file
+// Read abandoned forms with Vercel fallback
 async function readAbandonedForms() {
   try {
+    // Try file system first (works locally)
     await ensureDataDirectory();
     const data = await fs.readFile(ABANDONED_FORMS_FILE, 'utf8');
-    return JSON.parse(data);
+    const fileForms = JSON.parse(data);
+    // Merge with memory forms for Vercel
+    return [...fileForms, ...memoryAbandonedForms];
   } catch (error) {
-    // File doesn't exist or is empty, return empty array
-    return [];
+    // Fallback to memory storage (Vercel serverless)
+    return memoryAbandonedForms;
   }
 }
 
-// Write abandoned forms to file
+// Write abandoned forms with Vercel fallback
 async function writeAbandonedForms(forms: any[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(ABANDONED_FORMS_FILE, JSON.stringify(forms, null, 2));
+  try {
+    // Try file system first (works locally)
+    await ensureDataDirectory();
+    await fs.writeFile(ABANDONED_FORMS_FILE, JSON.stringify(forms, null, 2));
+  } catch (error) {
+    // Fallback to memory storage (Vercel serverless)
+    memoryAbandonedForms = forms;
+  }
 }
 
 // POST - Save abandoned form data
