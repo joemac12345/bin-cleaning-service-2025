@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { PostcodeChecker } from '@/components/postcode-manager';
 
-export default function HomePage() {
+export default function PostcodeCheckerPage() {
   const router = useRouter();
 
   const handleServiceAvailable = (postcode: string) => {

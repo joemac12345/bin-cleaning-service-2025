@@ -1,0 +1,58 @@
+[
+  {
+    "serviceType": "regular",
+    "customerInfo": {
+      "firstName": "J",
+      "lastName": "Mccarthy",
+      "email": "eyeline65@gmail.com",
+      "phone": "07625698802",
+      "address": "4 Beech Grove, Leighton-Linslade, Linslade, LU7 2RY",
+      "postcode": "LU6 1EF"
+    },
+    "binSelection": {
+      "wheelie": 1,
+      "food": 1,
+      "recycling": 1,
+      "garden": 1
+    },
+    "collectionDay": "Monday",
+    "paymentMethod": "cash",
+    "specialInstructions": "",
+    "pricing": {
+      "binTotal": 18,
+      "serviceCharge": 0,
+      "totalPrice": 18
+    },
+    "status": "in-progress",
+    "createdAt": "2025-10-26T18:47:54.549Z",
+    "bookingId": "BK-1761504474549-c662k5ht0",
+    "updatedAt": "2025-10-26T19:02:09.928Z"
+  },
+  {
+    "serviceType": "oneoff",
+    "customerInfo": {
+      "firstName": "J",
+      "lastName": "Mccarthy",
+      "email": "eyeline65@gmail.com",
+      "phone": "07625698802",
+      "address": "4 Beech Grove, Leighton-Linslade, Linslade, LU7 2RY",
+      "postcode": "LU7 2RY"
+    },
+    "binSelection": {
+      "wheelie": 1,
+      "food": 1,
+      "recycling": 1,
+      "garden": 0
+    },
+    "collectionDay": "To be arranged",
+    "specialInstructions": "Converted from abandoned form - contact customer to confirm details",
+    "pricing": {
+      "binTotal": 12,
+      "serviceCharge": 0,
+      "totalPrice": 12
+    },
+    "status": "new-job",
+    "bookingId": "BK-1761507418463-xisc82vv9",
+    "createdAt": "2025-10-26T19:36:58.463Z"
+  }
+]

@@ -1,0 +1,40 @@
+[
+  {
+    "id": "ABN-1761506710420-r0860cq4t",
+    "sessionId": "session-1761506688501-nvih1bk9g",
+    "postcode": "LU7 2RY",
+    "formData": {
+      "serviceType": "oneoff",
+      "firstName": "J",
+      "lastName": "Mccarthy",
+      "email": "eyeline65@gmail.com",
+      "phone": "07625698802",
+      "address": "4 Beech Grove, Leighton-Linslade, Linslade, LU7 2RY",
+      "useCurrentLocation": true,
+      "binQuantities": {
+        "wheelie": 1,
+        "food": 1,
+        "recycling": 1,
+        "garden": 0
+      },
+      "collectionDays": [],
+      "specialInstructions": "",
+      "paymentMethod": "card",
+      "agreeToTerms": false,
+      "postcode": "LU7 2RY",
+      "currentStep": 6,
+      "abandonedAt": "2025-10-26T19:25:10.380Z"
+    },
+    "createdAt": "2025-10-26T19:25:10.420Z",
+    "lastUpdated": "2025-10-26T19:39:46.780Z",
+    "status": "abandoned",
+    "completionPercentage": 100,
+    "potentialValue": 12,
+    "contactInfo": {
+      "hasEmail": true,
+      "hasPhone": true,
+      "hasName": true
+    },
+    "notes": "Converted to booking"
+  }
+]
