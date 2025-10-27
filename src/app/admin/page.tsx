@@ -90,6 +90,32 @@ export default function AdminPage() {
             </div>
           </Link>
 
+          {/* Database Setup */}
+          <Link href="/admin/supabase-setup" className="group">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group-hover:border-indigo-300">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                  </svg>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900 group-hover:text-indigo-600">
+                    Database Setup
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Configure Supabase database connection
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4">
+                <span className="text-sm text-indigo-600 group-hover:text-indigo-700">
+                  Setup database →
+                </span>
+              </div>
+            </div>
+          </Link>
+
           {/* Email Settings */}
           <Link href="/admin/settings" className="group">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group-hover:border-purple-300">
