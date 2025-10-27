@@ -69,6 +69,7 @@ export default function BookingsAdmin() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking | null>(null);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   // Fetch bookings
   const fetchBookings = async () => {
@@ -96,8 +97,12 @@ export default function BookingsAdmin() {
     }
   };
 
-  // Sort bookings by creation date (newest first) - no filters
-  const sortedBookings = bookings.sort((a, b) => {
+  // Filter and sort bookings by creation date (newest first)
+  const filteredBookings = showCompleted 
+    ? bookings 
+    : bookings.filter(booking => booking.status !== 'completed');
+    
+  const sortedBookings = filteredBookings.sort((a, b) => {
     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 
@@ -363,15 +368,35 @@ export default function BookingsAdmin() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Bookings Management</h1>
-              <p className="text-sm text-gray-600 mt-1">{bookings.length} bookings</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {showCompleted ? bookings.length : filteredBookings.length} 
+                {showCompleted ? ' total bookings' : ' active jobs'}
+                {!showCompleted && bookings.filter(b => b.status === 'completed').length > 0 && (
+                  <span className="text-gray-400 ml-1">
+                    ({bookings.filter(b => b.status === 'completed').length} completed hidden)
+                  </span>
+                )}
+              </p>
             </div>
-            <button
-              onClick={fetchBookings}
-              className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              disabled={loading}
-            >
-              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowCompleted(!showCompleted)}
+                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  showCompleted
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {showCompleted ? 'Hide Completed' : 'Show All'}
+              </button>
+              <button
+                onClick={fetchBookings}
+                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                disabled={loading}
+              >
+                <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
         </div>
       </div>
