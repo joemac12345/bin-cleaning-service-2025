@@ -197,6 +197,22 @@ export default function BookingsAdmin() {
       return;
     }
 
+    // Check if Resend is in testing mode (can only send to admin email)
+    const adminEmail = 'eyeline65@gmail.com';
+    const isTestingMode = customerInfo.email !== adminEmail;
+    
+    if (isTestingMode) {
+      const proceed = confirm(
+        `⚠️ Resend Testing Mode Detected\n\n` +
+        `Customer email: ${customerInfo.email}\n\n` +
+        `Your Resend account can currently only send emails to: ${adminEmail}\n\n` +
+        `Would you like to send a TEST email to your address (${adminEmail}) instead?\n\n` +
+        `To send to any customer email, you need to verify a custom domain at resend.com/domains`
+      );
+      
+      if (!proceed) return;
+    }
+
     try {
       setSendingEmail(bookingId);
       console.log('🚀 Sending email for booking:', bookingId);
@@ -209,7 +225,8 @@ export default function BookingsAdmin() {
       const emailPayload = {
         type: 'booking-confirmation',
         customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-        customerEmail: customerInfo.email,
+        customerEmail: isTestingMode ? adminEmail : customerInfo.email, // Use admin email in testing mode
+        originalCustomerEmail: customerInfo.email, // Keep track of original for display
         bookingId: bookingId,
         serviceType: getServiceType(booking),
         collectionDay: getCollectionDay(booking),
@@ -217,6 +234,7 @@ export default function BookingsAdmin() {
         binCount: binCount,
         totalPrice: getPricing(booking).totalPrice,
         createdAt: getCreatedAt(booking),
+        testingMode: isTestingMode,
       };
 
       console.log('📝 Email payload:', emailPayload);

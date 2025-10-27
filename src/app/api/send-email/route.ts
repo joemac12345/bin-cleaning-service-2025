@@ -14,6 +14,14 @@ const createBookingConfirmationEmail = (data: any) => `
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f8fafc; margin: 0; padding: 20px;">
   <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+    ${data.testingMode ? `
+    <div style="background-color: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+      <p style="color: #92400e; font-weight: 600; margin: 0; text-align: center;">
+        🧪 TESTING MODE: This email was sent to ${data.customerEmail} instead of ${data.originalCustomerEmail}
+      </p>
+    </div>
+    ` : ''}
+    
     <div style="text-align: center; margin-bottom: 30px;">
       <h1 style="color: #1e40af; font-size: 24px; margin: 0; font-weight: 600;">🧽 Bin Cleaning Service</h1>
       <p style="color: #059669; font-size: 18px; font-weight: 600; margin: 10px 0 0 0;">Booking Confirmed!</p>
@@ -29,6 +37,7 @@ const createBookingConfirmationEmail = (data: any) => `
       <p><strong>Service Type:</strong> ${data.serviceType.charAt(0).toUpperCase() + data.serviceType.slice(1)} Clean</p>
       <p><strong>Collection Day:</strong> ${data.collectionDay}</p>
       <p><strong>Address:</strong> ${data.address}</p>
+      ${data.testingMode && data.originalCustomerEmail ? `<p><strong>Customer Email:</strong> ${data.originalCustomerEmail}</p>` : ''}
       <p><strong>Number of Bins:</strong> ${data.binCount}</p>
       <p><strong>Total Price:</strong> £${data.totalPrice}</p>
     </div>
