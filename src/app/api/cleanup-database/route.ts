@@ -1,100 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { sharedStorage } from '@/lib/sharedStorage';
+import { DatabaseStorage, AbandonedFormsStorage } from '@/lib/supabaseStorage';
 
-// Database cleanup utility
-export async function DELETE(request: NextRequest) {
+// DELETE - Clean up all database data
+export async function DELETE() {
   try {
-    console.log('🧹 Starting AGGRESSIVE database cleanup...');
+    console.log('🧹 Starting database cleanup...');
     
-    // Clear all storage layers
     const results = {
-      fileSystemCleared: false,
-      sharedStorageCleared: false,
+      bookingsCleared: false,
       abandonedFormsCleared: false,
-      globalVariableCleared: false,
       errors: [] as string[]
     };
 
-    // 1. Clear bookings from file system
+    // Clear bookings
     try {
-      const bookingsFile = path.join(process.cwd(), 'data', 'bookings.json');
-      await fs.writeFile(bookingsFile, JSON.stringify([], null, 2));
-      results.fileSystemCleared = true;
-      console.log('✅ File system bookings cleared');
-    } catch (error) {
-      results.errors.push(`File system: ${error}`);
-      console.log('⚠️ File system clear failed (expected in Vercel)');
+      await DatabaseStorage.clearAll();
+      results.bookingsCleared = true;
+      console.log('✅ Bookings cleared from database');
+    } catch (error: any) {
+      results.errors.push(`Bookings cleanup failed: ${error.message}`);
+      console.error('❌ Error clearing bookings:', error);
     }
 
-    // 2. Clear shared storage bookings AGGRESSIVELY
+    // Clear abandoned forms
     try {
-      sharedStorage.setBookings([]);
-      
-      // Force clear the global variable directly
-      if (global.__VERCEL_STORAGE__) {
-        global.__VERCEL_STORAGE__.bookings = [];
-        global.__VERCEL_STORAGE__.abandonedForms = [];
-        results.globalVariableCleared = true;
-      }
-      
-      // Double-check by re-initializing
-      global.__VERCEL_STORAGE__ = {
-        bookings: [],
-        abandonedForms: []
-      };
-      
-      results.sharedStorageCleared = true;
-      console.log('✅ Shared storage AGGRESSIVELY cleared');
-    } catch (error) {
-      results.errors.push(`Shared storage: ${error}`);
-    }
-
-    // 3. Clear abandoned forms
-    try {
-      sharedStorage.setAbandonedForms([]);
+      await AbandonedFormsStorage.clearAllAbandonedForms();
       results.abandonedFormsCleared = true;
-      console.log('✅ Abandoned forms cleared');
-    } catch (error) {
-      results.errors.push(`Abandoned forms: ${error}`);
+      console.log('✅ Abandoned forms cleared from database');
+    } catch (error: any) {
+      results.errors.push(`Abandoned forms cleanup failed: ${error.message}`);
+      console.error('❌ Error clearing abandoned forms:', error);
     }
 
-    // 4. Force garbage collection if available
-    if (global.gc) {
-      global.gc();
-      console.log('✅ Garbage collection triggered');
-    }
-
-    // 5. Verify cleanup
-    const remainingBookings = sharedStorage.getBookings();
-    const remainingForms = sharedStorage.getAbandonedForms();
+    // Verify cleanup
+    const remainingBookings = await DatabaseStorage.getBookings();
+    const remainingForms = await AbandonedFormsStorage.getAbandonedForms();
     
-    console.log('🔍 Verification:', {
-      bookingsRemaining: remainingBookings.length,
-      formsRemaining: remainingForms.length
-    });
-
-    console.log('🎉 AGGRESSIVE database cleanup complete!');
+    console.log('📊 Cleanup verification:');
+    console.log(`   Remaining bookings: ${remainingBookings.length}`);
+    console.log(`   Remaining forms: ${remainingForms.length}`);
 
     return NextResponse.json({
-      success: true,
-      message: 'Database AGGRESSIVELY cleared',
-      details: results,
+      success: results.errors.length === 0,
+      message: results.errors.length === 0 
+        ? 'Database cleanup completed successfully' 
+        : 'Database cleanup completed with some errors',
+      results,
       verification: {
-        bookingsRemaining: remainingBookings.length,
-        formsRemaining: remainingForms.length
-      },
-      timestamp: new Date().toISOString()
+        remainingBookings: remainingBookings.length,
+        remainingForms: remainingForms.length
+      }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Database cleanup failed:', error);
-    return NextResponse.json({
-      success: false,
-      error: 'Database cleanup failed',
-      details: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    }, { status: 500 });
+    return NextResponse.json(
+      { 
+        success: false, 
+        error: 'Database cleanup failed', 
+        details: error.message 
+      },
+      { status: 500 }
+    );
   }
 }

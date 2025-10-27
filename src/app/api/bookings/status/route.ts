@@ -1,123 +1,98 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { emailService } from '@/lib/emailService';
-import { sharedStorage } from '@/lib/sharedStorage';
+import { DatabaseStorage, supabase } from '@/lib/supabaseStorage';
 
-const BOOKINGS_FILE = path.join(process.cwd(), 'data', 'bookings.json');
-
-// Ensure data directory exists
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(BOOKINGS_FILE);
+// PUT - Update booking status
+export async function PUT(request: NextRequest) {
   try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-// Read bookings with Vercel fallback
-async function readBookings() {
-  try {
-    // Try file system first (works locally)
-    await ensureDataDirectory();
-    const data = await fs.readFile(BOOKINGS_FILE, 'utf8');
-    const fileBookings = JSON.parse(data);
-    // Merge with shared storage for Vercel
-    const sharedBookings = sharedStorage.getBookings();
-    return [...fileBookings, ...sharedBookings];
-  } catch (error) {
-    // Fallback to shared storage (Vercel serverless)
-    return sharedStorage.getBookings();
-  }
-}
-
-// Write bookings with Vercel fallback
-async function writeBookings(bookings: any[]) {
-  try {
-    // Try file system first (works locally)
-    await ensureDataDirectory();
-    await fs.writeFile(BOOKINGS_FILE, JSON.stringify(bookings, null, 2));
-    // Also update shared storage for consistency
-    sharedStorage.setBookings(bookings);
-  } catch (error) {
-    // Fallback to shared storage (Vercel serverless)
-    sharedStorage.setBookings(bookings);
-  }
-}
-
-export async function PATCH(request: NextRequest) {
-  try {
-    const { bookingId, status, notes } = await request.json();
-
+    console.log('📝 PUT /api/bookings/status called');
+    
+    const { bookingId, status, scheduledDate, notes } = await request.json();
+    
     if (!bookingId || !status) {
       return NextResponse.json(
-        { error: 'Booking ID and status are required' },
+        { success: false, error: 'Missing required fields: bookingId and status' },
         { status: 400 }
       );
     }
 
-    // Read current bookings
-    const bookings = await readBookings();
-    
-    // Find and update the booking
-    const bookingIndex = bookings.findIndex((booking: any) => booking.bookingId === bookingId);
-    
-    if (bookingIndex === -1) {
+    console.log(`🔄 Updating booking ${bookingId} status to: ${status}`);
+
+    // Update the booking status in database
+    const { data: updatedBooking, error } = await supabase
+      .from('bookings')
+      .update({
+        status,
+        scheduled_date: scheduledDate,
+        notes,
+        updated_at: new Date().toISOString()
+      })
+      .eq('booking_id', bookingId)
+      .select()
+      .single();
+
+    if (error || !updatedBooking) {
+      console.error('❌ Error updating booking status:', error);
       return NextResponse.json(
-        { error: 'Booking not found' },
+        { success: false, error: 'Booking not found or update failed' },
         { status: 404 }
       );
     }
 
-    const oldStatus = bookings[bookingIndex].status;
-    
-    // Update the booking
-    bookings[bookingIndex] = {
-      ...bookings[bookingIndex],
-      status,
-      notes: notes || bookings[bookingIndex].notes,
-      updatedAt: new Date().toISOString()
-    };
+    console.log('✅ Booking status updated successfully');
 
-    // Save updated bookings
-    await writeBookings(bookings);
-
-    // Send status update email if status actually changed
-    if (oldStatus !== status) {
-      try {
-        const booking = bookings[bookingIndex];
-        const emailResult = await emailService.sendStatusUpdate({
-          customerName: `${booking.customerInfo.firstName} ${booking.customerInfo.lastName}`,
-          customerEmail: booking.customerInfo.email,
-          bookingId: booking.bookingId,
-          serviceType: booking.serviceType,
-          newStatus: status,
-          address: booking.customerInfo.address,
-          scheduledDate: booking.collectionDay,
-          notes: notes
-        });
-
-        if (emailResult.success) {
-          console.log(`Status update email sent for booking ${bookingId}: ${oldStatus} → ${status}`);
-        } else {
-          console.error(`Failed to send status update email for booking ${bookingId}:`, emailResult.error);
-        }
-      } catch (emailError) {
-        console.error('Status update email error:', emailError);
-        // Don't fail the status update if email fails
-      }
-    }
+    // TODO: Send status update email notification
+    // You can add email notification logic here if needed
 
     return NextResponse.json({
       success: true,
       message: 'Booking status updated successfully',
-      booking: bookings[bookingIndex]
+      booking: updatedBooking
     });
-  } catch (error) {
-    console.error('Status update error:', error);
+
+  } catch (error: any) {
+    console.error('❌ Error updating booking status:', error);
     return NextResponse.json(
-      { error: 'Failed to update booking status' },
+      { success: false, error: 'Failed to update booking status', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// GET - Get booking by ID with status
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const bookingId = searchParams.get('bookingId');
+    
+    if (!bookingId) {
+      return NextResponse.json(
+        { success: false, error: 'Missing booking ID' },
+        { status: 400 }
+      );
+    }
+
+    const { data: booking, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('booking_id', bookingId)
+      .single();
+
+    if (error || !booking) {
+      return NextResponse.json(
+        { success: false, error: 'Booking not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      booking
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error fetching booking:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch booking', details: error.message },
       { status: 500 }
     );
   }

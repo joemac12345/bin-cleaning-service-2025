@@ -1,158 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { sharedStorage } from '@/lib/sharedStorage';
+import { AbandonedFormsStorage } from '@/lib/supabaseStorage';
 
-// File path with Vercel fallback
-const ABANDONED_FORMS_FILE = path.join(process.cwd(), 'data', 'abandoned-forms.json');
-
-// Ensure data directory exists
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(ABANDONED_FORMS_FILE);
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
-  }
-}
-
-// Read abandoned forms with Vercel fallback
-async function readAbandonedForms() {
-  try {
-    // Try file system first (works locally)
-    await ensureDataDirectory();
-    const data = await fs.readFile(ABANDONED_FORMS_FILE, 'utf8');
-    const fileForms = JSON.parse(data);
-    // Merge with shared storage for Vercel
-    const sharedForms = sharedStorage.getAbandonedForms();
-    return [...fileForms, ...sharedForms];
-  } catch (error) {
-    // Fallback to shared storage (Vercel serverless)
-    return sharedStorage.getAbandonedForms();
-  }
-}
-
-// Write abandoned forms with Vercel fallback
-async function writeAbandonedForms(forms: any[]) {
-  try {
-    // Try file system first (works locally)
-    await ensureDataDirectory();
-    await fs.writeFile(ABANDONED_FORMS_FILE, JSON.stringify(forms, null, 2));
-    // Also update shared storage for consistency
-    sharedStorage.setAbandonedForms(forms);
-  } catch (error) {
-    // Fallback to shared storage (Vercel serverless)
-    sharedStorage.setAbandonedForms(forms);
-  }
-}
-
-// POST - Save abandoned form data
-export async function POST(request: NextRequest) {
-  try {
-    const formData = await request.json();
-    
-    // Validate that there's at least some meaningful data
-    const hasData = formData.firstName || formData.email || formData.phone || formData.address ||
-                    Object.values(formData.binQuantities || {}).some((qty: any) => qty > 0);
-    
-    if (!hasData) {
-      return NextResponse.json(
-        { success: false, error: 'No meaningful form data to save' },
-        { status: 400 }
-      );
-    }
-    
-    // Create abandoned form entry
-    const abandonedForm = {
-      id: `ABN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      sessionId: formData.sessionId || `session-${Date.now()}`,
-      postcode: formData.postcode,
-      formData: {
-        ...formData,
-        // Remove sensitive data that shouldn't be stored
-        sessionId: undefined
-      },
-      createdAt: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      status: 'abandoned',
-      completionPercentage: calculateCompletionPercentage(formData),
-      potentialValue: calculatePotentialValue(formData.binQuantities || {}),
-      contactInfo: {
-        hasEmail: !!formData.email,
-        hasPhone: !!formData.phone,
-        hasName: !!(formData.firstName || formData.lastName)
-      }
-    };
-    
-    // Read existing forms
-    const abandonedForms = await readAbandonedForms();
-    
-    // Check if we already have an entry for this session
-    const existingIndex = abandonedForms.findIndex((form: any) => form.sessionId === abandonedForm.sessionId);
-    
-    if (existingIndex >= 0) {
-      // Update existing entry
-      abandonedForms[existingIndex] = {
-        ...abandonedForms[existingIndex],
-        ...abandonedForm,
-        lastUpdated: new Date().toISOString()
-      };
-    } else {
-      // Add new entry
-      abandonedForms.push(abandonedForm);
-    }
-    
-    // Keep only the last 1000 entries to prevent file from growing too large
-    if (abandonedForms.length > 1000) {
-      abandonedForms.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      abandonedForms.splice(1000);
-    }
-    
-    // Save updated forms
-    await writeAbandonedForms(abandonedForms);
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Form data saved for remarketing',
-      formId: abandonedForm.id
-    });
-  } catch (error) {
-    console.error('Error saving abandoned form:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to save form data' },
-      { status: 500 }
-    );
-  }
-}
-
-// GET - Retrieve abandoned forms for admin
+// GET - Fetch all abandoned forms (for admin)
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const limit = searchParams.get('limit');
-    const status = searchParams.get('status');
+    console.log('🔍 GET /api/abandoned-forms called');
     
-    let abandonedForms = await readAbandonedForms();
-    
-    // Filter by status if provided
-    if (status) {
-      abandonedForms = abandonedForms.filter((form: any) => form.status === status);
-    }
-    
-    // Sort by creation date (newest first)
-    abandonedForms.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
-    // Apply limit if provided
-    if (limit) {
-      abandonedForms = abandonedForms.slice(0, parseInt(limit));
-    }
+    const abandonedForms = await AbandonedFormsStorage.getAbandonedForms();
+    console.log(`📊 Retrieved ${abandonedForms.length} abandoned forms`);
     
     return NextResponse.json({
       success: true,
-      forms: abandonedForms,
-      total: abandonedForms.length,
-      stats: generateStats(abandonedForms)
+      abandonedForms,
+      count: abandonedForms.length
     });
+    
   } catch (error) {
     console.error('Error fetching abandoned forms:', error);
     return NextResponse.json(
@@ -162,103 +24,89 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH - Update abandoned form status (e.g., mark as contacted, converted, etc.)
-export async function PATCH(request: NextRequest) {
+// POST - Add new abandoned form
+export async function POST(request: NextRequest) {
   try {
-    const { formId, status, notes } = await request.json();
+    console.log('📝 POST /api/abandoned-forms called');
     
-    if (!formId || !status) {
-      return NextResponse.json(
-        { error: 'Form ID and status are required' },
-        { status: 400 }
-      );
-    }
-    
-    const abandonedForms = await readAbandonedForms();
-    const formIndex = abandonedForms.findIndex((form: any) => form.id === formId);
-    
-    if (formIndex === -1) {
-      return NextResponse.json(
-        { error: 'Form not found' },
-        { status: 404 }
-      );
-    }
-    
-    // Update the form
-    abandonedForms[formIndex] = {
-      ...abandonedForms[formIndex],
-      status,
-      notes: notes || abandonedForms[formIndex].notes,
-      lastUpdated: new Date().toISOString()
+    const formData = await request.json();
+    console.log('📋 Abandoned form data:', formData);
+
+    // Create abandoned form record
+    const abandonedForm = {
+      id: `AF-${Date.now()}-${Math.random().toString(36).substring(2)}`,
+      formData,
+      abandonedAt: new Date().toISOString(),
+      pageUrl: formData.pageUrl || '',
+      userAgent: formData.userAgent || ''
     };
+
+    await AbandonedFormsStorage.addAbandonedForm(abandonedForm);
     
-    await writeAbandonedForms(abandonedForms);
-    
+    console.log('✅ Abandoned form saved:', abandonedForm.id);
+
     return NextResponse.json({
       success: true,
-      message: 'Form status updated successfully'
+      message: 'Abandoned form saved successfully',
+      formId: abandonedForm.id
     });
+
   } catch (error) {
-    console.error('Error updating abandoned form:', error);
+    console.error('Error saving abandoned form:', error);
     return NextResponse.json(
-      { error: 'Failed to update form status' },
+      { success: false, error: 'Failed to save abandoned form' },
       { status: 500 }
     );
   }
 }
 
-// Helper functions
-function calculateCompletionPercentage(formData: any): number {
-  const fields = [
-    'firstName', 'lastName', 'email', 'phone', 'address', 
-    'serviceType', 'paymentMethod'
-  ];
-  
-  let completed = 0;
-  fields.forEach(field => {
-    if (formData[field]) completed++;
-  });
-  
-  // Check bin selection
-  if (formData.binQuantities && Object.values(formData.binQuantities).some((qty: any) => qty > 0)) {
-    completed++;
-  }
-  
-  return Math.round((completed / (fields.length + 1)) * 100);
-}
-
-function calculatePotentialValue(binQuantities: Record<string, number>): number {
-  const BIN_PRICES = {
-    wheelie: 5,
-    food: 3,
-    recycling: 4,
-    garden: 6
-  };
-  
-  let total = 0;
-  Object.entries(binQuantities).forEach(([binType, quantity]) => {
-    if (BIN_PRICES[binType as keyof typeof BIN_PRICES]) {
-      total += BIN_PRICES[binType as keyof typeof BIN_PRICES] * quantity;
+// DELETE - Delete abandoned form or clear all
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const formId = searchParams.get('formId');
+    const clearAll = searchParams.get('clearAll');
+    
+    // Special endpoint to clear all data
+    if (clearAll === 'true') {
+      await AbandonedFormsStorage.clearAllAbandonedForms();
+      console.log('🧹 All abandoned forms cleared');
+      
+      return NextResponse.json({
+        success: true,
+        message: 'All abandoned forms cleared successfully'
+      });
     }
-  });
-  
-  return total;
-}
+    
+    // Delete specific form
+    if (!formId) {
+      return NextResponse.json(
+        { success: false, error: 'Missing form ID' },
+        { status: 400 }
+      );
+    }
 
-function generateStats(forms: any[]) {
-  const total = forms.length;
-  const withEmail = forms.filter(f => f.contactInfo.hasEmail).length;
-  const withPhone = forms.filter(f => f.contactInfo.hasPhone).length;
-  const highValue = forms.filter(f => f.potentialValue >= 20).length;
-  const avgCompletion = forms.reduce((sum, f) => sum + f.completionPercentage, 0) / total || 0;
-  
-  return {
-    total,
-    withEmail,
-    withPhone,
-    withContact: forms.filter(f => f.contactInfo.hasEmail || f.contactInfo.hasPhone).length,
-    highValue,
-    averageCompletion: Math.round(avgCompletion),
-    totalPotentialValue: forms.reduce((sum, f) => sum + f.potentialValue, 0)
-  };
+    const deleteSuccess = await AbandonedFormsStorage.deleteAbandonedForm(formId);
+    
+    if (!deleteSuccess) {
+      return NextResponse.json(
+        { success: false, error: 'Abandoned form not found' },
+        { status: 404 }
+      );
+    }
+    
+    console.log('🗑️ Abandoned form deleted:', formId);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Abandoned form deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting abandoned form:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete abandoned form' },
+      { status: 500 }
+    );
+  }
 }

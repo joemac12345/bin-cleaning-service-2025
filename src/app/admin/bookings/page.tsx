@@ -767,5 +767,6 @@ export default function BookingsAdmin() {
         </div>
       )}
     </div>
+    </div>
   );
 }

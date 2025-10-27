@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { emailService } from '@/lib/emailService';
-import { MemoryStorage } from '@/lib/memoryStorage';
+import { DatabaseStorage, EmailService, supabase } from '@/lib/supabaseStorage';
 
 // Using new persistent storage system
 
@@ -8,7 +7,7 @@ import { MemoryStorage } from '@/lib/memoryStorage';
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 GET /api/bookings called');
-    const bookings = await MemoryStorage.getBookings();
+    const bookings = await DatabaseStorage.getBookings();
     console.log('📊 Total bookings found:', bookings.length);
     
     // Sort by creation date (newest first) and return all bookings
@@ -73,13 +72,13 @@ export async function POST(request: NextRequest) {
       bookingData.status = 'new-job';
     }
     
-    // Add new booking using persistent storage
+    // Add new booking using database storage
     try {
-      await MemoryStorage.addBooking(bookingData);
+      await DatabaseStorage.addBooking(bookingData);
       console.log('✅ Booking saved successfully:', bookingData.bookingId);
       
       // Immediately verify the save worked
-      const verifyBookings = await MemoryStorage.getBookings();
+      const verifyBookings = await DatabaseStorage.getBookings();
       console.log('🔍 Verification: bookings count after save:', verifyBookings.length);
     } catch (writeError) {
       console.error('⚠️ Write error:', writeError);
@@ -93,7 +92,7 @@ export async function POST(request: NextRequest) {
       }, 0);
       
       // Send customer confirmation
-      const customerEmailResult = await emailService.sendBookingConfirmation({
+      const customerEmailResult = await EmailService.sendBookingConfirmation({
         customerName: `${bookingData.customerInfo.firstName} ${bookingData.customerInfo.lastName}`,
         customerEmail: bookingData.customerInfo.email,
         bookingId: bookingData.bookingId,
@@ -112,7 +111,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Send admin notification
-      const adminEmailResult = await emailService.sendAdminNotification({
+      const adminEmailResult = await EmailService.sendAdminNotification({
         bookingId: bookingData.bookingId,
         customerName: `${bookingData.customerInfo.firstName} ${bookingData.customerInfo.lastName}`,
         customerEmail: bookingData.customerInfo.email,
@@ -171,29 +170,28 @@ export async function PUT(request: NextRequest) {
       );
     }
     
-    const bookings = await MemoryStorage.getBookings();
-    const bookingIndex = bookings.findIndex((booking: any) => booking.bookingId === bookingId);
+    // Update booking directly in database
+    const { data: updatedBooking, error } = await supabase
+      .from('bookings')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('booking_id', bookingId)
+      .select()
+      .single();
     
-    if (bookingIndex === -1) {
+    if (error) {
       return NextResponse.json(
-        { success: false, error: 'Booking not found' },
+        { success: false, error: 'Booking not found or update failed' },
         { status: 404 }
       );
     }
     
-    // Update booking with new data
-    bookings[bookingIndex] = {
-      ...bookings[bookingIndex],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    
-    await MemoryStorage.saveBookings(bookings);
-    
     return NextResponse.json({
       success: true,
       message: 'Booking updated successfully',
-      booking: bookings[bookingIndex]
+      booking: updatedBooking
     });
     
   } catch (error) {
@@ -215,7 +213,7 @@ export async function DELETE(request: NextRequest) {
     // Special endpoint to clear all data
     if (clearAll === 'true') {
       try {
-        await MemoryStorage.clearAll();
+        await DatabaseStorage.clearAll();
         console.log('🧹 All bookings cleared from persistent storage');
         
         return NextResponse.json({
@@ -239,10 +237,10 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    const bookings = await MemoryStorage.getBookings();
-    console.log('📊 Current bookings before delete:', bookings.length, bookings.map((b: any) => b.bookingId));
+    const bookings = await DatabaseStorage.getBookings();
+    console.log('📊 Current bookings before delete:', bookings.length, bookings.map((b: any) => b.booking_id));
     
-    const deleteSuccess = await MemoryStorage.deleteBooking(bookingId);
+    const deleteSuccess = await DatabaseStorage.deleteBooking(bookingId);
     
     if (!deleteSuccess) {
       console.log('❌ Booking not found:', bookingId);
