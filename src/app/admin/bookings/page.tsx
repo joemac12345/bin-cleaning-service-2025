@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List } from 'lucide-react';
+import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List, Send } from 'lucide-react';
 
 interface Booking {
   // API format (camelCase)
@@ -70,6 +70,7 @@ export default function BookingsAdmin() {
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   // Fetch bookings
   const fetchBookings = async () => {
@@ -183,6 +184,59 @@ export default function BookingsAdmin() {
       }
     } catch (err) {
       alert('Failed to update booking status: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    }
+  };
+
+  // Send email to customer
+  const sendEmailToCustomer = async (booking: Booking) => {
+    const bookingId = getBookingId(booking);
+    const customerInfo = getCustomerInfo(booking);
+    
+    if (!customerInfo.email) {
+      alert('No email address found for this customer');
+      return;
+    }
+
+    try {
+      setSendingEmail(bookingId);
+      
+      const binCount = Object.values(getBinSelection(booking)).reduce((total: number, quantity) => {
+        return total + (typeof quantity === 'number' ? quantity : 0);
+      }, 0);
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'booking-confirmation',
+          customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+          customerEmail: customerInfo.email,
+          bookingId: bookingId,
+          serviceType: getServiceType(booking),
+          collectionDay: getCollectionDay(booking),
+          address: customerInfo.address,
+          binCount: binCount,
+          totalPrice: getPricing(booking).totalPrice,
+          createdAt: getCreatedAt(booking),
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send email');
+      }
+
+      const result = await response.json();
+      console.log('Email sent successfully:', result);
+      alert(`✅ Confirmation email sent successfully to ${customerInfo.email}`);
+      
+    } catch (err) {
+      console.error('Email send error:', err);
+      alert('❌ Failed to send email: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    } finally {
+      setSendingEmail(null);
     }
   };
 
@@ -437,12 +491,26 @@ export default function BookingsAdmin() {
                   <button
                     onClick={() => setSelectedBooking(booking)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
+                    title="View Details"
                   >
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
+                    onClick={() => sendEmailToCustomer(booking)}
+                    disabled={sendingEmail === getBookingId(booking)}
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Send Email Confirmation"
+                  >
+                    {sendingEmail === getBookingId(booking) ? (
+                      <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Send className="w-4 h-4" />
+                    )}
+                  </button>
+                  <button
                     onClick={() => deleteBooking(getBookingId(booking))}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+                    title="Delete Booking"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -825,6 +893,24 @@ export default function BookingsAdmin() {
                       <option value="new-job">New Job</option>
                       <option value="completed">Job Completed</option>
                     </select>
+                    
+                    <button
+                      onClick={() => sendEmailToCustomer(selectedBooking)}
+                      disabled={sendingEmail === getBookingId(selectedBooking)}
+                      className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                    >
+                      {sendingEmail === getBookingId(selectedBooking) ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          <span>Send Email Confirmation</span>
+                        </>
+                      )}
+                    </button>
                     
                     <button
                       onClick={() => {
