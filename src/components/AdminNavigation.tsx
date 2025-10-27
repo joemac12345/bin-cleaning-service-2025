@@ -14,7 +14,8 @@ import {
   BarChart3,
   MapPin,
   FileText,
-  CreditCard
+  CreditCard,
+  Cloud
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -48,6 +49,12 @@ const navigationItems: NavigationItem[] = [
     href: '/admin/postcode-manager',
     icon: MapPin,
     description: 'Manage service areas'
+  },
+  {
+    name: 'Deployment',
+    href: '/admin/deployment',
+    icon: Cloud,
+    description: 'Configure production deployment'
   },
   {
     name: 'Settings',

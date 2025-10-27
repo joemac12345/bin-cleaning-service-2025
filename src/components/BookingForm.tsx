@@ -362,7 +362,9 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save booking');
+        const errorData = await response.text();
+        console.error('API Error Response:', errorData);
+        throw new Error(`Failed to save booking: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -375,7 +377,17 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
       
     } catch (error) {
       console.error('Booking submission error:', error);
-      alert('Sorry, there was an error processing your booking. Please try again.');
+      
+      // More specific error messages
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (error instanceof TypeError && errorMessage.includes('fetch')) {
+        alert('Network error: Please check your internet connection and try again.');
+      } else if (errorMessage.includes('Failed to save booking')) {
+        alert(`Server error: ${errorMessage}. Please try again or contact support.`);
+      } else {
+        alert('Sorry, there was an error processing your booking. Please check all fields are filled correctly and try again.');
+      }
     } finally {
       setIsSubmitting(false);
     }

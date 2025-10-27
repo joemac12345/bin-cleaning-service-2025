@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List } from 'lucide-react';
 
 interface Booking {
-  bookingId: string;
-  serviceType: string;
-  customerInfo: {
+  // API format (camelCase)
+  bookingId?: string;
+  serviceType?: string;
+  customerInfo?: {
     firstName: string;
     lastName: string;
     email: string;
@@ -14,10 +15,10 @@ interface Booking {
     address: string;
     postcode: string;
   };
-  binSelection: Record<string, number>;
-  collectionDay: string;
+  binSelection?: Record<string, number>;
+  collectionDay?: string;
   specialInstructions?: string;
-  pricing: {
+  pricing?: {
     binTotal: number;
     serviceCharge: number;
     totalPrice: number;
@@ -25,6 +26,23 @@ interface Booking {
   status: 'new-job' | 'completed';
   createdAt: string;
   updatedAt?: string;
+  
+  // Database format (snake_case)
+  booking_id?: string;
+  service_type?: string;
+  customer_info?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    address: string;
+    postcode: string;
+  };
+  bin_selection?: Record<string, number>;
+  collection_day?: string;
+  special_instructions?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 const STATUS_COLORS = {
@@ -187,12 +205,14 @@ export default function BookingsAdmin() {
   const updateBinQuantity = (binId: string, quantity: number) => {
     if (!editedBooking) return;
 
+    const currentBinSelection = getBinSelection(editedBooking);
     const newBinSelection = {
-      ...editedBooking.binSelection,
+      ...currentBinSelection,
       [binId]: Math.max(0, quantity)
     };
 
-    const newPricing = calculatePricing(newBinSelection, editedBooking.serviceType);
+    const currentServiceType = getServiceType(editedBooking);
+    const newPricing = calculatePricing(newBinSelection, currentServiceType);
 
     setEditedBooking({
       ...editedBooking,
@@ -269,6 +289,61 @@ export default function BookingsAdmin() {
       .reduce((total, quantity) => total + quantity, 0);
   };
 
+  // Helper functions for safe data access (handles both API and database formats)
+  const getBookingId = (booking: Booking) => booking.bookingId || booking.booking_id || '';
+  const getServiceType = (booking: Booking) => booking.serviceType || booking.service_type || 'one-time';
+  const getCustomerInfo = (booking: Booking) => booking.customerInfo || booking.customer_info || {
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    postcode: ''
+  };
+  const getBinSelection = (booking: Booking) => booking.binSelection || booking.bin_selection || {};
+  const getCollectionDay = (booking: Booking) => booking.collectionDay || booking.collection_day || '';
+  const getSpecialInstructions = (booking: Booking) => booking.specialInstructions || booking.special_instructions || '';
+  const getPricing = (booking: Booking) => booking.pricing || { binTotal: 0, serviceCharge: 0, totalPrice: 0 };
+  const getCreatedAt = (booking: Booking) => booking.createdAt || booking.created_at || '';
+  const getUpdatedAt = (booking: Booking) => booking.updatedAt || booking.updated_at || '';
+
+  // Helper to safely update edited booking customer info
+  const updateEditedBookingCustomer = (field: string, value: string) => {
+    if (!editedBooking) return;
+    const currentCustomerInfo = getCustomerInfo(editedBooking);
+    setEditedBooking({
+      ...editedBooking,
+      customerInfo: { ...currentCustomerInfo, [field]: value }
+    });
+  };
+
+  // Helper to safely update edited booking service type
+  const updateEditedBookingServiceType = (serviceType: string) => {
+    if (!editedBooking) return;
+    const currentBinSelection = getBinSelection(editedBooking);
+    const newPricing = calculatePricing(currentBinSelection, serviceType);
+    setEditedBooking({
+      ...editedBooking,
+      serviceType,
+      pricing: newPricing
+    });
+  };
+
+  // Helper to safely update bin quantities in edited booking
+  const updateEditedBookingBinQuantity = (binId: string, newQuantity: number) => {
+    if (!editedBooking) return;
+    const currentBinSelection = getBinSelection(editedBooking);
+    const newBinSelection = { ...currentBinSelection, [binId]: Math.max(0, newQuantity) };
+    const currentServiceType = getServiceType(editedBooking);
+    const newPricing = calculatePricing(newBinSelection, currentServiceType);
+    
+    setEditedBooking({
+      ...editedBooking,
+      binSelection: newBinSelection,
+      pricing: newPricing
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -317,7 +392,7 @@ export default function BookingsAdmin() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
                     <h3 className="text-sm font-semibold text-gray-900 truncate">
-                      {booking.customerInfo.firstName} {booking.customerInfo.lastName}
+                      {booking.customerInfo?.firstName || booking.customer_info?.firstName || 'Unknown'} {booking.customerInfo?.lastName || booking.customer_info?.lastName || 'Customer'}
                     </h3>
                     <div className="flex items-center space-x-1">
                       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[booking.status]}`}>
@@ -330,8 +405,8 @@ export default function BookingsAdmin() {
                       )}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 font-mono mb-1">ID: {booking.bookingId}</p>
-                  <p className="text-xs text-gray-600">{booking.customerInfo.email}</p>
+                  <p className="text-xs text-gray-500 font-mono mb-1">ID: {getBookingId(booking)}</p>
+                  <p className="text-xs text-gray-600">{getCustomerInfo(booking).email}</p>
                 </div>
                 <div className="flex items-center space-x-2 ml-2">
                   <button
@@ -341,7 +416,7 @@ export default function BookingsAdmin() {
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => deleteBooking(booking.bookingId)}
+                    onClick={() => deleteBooking(getBookingId(booking))}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-full"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -353,19 +428,19 @@ export default function BookingsAdmin() {
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <span className="text-gray-500">Service:</span>
-                  <span className="ml-1 font-medium capitalize">{booking.serviceType}</span>
+                  <span className="ml-1 font-medium capitalize">{getServiceType(booking)}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">Collection:</span>
-                  <span className="ml-1 font-medium">{booking.collectionDay || 'N/A'}</span>
+                  <span className="ml-1 font-medium">{getCollectionDay(booking) || 'N/A'}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">Total:</span>
-                  <span className="ml-1 font-bold text-green-600">£{booking.pricing.totalPrice}</span>
+                  <span className="ml-1 font-bold text-green-600">£{getPricing(booking).totalPrice}</span>
                 </div>
                 <div>
                   <span className="text-gray-500">Created:</span>
-                  <span className="ml-1 font-medium">{formatDate(booking.createdAt).split(' ')[0]}</span>
+                  <span className="ml-1 font-medium">{formatDate(getCreatedAt(booking)).split(' ')[0]}</span>
                 </div>
               </div>
 
@@ -373,7 +448,7 @@ export default function BookingsAdmin() {
               <div className="mt-3 pt-3 border-t border-gray-100">
                 <div className="text-xs text-gray-600">
                   <Package className="w-3 h-3 inline mr-1" />
-                  {getTotalBinCount(booking.binSelection)} bins to clean
+                  {getTotalBinCount(getBinSelection(booking))} bins to clean
                 </div>
               </div>
 
@@ -381,7 +456,7 @@ export default function BookingsAdmin() {
               <div className="mt-3">
                 <select
                   value={booking.status}
-                  onChange={(e) => updateBookingStatus(booking.bookingId, e.target.value)}
+                  onChange={(e) => updateBookingStatus(getBookingId(booking), e.target.value)}
                   className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="new-job">New Job</option>
@@ -457,11 +532,8 @@ export default function BookingsAdmin() {
                           <label className="block text-xs text-gray-600 mb-1">First Name</label>
                           <input
                             type="text"
-                            value={editedBooking.customerInfo.firstName}
-                            onChange={(e) => setEditedBooking({
-                              ...editedBooking,
-                              customerInfo: { ...editedBooking.customerInfo, firstName: e.target.value }
-                            })}
+                            value={getCustomerInfo(editedBooking).firstName}
+                            onChange={(e) => updateEditedBookingCustomer('firstName', e.target.value)}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                           />
                         </div>
@@ -469,11 +541,8 @@ export default function BookingsAdmin() {
                           <label className="block text-xs text-gray-600 mb-1">Last Name</label>
                           <input
                             type="text"
-                            value={editedBooking.customerInfo.lastName}
-                            onChange={(e) => setEditedBooking({
-                              ...editedBooking,
-                              customerInfo: { ...editedBooking.customerInfo, lastName: e.target.value }
-                            })}
+                            value={getCustomerInfo(editedBooking).lastName}
+                            onChange={(e) => updateEditedBookingCustomer('lastName', e.target.value)}
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                           />
                         </div>
@@ -482,11 +551,8 @@ export default function BookingsAdmin() {
                         <label className="block text-xs text-gray-600 mb-1">Email</label>
                         <input
                           type="email"
-                          value={editedBooking.customerInfo.email}
-                          onChange={(e) => setEditedBooking({
-                            ...editedBooking,
-                            customerInfo: { ...editedBooking.customerInfo, email: e.target.value }
-                          })}
+                          value={getCustomerInfo(editedBooking).email}
+                          onChange={(e) => updateEditedBookingCustomer('email', e.target.value)}
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         />
                       </div>
@@ -494,22 +560,16 @@ export default function BookingsAdmin() {
                         <label className="block text-xs text-gray-600 mb-1">Phone</label>
                         <input
                           type="tel"
-                          value={editedBooking.customerInfo.phone}
-                          onChange={(e) => setEditedBooking({
-                            ...editedBooking,
-                            customerInfo: { ...editedBooking.customerInfo, phone: e.target.value }
-                          })}
+                          value={getCustomerInfo(editedBooking).phone}
+                          onChange={(e) => updateEditedBookingCustomer('phone', e.target.value)}
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         />
                       </div>
                       <div>
                         <label className="block text-xs text-gray-600 mb-1">Address</label>
                         <textarea
-                          value={editedBooking.customerInfo.address}
-                          onChange={(e) => setEditedBooking({
-                            ...editedBooking,
-                            customerInfo: { ...editedBooking.customerInfo, address: e.target.value }
-                          })}
+                          value={getCustomerInfo(editedBooking).address}
+                          onChange={(e) => updateEditedBookingCustomer('address', e.target.value)}
                           rows={2}
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         />
@@ -527,16 +587,8 @@ export default function BookingsAdmin() {
                       <div>
                         <label className="block text-xs text-gray-600 mb-1">Service Type</label>
                         <select
-                          value={editedBooking.serviceType}
-                          onChange={(e) => {
-                            const newServiceType = e.target.value;
-                            const newPricing = calculatePricing(editedBooking.binSelection, newServiceType);
-                            setEditedBooking({
-                              ...editedBooking,
-                              serviceType: newServiceType,
-                              pricing: newPricing
-                            });
-                          }}
+                          value={getServiceType(editedBooking)}
+                          onChange={(e) => updateEditedBookingServiceType(e.target.value)}
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                         >
                           <option value="regular">Regular Clean</option>
@@ -573,16 +625,16 @@ export default function BookingsAdmin() {
                               <div className="flex items-center space-x-2">
                                 <button
                                   type="button"
-                                  onClick={() => updateBinQuantity(binId, editedBooking.binSelection[binId] - 1)}
-                                  disabled={editedBooking.binSelection[binId] <= 0}
+                                  onClick={() => updateEditedBookingBinQuantity(binId, getBinSelection(editedBooking)[binId] - 1)}
+                                  disabled={getBinSelection(editedBooking)[binId] <= 0}
                                   className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 disabled:opacity-50 text-xs"
                                 >
                                   −
                                 </button>
-                                <span className="w-6 text-center font-semibold text-xs">{editedBooking.binSelection[binId] || 0}</span>
+                                <span className="w-6 text-center font-semibold text-xs">{getBinSelection(editedBooking)[binId] || 0}</span>
                                 <button
                                   type="button"
-                                  onClick={() => updateBinQuantity(binId, (editedBooking.binSelection[binId] || 0) + 1)}
+                                  onClick={() => updateEditedBookingBinQuantity(binId, (getBinSelection(editedBooking)[binId] || 0) + 1)}
                                   className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100 text-xs"
                                 >
                                   +
@@ -618,15 +670,15 @@ export default function BookingsAdmin() {
                     <div className="bg-green-50 p-3 rounded-lg space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Bin Total:</span>
-                        <span className="font-medium">£{editedBooking.pricing.binTotal}</span>
+                        <span className="font-medium">£{getPricing(editedBooking).binTotal}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Service Charge:</span>
-                        <span className="font-medium">£{editedBooking.pricing.serviceCharge}</span>
+                        <span className="font-medium">£{getPricing(editedBooking).serviceCharge}</span>
                       </div>
                       <div className="flex justify-between border-t pt-2 font-bold">
                         <span className="text-gray-900">New Total:</span>
-                        <span className="text-green-600">£{editedBooking.pricing.totalPrice}</span>
+                        <span className="text-green-600">£{getPricing(editedBooking).totalPrice}</span>
                       </div>
                     </div>
                   </div>
@@ -659,19 +711,19 @@ export default function BookingsAdmin() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Name:</span>
-                        <span className="font-medium">{selectedBooking.customerInfo.firstName} {selectedBooking.customerInfo.lastName}</span>
+                        <span className="font-medium">{getCustomerInfo(selectedBooking).firstName} {getCustomerInfo(selectedBooking).lastName}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Email:</span>
-                        <span className="font-medium">{selectedBooking.customerInfo.email}</span>
+                        <span className="font-medium">{getCustomerInfo(selectedBooking).email}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Phone:</span>
-                        <span className="font-medium">{selectedBooking.customerInfo.phone}</span>
+                        <span className="font-medium">{getCustomerInfo(selectedBooking).phone}</span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-gray-600 mb-1">Address:</span>
-                        <span className="font-medium text-sm">{selectedBooking.customerInfo.address}</span>
+                        <span className="font-medium text-sm">{getCustomerInfo(selectedBooking).address}</span>
                       </div>
                     </div>
                   </div>
@@ -693,7 +745,7 @@ export default function BookingsAdmin() {
                       </div>
                       <div className="flex flex-col">
                         <span className="text-gray-600 mb-1">Bins:</span>
-                        <span className="font-medium text-sm">{formatBinSelection(selectedBooking.binSelection)}</span>
+                        <span className="font-medium text-sm">{formatBinSelection(getBinSelection(selectedBooking))}</span>
                       </div>
                       {selectedBooking.specialInstructions && (
                         <div className="flex flex-col">
@@ -713,15 +765,15 @@ export default function BookingsAdmin() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Bin Total:</span>
-                        <span className="font-medium">£{selectedBooking.pricing.binTotal}</span>
+                        <span className="font-medium">£{getPricing(selectedBooking).binTotal}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Service Charge:</span>
-                        <span className="font-medium">£{selectedBooking.pricing.serviceCharge}</span>
+                        <span className="font-medium">£{getPricing(selectedBooking).serviceCharge}</span>
                       </div>
                       <div className="flex justify-between border-t pt-2">
                         <span className="text-gray-900 font-semibold">Total:</span>
-                        <span className="font-bold text-green-600">£{selectedBooking.pricing.totalPrice}</span>
+                        <span className="font-bold text-green-600">£{getPricing(selectedBooking).totalPrice}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">Status:</span>
@@ -741,7 +793,7 @@ export default function BookingsAdmin() {
                     <select
                       value={selectedBooking.status}
                       onChange={(e) => {
-                        updateBookingStatus(selectedBooking.bookingId, e.target.value);
+                        updateBookingStatus(getBookingId(selectedBooking), e.target.value);
                       }}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
@@ -752,7 +804,7 @@ export default function BookingsAdmin() {
                     <button
                       onClick={() => {
                         if (confirm('Are you sure you want to delete this booking?')) {
-                          deleteBooking(selectedBooking.bookingId);
+                          deleteBooking(getBookingId(selectedBooking));
                         }
                       }}
                       className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"

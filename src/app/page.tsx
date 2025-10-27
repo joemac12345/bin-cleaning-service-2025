@@ -30,6 +30,16 @@ export default function HomePage() {
       {/* Wallpaper Opacity Overlay */}
       <div className="absolute inset-0 bg-white/60" />
       
+      {/* Admin Link */}
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={() => router.push('/admin/bookings')}
+          className="text-gray-600 hover:text-blue-600 text-sm font-medium transition-colors duration-200 hover:underline"
+        >
+          Admin
+        </button>
+      </div>
+      
       {/* Content */}
       <div className="relative z-10 w-full max-w-4xl">
         {/* Main Content */}

@@ -191,20 +191,33 @@ export const AbandonedFormsStorage = {
   }
 };
 
-// Email functionality using Supabase Edge Functions
+// Email functionality using Next.js API routes
 export const EmailService = {
   async sendBookingConfirmation(emailData: any): Promise<{ success: boolean; error?: string }> {
     try {
-      // Use Supabase Edge Function for sending emails
-      const { data, error } = await supabase.functions.invoke('send-booking-confirmation', {
-        body: emailData
+      console.log('📧 Sending booking confirmation email...');
+      
+      // Use absolute URL for server-side fetch calls
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'booking-confirmation',
+          ...emailData
+        })
       });
 
-      if (error) {
-        console.error('Error sending booking confirmation:', error);
-        return { success: false, error: error.message };
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Error sending booking confirmation:', result.error);
+        return { success: false, error: result.error };
       }
 
+      console.log('✅ Booking confirmation email sent successfully');
       return { success: true };
     } catch (error: any) {
       console.error('Email service error:', error);
@@ -214,15 +227,29 @@ export const EmailService = {
 
   async sendAdminNotification(emailData: any): Promise<{ success: boolean; error?: string }> {
     try {
-      const { data, error } = await supabase.functions.invoke('send-admin-notification', {
-        body: emailData
+      console.log('📧 Sending admin notification email...');
+      
+      // Use absolute URL for server-side fetch calls
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const response = await fetch(`${baseUrl}/api/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'admin-notification',
+          ...emailData
+        })
       });
 
-      if (error) {
-        console.error('Error sending admin notification:', error);
-        return { success: false, error: error.message };
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('Error sending admin notification:', result.error);
+        return { success: false, error: result.error };
       }
 
+      console.log('✅ Admin notification email sent successfully');
       return { success: true };
     } catch (error: any) {
       console.error('Email service error:', error);
