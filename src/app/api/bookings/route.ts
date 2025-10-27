@@ -11,27 +11,12 @@ export async function GET(request: NextRequest) {
     const bookings = await MemoryStorage.getBookings();
     console.log('📊 Total bookings found:', bookings.length);
     
-    // Optional: Add query parameters for filtering
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const limit = searchParams.get('limit');
-    
-    let filteredBookings = bookings;
-    
-    if (status) {
-      filteredBookings = bookings.filter((booking: any) => booking.status === status);
-    }
-    
-    if (limit) {
-      filteredBookings = filteredBookings.slice(0, parseInt(limit));
-    }
-    
-    // Sort by creation date (newest first)
-    filteredBookings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Sort by creation date (newest first) and return all bookings
+    const sortedBookings = bookings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
     return NextResponse.json({
       success: true,
-      bookings: filteredBookings,
+      bookings: sortedBookings,
       total: bookings.length
     });
   } catch (error) {

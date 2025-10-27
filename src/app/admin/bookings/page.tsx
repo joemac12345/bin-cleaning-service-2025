@@ -46,15 +46,9 @@ const BIN_TYPES = {
 
 export default function BookingsAdmin() {
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('new-job'); // Default to new jobs only
-  const [serviceTypeFilter, setServiceTypeFilter] = useState<string>('all');
-  const [dayFilter, setDayFilter] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedBooking, setEditedBooking] = useState<Booking | null>(null);
 
@@ -84,58 +78,10 @@ export default function BookingsAdmin() {
     }
   };
 
-  // Filter bookings based on selected filters
-  const applyFilters = () => {
-    let filtered = bookings;
-
-    // Filter by status
-    if (statusFilter !== 'all') {
-      if (statusFilter === 'active') {
-        // Active jobs are new jobs that need attention
-        filtered = filtered.filter(booking => booking.status === 'new-job');
-      } else {
-        filtered = filtered.filter(booking => booking.status === statusFilter);
-      }
-    }
-
-    // Filter by service type
-    if (serviceTypeFilter !== 'all') {
-      filtered = filtered.filter(booking => booking.serviceType === serviceTypeFilter);
-    }
-
-    // Filter by collection day
-    if (dayFilter !== 'all') {
-      filtered = filtered.filter(booking => booking.collectionDay === dayFilter);
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(booking => 
-        booking.bookingId.toLowerCase().includes(query) ||
-        booking.customerInfo.firstName.toLowerCase().includes(query) ||
-        booking.customerInfo.lastName.toLowerCase().includes(query) ||
-        booking.customerInfo.email.toLowerCase().includes(query) ||
-        booking.customerInfo.phone.includes(query) ||
-        booking.customerInfo.address.toLowerCase().includes(query)
-      );
-    }
-
-    // Sort bookings: new ones first, then by creation date (newest first)
-    filtered.sort((a, b) => {
-      const aIsNew = isNewBooking(a.createdAt);
-      const bIsNew = isNewBooking(b.createdAt);
-      
-      // If one is new and other isn't, prioritize the new one
-      if (aIsNew && !bIsNew) return -1;
-      if (!aIsNew && bIsNew) return 1;
-      
-      // If both are new or both are old, sort by creation date (newest first)
-      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-    });
-
-    setFilteredBookings(filtered);
-  };
+  // Sort bookings by creation date (newest first) - no filters
+  const sortedBookings = bookings.sort((a, b) => {
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
 
   // Start editing a booking
   const startEditing = (booking: Booking) => {
@@ -286,10 +232,6 @@ export default function BookingsAdmin() {
     fetchBookings();
   }, []);
 
-  useEffect(() => {
-    applyFilters();
-  }, [bookings, statusFilter, serviceTypeFilter, dayFilter, searchQuery]);
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-GB');
   };
@@ -346,7 +288,7 @@ export default function BookingsAdmin() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Bookings Management</h1>
-              <p className="text-sm text-gray-600 mt-1">{filteredBookings.length} of {bookings.length} bookings</p>
+              <p className="text-sm text-gray-600 mt-1">{bookings.length} bookings</p>
             </div>
             <button
               onClick={fetchBookings}
@@ -359,163 +301,16 @@ export default function BookingsAdmin() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
-        {/* Quick Filter Buttons */}
-        <div className="max-w-2xl mx-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:flex-wrap gap-2 lg:justify-center">
-            <button
-              onClick={() => setStatusFilter('active')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                statusFilter === 'active' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              <Star className="w-3 h-3" />
-              <span>New ({getJobCount('active')})</span>
-            </button>
-            <button
-              onClick={() => setStatusFilter('new-job')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                statusFilter === 'new-job' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              <Package className="w-3 h-3" />
-              <span>New Jobs ({getJobCount('new-job')})</span>
-            </button>
-            <button
-              onClick={() => setStatusFilter('completed')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                statusFilter === 'completed' 
-                  ? 'bg-green-600 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              <CheckCheck className="w-3 h-3" />
-              <span>Done ({getJobCount('completed')})</span>
-            </button>
-            <button
-              onClick={() => setStatusFilter('all')}
-              className={`flex items-center space-x-1 px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                statusFilter === 'all' 
-                  ? 'bg-gray-600 text-white' 
-                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              <List className="w-3 h-3" />
-              <span>All ({getJobCount('all')})</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Search Bar - Hidden on Desktop */}
-        <div className="relative md:hidden">
-          <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by name, email, booking ID..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Filter Toggle */}
-        <div className="max-w-2xl mx-auto">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className="w-full flex items-center justify-between p-3 bg-white border border-gray-300 rounded-lg"
-          >
-          <div className="flex items-center space-x-2">
-            <Filter className="w-5 h-5 text-gray-400" />
-            <span className="font-medium">Filters</span>
-            {(statusFilter !== 'all' || serviceTypeFilter !== 'all' || dayFilter !== 'all') && (
-              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Active</span>
-            )}
-          </div>
-          <ChevronDown className={`w-5 h-5 text-gray-400 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-        </button>
-        </div>
-
-        {/* Filter Options */}
-        {showFilters && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-white p-4 rounded-lg border border-gray-300 space-y-4">
-            {/* Status Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="active">New Jobs</option>
-                <option value="all">All Status</option>
-                <option value="new-job">New Job</option>
-                <option value="completed">Job Completed</option>
-              </select>
-            </div>
-
-            {/* Service Type Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Service Type</label>
-              <select
-                value={serviceTypeFilter}
-                onChange={(e) => setServiceTypeFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Services</option>
-                <option value="regular">Regular Clean</option>
-                <option value="oneoff">One-off Clean</option>
-              </select>
-            </div>
-
-            {/* Day Filter */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Collection Day</label>
-              <select
-                value={dayFilter}
-                onChange={(e) => setDayFilter(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Days</option>
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-              </select>
-            </div>
-
-            {/* Clear Filters */}
-            <button
-              onClick={() => {
-                setStatusFilter('active'); // Reset to active jobs as default
-                setServiceTypeFilter('all');
-                setDayFilter('all');
-                setSearchQuery('');
-              }}
-              className="w-full py-2 px-4 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Reset Filters
-            </button>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
 
-        {/* Mobile-Friendly Booking Cards */}
-        <div className="space-y-3 mx-4">
-          {filteredBookings.map((booking) => (
+        {/* Simple Booking Cards - No Filters */}
+        <div className="space-y-3">
+          {sortedBookings.map((booking) => (
             <div key={booking.bookingId} className={`bg-white rounded-lg p-4 max-w-2xl mx-auto ${isNewBooking(booking.createdAt) ? 'border-2 border-red-300 shadow-lg' : 'border border-gray-200'}`}>
               {/* Header Row */}
               <div className="flex items-start justify-between mb-3">
@@ -597,13 +392,11 @@ export default function BookingsAdmin() {
           ))}
         </div>
 
-        {filteredBookings.length === 0 && !loading && (
+        {sortedBookings.length === 0 && !loading && (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No bookings found</p>
-            {(statusFilter !== 'all' || serviceTypeFilter !== 'all' || dayFilter !== 'all' || searchQuery) && (
-              <p className="text-sm text-gray-400 mt-2">Try adjusting your filters</p>
-            )}
+            <p className="text-sm text-gray-400 mt-2">New bookings will appear here</p>
           </div>
         )}
 
