@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { sendEmailViaGmail } from '@/lib/gmail-sender';
 
 // Only initialize Resend if API key is available
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// Determine which email service to use
+const getEmailService = () => {
+  const hasGmailConfig = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
+  const hasResendConfig = !!process.env.RESEND_API_KEY;
+  
+  if (hasGmailConfig) return 'gmail';
+  if (hasResendConfig) return 'resend';
+  return 'simulation';
+};
 
 const createBookingConfirmationEmail = (data: any) => `
 <!DOCTYPE html>
@@ -102,9 +113,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { type, ...emailData } = body;
 
-    console.log('📝 Request details:', { type, customerEmail: emailData.customerEmail });
+    const emailService = getEmailService();
+    console.log('📝 Request details:', { type, customerEmail: emailData.customerEmail, emailService });
     console.log('🔧 Environment check:', {
+      emailService,
       hasResendKey: !!process.env.RESEND_API_KEY,
+      hasGmailConfig: !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD),
       fromEmail: process.env.RESEND_FROM_EMAIL,
       resendInitialized: !!resend
     });
@@ -135,46 +149,74 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Real email sending with Resend (only if API key is configured)
-    if (resend && type === 'booking-confirmation') {
+    // Send booking confirmation email
+    if (type === 'booking-confirmation') {
       console.log('📧 Sending customer confirmation email...');
-      console.log('From:', process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev');
-      console.log('To:', emailData.customerEmail);
-      console.log('Subject:', `Booking Confirmation - ${emailData.bookingId}`);
       
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-        to: emailData.customerEmail,
-        subject: `🧽 Booking Confirmed - ${emailData.bookingId}`,
-        html: createBookingConfirmationEmail(emailData),
-        replyTo: process.env.ADMIN_EMAIL || 'eyeline65@gmail.com'
-      });
+      if (emailService === 'gmail') {
+        console.log('Using Gmail SMTP service');
+        const result = await sendEmailViaGmail(
+          emailData.customerEmail,
+          `🧽 Booking Confirmed - ${emailData.bookingId}`,
+          createBookingConfirmationEmail(emailData),
+          process.env.GMAIL_USER
+        );
+        return NextResponse.json({ ...result, service: 'gmail' });
+      } 
+      
+      if (emailService === 'resend' && resend) {
+        console.log('Using Resend service');
+        console.log('From:', process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev');
+        console.log('To:', emailData.customerEmail);
+        console.log('Subject:', `Booking Confirmation - ${emailData.bookingId}`);
+        
+        const { data, error } = await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+          to: emailData.customerEmail,
+          subject: `🧽 Booking Confirmed - ${emailData.bookingId}`,
+          html: createBookingConfirmationEmail(emailData),
+          replyTo: process.env.ADMIN_EMAIL || 'eyeline65@gmail.com'
+        });
 
-      if (error) {
-        console.error('❌ Resend customer email error:', error);
-        return NextResponse.json({ error: 'Failed to send email', details: error }, { status: 500 });
+        if (error) {
+          console.error('❌ Resend customer email error:', error);
+          return NextResponse.json({ error: 'Failed to send email', details: error }, { status: 500 });
+        }
+
+        console.log('✅ Customer confirmation email sent successfully:', data);
+        return NextResponse.json({ success: true, service: 'resend', data });
       }
-
-      console.log('✅ Customer confirmation email sent successfully:', data);
-      return NextResponse.json({ success: true, data });
     }
 
-    if (resend && type === 'admin-notification') {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+    if (type === 'admin-notification') {
+      const adminEmail = process.env.ADMIN_EMAIL || 'eyeline65@gmail.com';
       
-      const { data, error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-        to: adminEmail,
-        subject: `New Booking: ${emailData.bookingId}`,
-        html: createAdminNotificationEmail(emailData),
-      });
-
-      if (error) {
-        console.error('Resend error:', error);
-        return NextResponse.json({ error: 'Failed to send admin notification', details: error }, { status: 500 });
+      if (emailService === 'gmail') {
+        console.log('Sending admin notification via Gmail');
+        const result = await sendEmailViaGmail(
+          adminEmail,
+          `🔔 New Booking: ${emailData.bookingId}`,
+          createAdminNotificationEmail(emailData)
+        );
+        return NextResponse.json({ ...result, service: 'gmail' });
       }
+      
+      if (emailService === 'resend' && resend) {
+        console.log('Sending admin notification via Resend');
+        const { data, error } = await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+          to: adminEmail,
+          subject: `New Booking: ${emailData.bookingId}`,
+          html: createAdminNotificationEmail(emailData),
+        });
 
-      return NextResponse.json({ success: true, data });
+        if (error) {
+          console.error('Resend error:', error);
+          return NextResponse.json({ error: 'Failed to send admin notification', details: error }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true, service: 'resend', data });
+      }
     }
 
     return NextResponse.json({ error: 'Invalid email type' }, { status: 400 });

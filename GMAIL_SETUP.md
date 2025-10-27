@@ -1,22 +1,25 @@
-# Gmail Email Setup Guide
+# Gmail SMTP Setup Guide
 
-## Prerequisites
-You need a Gmail account to send booking confirmation emails.
+This guide will help you set up Gmail SMTP for sending emails from your bin cleaning service application.
 
-## Step 1: Enable App Passwords in Gmail
+## 📧 **Step 1: Enable 2-Factor Authentication**
 
-1. **Go to your Google Account settings**: https://myaccount.google.com/
-2. **Navigate to Security** (left sidebar)
-3. **Enable 2-Step Verification** (if not already enabled)
-4. **Generate App Password**:
-   - Go to "App passwords" section
-   - Select "Mail" as the app
-   - Select "Other" as the device and name it "Bin Cleaning Service"
-   - Copy the generated 16-character password
+1. Go to your Google Account settings: https://myaccount.google.com/
+2. Navigate to **Security**
+3. Turn on **2-Step Verification** if not already enabled
 
-## Step 2: Configure Environment Variables
+## 🔑 **Step 2: Generate App Password**
 
-Edit the `.env.local` file in your project root:
+1. In Google Account Security, scroll to **2-Step Verification**
+2. At the bottom, click **App passwords**
+3. Select **Mail** as the app and **Other** as the device
+4. Enter "Bin Cleaning Service" as the device name
+5. Click **Generate**
+6. **Save the 16-character password** - you'll need this for the environment variables
+
+## ⚙️ **Step 3: Configure Environment Variables**
+
+Add these to your **Netlify environment variables** (not local .env):
 
 ```env
 # Gmail SMTP Configuration
