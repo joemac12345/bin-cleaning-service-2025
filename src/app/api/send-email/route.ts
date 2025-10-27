@@ -10,15 +10,18 @@ const createBookingConfirmationEmail = (data: any) => `
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmation</title>
+  <title>Booking Confirmation - Bin Cleaning Service</title>
 </head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; margin: 0; padding: 20px;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-    <h1 style="color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 10px;">Booking Confirmed! 🎉</h1>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f8fafc; margin: 0; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+    <div style="text-align: center; margin-bottom: 30px;">
+      <h1 style="color: #1e40af; font-size: 24px; margin: 0; font-weight: 600;">🧽 Bin Cleaning Service</h1>
+      <p style="color: #059669; font-size: 18px; font-weight: 600; margin: 10px 0 0 0;">Booking Confirmed!</p>
+    </div>
     
-    <p>Hi ${data.customerName},</p>
+    <p style="font-size: 16px; margin-bottom: 20px;">Dear ${data.customerName},</p>
     
-    <p>Great news! Your bin cleaning service has been booked successfully.</p>
+    <p style="font-size: 16px; margin-bottom: 25px;">Thank you for booking our professional bin cleaning service. We have received your booking and it has been confirmed.</p>
     
     <div style="background-color: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
       <h3 style="margin-top: 0; color: #1e40af;">Booking Details:</h3>
@@ -36,8 +39,14 @@ const createBookingConfirmationEmail = (data: any) => `
     
     <p>Thank you for choosing our bin cleaning service!</p>
     
-    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">
-      <p>This is an automated confirmation email. Please save this for your records.</p>
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px; text-align: center;">
+      <p style="margin: 5px 0;">This is an automated confirmation email for your bin cleaning service booking.</p>
+      <p style="margin: 5px 0;">Please save this email for your records.</p>
+      <p style="margin: 5px 0;">If you have questions, reply to this email or contact us directly.</p>
+      <p style="margin: 10px 0 0 0; font-size: 11px; color: #9ca3af;">
+        Bin Cleaning Service | Professional wheelie bin cleaning<br>
+        You received this email because you booked a service with us.
+      </p>
     </div>
   </div>
 </body>
@@ -111,18 +120,25 @@ export async function POST(request: NextRequest) {
 
     // Real email sending with Resend (only if API key is configured)
     if (resend && type === 'booking-confirmation') {
+      console.log('📧 Sending customer confirmation email...');
+      console.log('From:', process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev');
+      console.log('To:', emailData.customerEmail);
+      console.log('Subject:', `Booking Confirmation - ${emailData.bookingId}`);
+      
       const { data, error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
         to: emailData.customerEmail,
-        subject: `Booking Confirmation - ${emailData.bookingId}`,
+        subject: `🧽 Booking Confirmed - ${emailData.bookingId}`,
         html: createBookingConfirmationEmail(emailData),
+        replyTo: process.env.ADMIN_EMAIL || 'eyeline65@gmail.com'
       });
 
       if (error) {
-        console.error('Resend error:', error);
+        console.error('❌ Resend customer email error:', error);
         return NextResponse.json({ error: 'Failed to send email', details: error }, { status: 500 });
       }
 
+      console.log('✅ Customer confirmation email sent successfully:', data);
       return NextResponse.json({ success: true, data });
     }
 

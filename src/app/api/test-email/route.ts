@@ -1,24 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Resend } from 'resend';
 
+// Test email endpoint to diagnose delivery issues
 export async function POST(request: NextRequest) {
   try {
-    const { apiKey, fromEmail, toEmail } = await request.json();
-
-    if (!apiKey || !fromEmail || !toEmail) {
-      return NextResponse.json({
-        success: false,
-        error: 'Missing required parameters'
-      }, { status: 400 });
+    console.log('🔬 Testing email delivery...');
+    
+    const { testEmail } = await request.json();
+    
+    if (!testEmail) {
+      return NextResponse.json({ error: 'Test email address required' }, { status: 400 });
     }
 
-    // Test with Resend API
-    const { Resend } = await import('resend');
-    const resend = new Resend(apiKey);
+    const resendClient = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+    
+    if (!resendClient) {
+      return NextResponse.json({ 
+        error: 'RESEND_API_KEY not configured',
+        debug: {
+          hasApiKey: !!process.env.RESEND_API_KEY,
+          fromEmail: process.env.RESEND_FROM_EMAIL,
+          adminEmail: process.env.ADMIN_EMAIL
+        }
+      }, { status: 500 });
+    }
 
-    // Send a test email
-    const testResult = await resend.emails.send({
-      from: fromEmail,
-      to: [toEmail],
+    console.log('📧 Testing customer email delivery...');
+    console.log('From:', process.env.RESEND_FROM_EMAIL);
+    console.log('To:', testEmail);
+
+    // Test customer confirmation email
+    const customerTest = await resendClient.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+      to: testEmail,
       subject: 'Test Email - Deployment Configuration',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
