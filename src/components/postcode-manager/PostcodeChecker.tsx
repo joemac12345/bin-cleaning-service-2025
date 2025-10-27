@@ -72,24 +72,41 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
     setIsChecking(true);
     setError('');
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      // Call the database API instead of using localStorage
+      const response = await fetch(`/api/postcodes?postcode=${encodeURIComponent(postcode)}`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
 
-    const formattedPostcode = formatPostcode(postcode);
-    const area = extractPostcodeArea(formattedPostcode);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    if (activePostcodes.includes(area)) {
-      setResult('available');
-      setTimeout(() => {
-        onServiceAvailable(formattedPostcode);
-      }, 2000);
-    } else {
-      // Track invalid postcode for demand analysis
-      trackInvalid(formattedPostcode, area);
-      setResult('waitlist');
-      setTimeout(() => {
-        onWaitlist(formattedPostcode);
-      }, 1500);
+      const data = await response.json();
+      const formattedPostcode = formatPostcode(postcode);
+
+      if (data.isValid) {
+        setResult('available');
+        setTimeout(() => {
+          onServiceAvailable(formattedPostcode);
+        }, 2000);
+      } else {
+        // Track invalid postcode for demand analysis
+        const area = extractPostcodeArea(formattedPostcode);
+        trackInvalid(formattedPostcode, area);
+        setResult('waitlist');
+        setTimeout(() => {
+          onWaitlist(formattedPostcode);
+        }, 1500);
+      }
+
+    } catch (error) {
+      console.error('Postcode validation error:', error);
+      setError('Unable to validate postcode. Please check your connection and try again.');
     }
 
     setIsChecking(false);

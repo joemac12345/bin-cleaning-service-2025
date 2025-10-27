@@ -123,13 +123,6 @@ export default function AdminPostcodeManager({ onPostcodeAdded }: AdminPostcodeM
       return;
     }
 
-    // Check if area already exists
-    if (serviceAreas.some(sa => sa.postcode === area)) {
-      alert('This postcode area is already in the service list');
-      setIsSaving(false);
-      return;
-    }
-
     try {
       // Validate the postcode first
       const isValid = await validatePostcode(newPostcode);
@@ -140,22 +133,41 @@ export default function AdminPostcodeManager({ onPostcodeAdded }: AdminPostcodeM
         return;
       }
 
-      // Add to shared service
-      const newServiceArea = addServiceAreaToService(newPostcode, newAreaName);
-      
-      if (newServiceArea) {
-        // Refresh data from shared service
-        refreshServiceData();
-        
-        // Notify parent component that a postcode was added
-        onPostcodeAdded?.();
-        
-        // Show success feedback
-        setValidationResult({
-          postcode: formatPostcode(newPostcode),
-          isValid: true
-        });
+      // Add to database via API
+      const response = await fetch('/api/service-areas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          postcode: newPostcode,
+          areaName: newAreaName || `${area} Area`
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          alert('This postcode area is already in the service list');
+        } else {
+          throw new Error(result.error || 'Failed to add service area');
+        }
+        setIsSaving(false);
+        return;
       }
+
+      // Refresh data from database
+      refreshServiceData();
+      
+      // Notify parent component that a postcode was added
+      onPostcodeAdded?.();
+      
+      // Show success feedback
+      setValidationResult({
+        postcode: formatPostcode(newPostcode),
+        isValid: true
+      });
 
       setNewPostcode('');
       setNewAreaName('');
@@ -163,30 +175,62 @@ export default function AdminPostcodeManager({ onPostcodeAdded }: AdminPostcodeM
       // Clear validation result after 3 seconds
       setTimeout(() => setValidationResult(null), 3000);
       
-    } catch {
-      alert('Unable to validate postcode. Please check your internet connection and try again.');
+    } catch (error: any) {
+      console.error('Error adding service area:', error);
+      alert(error.message || 'Unable to add postcode. Please check your connection and try again.');
     }
     
     setIsSaving(false);
   };
 
-  const toggleServiceArea = (id: string) => {
+  const toggleServiceArea = async (id: string) => {
     const area = serviceAreas.find(sa => sa.id === id);
-    if (area) {
-      updateServiceAreaStatus(id, !area.isActive);
-      // Refresh data from shared service
+    if (!area) return;
+
+    try {
+      const response = await fetch('/api/service-areas', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: id,
+          isActive: !area.isActive
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update service area status');
+      }
+
+      // Refresh data from database
       refreshServiceData();
+    } catch (error: any) {
+      console.error('Error updating service area:', error);
+      alert('Failed to update service area status. Please try again.');
     }
   };
 
-  const removeServiceAreaLocal = (id: string) => {
-    if (confirm('Are you sure you want to remove this service area?')) {
-      removeServiceAreaFromService(id);
-      // Refresh data from shared service
+  const removeServiceAreaLocal = async (id: string) => {
+    if (!confirm('Are you sure you want to remove this service area?')) return;
+
+    try {
+      const response = await fetch(`/api/service-areas?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete service area');
+      }
+
+      // Refresh data from database
       refreshServiceData();
       
       // Notify parent component that data changed
       onPostcodeAdded?.();
+    } catch (error: any) {
+      console.error('Error deleting service area:', error);
+      alert('Failed to delete service area. Please try again.');
     }
   };
 
