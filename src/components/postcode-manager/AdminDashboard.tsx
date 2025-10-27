@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MapPin, BarChart3, TrendingDown } from 'lucide-react';
-// Updated for email system deployment
+// Updated for email domain fix deployment
 import AdminPostcodeManager from './AdminPostcodeManager';
 import InvalidPostcodeAnalytics from './InvalidPostcodeAnalytics';
 import AbandonedFormsAnalytics from '@/components/admin/AbandonedFormsAnalytics';
