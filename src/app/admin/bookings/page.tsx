@@ -199,42 +199,61 @@ export default function BookingsAdmin() {
 
     try {
       setSendingEmail(bookingId);
+      console.log('🚀 Sending email for booking:', bookingId);
+      console.log('📧 Customer email:', customerInfo.email);
       
       const binCount = Object.values(getBinSelection(booking)).reduce((total: number, quantity) => {
         return total + (typeof quantity === 'number' ? quantity : 0);
       }, 0);
+
+      const emailPayload = {
+        type: 'booking-confirmation',
+        customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
+        customerEmail: customerInfo.email,
+        bookingId: bookingId,
+        serviceType: getServiceType(booking),
+        collectionDay: getCollectionDay(booking),
+        address: customerInfo.address,
+        binCount: binCount,
+        totalPrice: getPricing(booking).totalPrice,
+        createdAt: getCreatedAt(booking),
+      };
+
+      console.log('📝 Email payload:', emailPayload);
 
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          type: 'booking-confirmation',
-          customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-          customerEmail: customerInfo.email,
-          bookingId: bookingId,
-          serviceType: getServiceType(booking),
-          collectionDay: getCollectionDay(booking),
-          address: customerInfo.address,
-          binCount: binCount,
-          totalPrice: getPricing(booking).totalPrice,
-          createdAt: getCreatedAt(booking),
-        }),
+        body: JSON.stringify(emailPayload),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to send email');
+      console.log('📡 Email API response status:', response.status);
+      
+      let errorData;
+      try {
+        errorData = await response.json();
+        console.log('📄 Email API response data:', errorData);
+      } catch (parseError) {
+        console.error('Failed to parse response JSON:', parseError);
+        throw new Error(`HTTP ${response.status}: Unable to parse response`);
       }
 
-      const result = await response.json();
-      console.log('Email sent successfully:', result);
-      alert(`✅ Confirmation email sent successfully to ${customerInfo.email}`);
+      if (!response.ok) {
+        console.error('❌ Email API error:', errorData);
+        const errorMessage = errorData.error || errorData.message || `HTTP ${response.status} error`;
+        const errorDetails = errorData.details ? ` - ${JSON.stringify(errorData.details)}` : '';
+        throw new Error(`${errorMessage}${errorDetails}`);
+      }
+
+      console.log('✅ Email sent successfully:', errorData);
+      alert(`✅ Confirmation email sent successfully to ${customerInfo.email}${errorData.data?.id ? ` (ID: ${errorData.data.id})` : ''}`);
       
     } catch (err) {
-      console.error('Email send error:', err);
-      alert('❌ Failed to send email: ' + (err instanceof Error ? err.message : 'Unknown error'));
+      console.error('💥 Email send error details:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      alert(`❌ Failed to send email: ${errorMessage}\n\nCheck browser console for details.`);
     } finally {
       setSendingEmail(null);
     }

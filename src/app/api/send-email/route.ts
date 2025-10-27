@@ -89,8 +89,16 @@ const createAdminNotificationEmail = (data: any) => `
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 Email API endpoint called');
     const body = await request.json();
     const { type, ...emailData } = body;
+
+    console.log('📝 Request details:', { type, customerEmail: emailData.customerEmail });
+    console.log('🔧 Environment check:', {
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      fromEmail: process.env.RESEND_FROM_EMAIL,
+      resendInitialized: !!resend
+    });
 
     // If no Resend API key, simulate email sending
     if (!resend) {
