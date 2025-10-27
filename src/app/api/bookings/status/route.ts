@@ -1,7 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DatabaseStorage, supabase } from '@/lib/supabaseStorage';
 
-// PUT - Update booking status
+// PATCH - Update booking status (main method used by admin)
+export async function PATCH(request: NextRequest) {
+  try {
+    console.log('📝 PATCH /api/bookings/status called');
+    
+    const { bookingId, status, scheduledDate, notes } = await request.json();
+    
+    if (!bookingId || !status) {
+      return NextResponse.json(
+        { success: false, error: 'Missing required fields: bookingId and status' },
+        { status: 400 }
+      );
+    }
+
+    console.log(`🔄 Updating booking ${bookingId} status to: ${status}`);
+
+    // Update the booking status in database
+    const { data: updatedBooking, error } = await supabase
+      .from('bookings')
+      .update({
+        status,
+        scheduled_date: scheduledDate,
+        notes,
+        updated_at: new Date().toISOString()
+      })
+      .eq('booking_id', bookingId)
+      .select()
+      .single();
+
+    if (error || !updatedBooking) {
+      console.error('❌ Error updating booking status:', error);
+      return NextResponse.json(
+        { success: false, error: 'Booking not found or update failed' },
+        { status: 404 }
+      );
+    }
+
+    console.log('✅ Booking status updated successfully');
+
+    return NextResponse.json({
+      success: true,
+      message: 'Booking status updated successfully',
+      booking: updatedBooking
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error updating booking status:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to update booking status', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update booking status (alternative method)
 export async function PUT(request: NextRequest) {
   try {
     console.log('📝 PUT /api/bookings/status called');
