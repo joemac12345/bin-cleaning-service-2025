@@ -59,17 +59,17 @@ export async function POST(request: NextRequest) {
       `
     });
 
-    if (testResult.error) {
+    if (customerTest.error) {
       return NextResponse.json({
         success: false,
-        error: testResult.error.message || 'Email test failed'
+        error: customerTest.error.message || 'Email test failed'
       }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
       message: 'Test email sent successfully',
-      emailId: testResult.data?.id
+      emailId: customerTest.data?.id
     });
 
   } catch (error: any) {
