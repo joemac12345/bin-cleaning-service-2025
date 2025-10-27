@@ -1,54 +1,90 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AbandonedFormsStorage } from '@/lib/supabaseStorage';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // GET - Fetch all abandoned forms (for admin)
 export async function GET(request: NextRequest) {
   try {
-    console.log('🔍 GET /api/abandoned-forms called');
+    console.log('🔍 Fetching abandoned forms from database...');
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('❌ Missing Supabase credentials');
+      return NextResponse.json({ error: 'Database configuration missing' }, { status: 500 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
-    const abandonedForms = await AbandonedFormsStorage.getAbandonedForms();
-    console.log(`📊 Retrieved ${abandonedForms.length} abandoned forms`);
+    const { data, error } = await supabase
+      .from('abandoned_forms')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Database error:', error);
+      return NextResponse.json({ error: 'Failed to fetch abandoned forms' }, { status: 500 });
+    }
+
+    console.log(`✅ Found ${data?.length || 0} abandoned forms in database`);
     
-    return NextResponse.json({
+    return NextResponse.json({ 
       success: true,
-      abandonedForms,
-      count: abandonedForms.length
+      abandonedForms: data || [],
+      count: data?.length || 0
     });
     
   } catch (error) {
-    console.error('Error fetching abandoned forms:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch abandoned forms' },
-      { status: 500 }
-    );
+    console.error('💥 Unexpected error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
 // POST - Add new abandoned form
 export async function POST(request: NextRequest) {
   try {
-    console.log('📝 POST /api/abandoned-forms called');
-    
-    const formData = await request.json();
-    console.log('📋 Abandoned form data:', formData);
+    console.log('� Saving abandoned form to database...');
 
-    // Create abandoned form record
-    const abandonedForm = {
-      id: `AF-${Date.now()}-${Math.random().toString(36).substring(2)}`,
-      formData,
-      abandonedAt: new Date().toISOString(),
-      pageUrl: formData.pageUrl || '',
-      userAgent: formData.userAgent || ''
-    };
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Database configuration missing' }, { status: 500 });
+    }
 
-    await AbandonedFormsStorage.addAbandonedForm(abandonedForm);
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const body = await request.json();
+
+    // Generate form ID
+    const formId = `AF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+    console.log('📝 Abandoned form data:', {
+      formId,
+      hasFormData: !!body.formData,
+      pageUrl: body.pageUrl,
+      fieldsCompleted: body.formData ? Object.keys(body.formData).length : 0
+    });
+
+    const { data, error } = await supabase
+      .from('abandoned_forms')
+      .insert([{
+        form_id: formId,
+        form_data: body.formData || {},
+        page_url: body.pageUrl || '',
+        user_agent: body.userAgent || '',
+        abandoned_at: new Date().toISOString(),
+        created_at: new Date().toISOString()
+      }])
+      .select();
+
+    if (error) {
+      console.error('❌ Database insert error:', error);
+      return NextResponse.json({ error: 'Failed to save abandoned form' }, { status: 500 });
+    }
     
-    console.log('✅ Abandoned form saved:', abandonedForm.id);
+    console.log('✅ Abandoned form saved successfully:', formId);
 
     return NextResponse.json({
       success: true,
       message: 'Abandoned form saved successfully',
-      formId: abandonedForm.id
+      formId
     });
 
   } catch (error) {
@@ -63,13 +99,27 @@ export async function POST(request: NextRequest) {
 // DELETE - Delete abandoned form or clear all
 export async function DELETE(request: NextRequest) {
   try {
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json({ error: 'Database configuration missing' }, { status: 500 });
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
     const { searchParams } = new URL(request.url);
     const formId = searchParams.get('formId');
     const clearAll = searchParams.get('clearAll');
     
     // Special endpoint to clear all data
     if (clearAll === 'true') {
-      await AbandonedFormsStorage.clearAllAbandonedForms();
+      const { error } = await supabase
+        .from('abandoned_forms')
+        .delete()
+        .neq('id', ''); // Delete all rows
+        
+      if (error) {
+        console.error('❌ Failed to clear abandoned forms:', error);
+        return NextResponse.json({ error: 'Failed to clear abandoned forms' }, { status: 500 });
+      }
+      
       console.log('🧹 All abandoned forms cleared');
       
       return NextResponse.json({
@@ -86,13 +136,14 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const deleteSuccess = await AbandonedFormsStorage.deleteAbandonedForm(formId);
+    const { error } = await supabase
+      .from('abandoned_forms')
+      .delete()
+      .eq('form_id', formId);
     
-    if (!deleteSuccess) {
-      return NextResponse.json(
-        { success: false, error: 'Abandoned form not found' },
-        { status: 404 }
-      );
+    if (error) {
+      console.error('❌ Failed to delete abandoned form:', error);
+      return NextResponse.json({ error: 'Failed to delete abandoned form' }, { status: 500 });
     }
     
     console.log('🗑️ Abandoned form deleted:', formId);

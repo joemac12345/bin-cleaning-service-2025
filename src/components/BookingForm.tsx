@@ -13,6 +13,7 @@ import {
   Button,
   ButtonGroup
 } from './ui/Form';
+import { useFormTracking } from '@/hooks/useFormTracking';
 
 interface BookingFormProps {
   postcode: string;
@@ -102,91 +103,28 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isDetectingLocation, setIsDetectingLocation] = useState(false);
 
-  // Form abandonment tracking
-  const sessionId = useRef(`session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastSaveRef = useRef<string>('');
-
-  // Save abandoned form data for remarketing
-  const saveAbandonedForm = async () => {
-    try {
-      // Check if there's meaningful data to save
-      const hasData = formData.firstName || formData.email || formData.phone || formData.address ||
-                      Object.values(formData.binQuantities).some(qty => qty > 0);
-      
-      if (!hasData) return;
-
-      // Create a snapshot of current form state
-      const currentDataSnapshot = JSON.stringify({
-        ...formData,
-        postcode,
-        sessionId: sessionId.current,
-        currentStep
-      });
-
-      // Don't save if data hasn't changed since last save
-      if (currentDataSnapshot === lastSaveRef.current) return;
-
-      await fetch('/api/abandoned-forms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: currentDataSnapshot
-      });
-
-      lastSaveRef.current = currentDataSnapshot;
-    } catch (error) {
-      console.error('Failed to save abandoned form:', error);
+  // Form tracking integration
+  const { trackFieldChange, markAsSubmitted } = useFormTracking({
+    trackingId: `booking-form-${Date.now()}`,
+    onAbandon: (formData) => {
+      console.log('📊 Form abandoned with data:', formData);
     }
-  };
+  });
 
-  // Debounced save function
-  const debouncedSave = () => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    saveTimeoutRef.current = setTimeout(saveAbandonedForm, 2000); // Save after 2 seconds of inactivity
-  };
-
-  // Track form changes and save for abandonment tracking
+  // Track form data changes
   useEffect(() => {
-    // Only track if we're past the first step (user has engaged with the form)
-    if (currentStep > 1) {
-      debouncedSave();
-    }
+    trackFieldChange('formData', formData);
+  }, [formData, trackFieldChange]);
 
-    // Cleanup timeout on unmount
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
-  }, [formData, currentStep]);
-
-  // Save on page unload (form abandonment)
   useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (currentStep > 1) {
-        // Use sendBeacon for reliable data sending on page unload
-        const abandonmentData = JSON.stringify({
-          ...formData,
-          postcode,
-          sessionId: sessionId.current,
-          currentStep,
-          abandonedAt: new Date().toISOString()
-        });
+    trackFieldChange('currentStep', currentStep);
+  }, [currentStep, trackFieldChange]);
 
-        if (navigator.sendBeacon) {
-          const blob = new Blob([abandonmentData], { type: 'application/json' });
-          navigator.sendBeacon('/api/abandoned-forms', blob);
-        }
-      }
-    };
+  useEffect(() => {
+    trackFieldChange('postcode', postcode);
+  }, [postcode, trackFieldChange]);
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [formData, currentStep, postcode]);
+
 
   // Auto-detect contact details from device
   const detectContactDetails = async () => {
@@ -324,6 +262,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Mark form as submitted to stop abandonment tracking
+    markAsSubmitted();
+    
     setIsSubmitting(true);
 
     try {

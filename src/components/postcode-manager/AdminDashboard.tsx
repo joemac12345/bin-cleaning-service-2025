@@ -1,16 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, BarChart3 } from 'lucide-react';
+import { MapPin, BarChart3, TrendingDown } from 'lucide-react';
 import AdminPostcodeManager from './AdminPostcodeManager';
 import InvalidPostcodeAnalytics from './InvalidPostcodeAnalytics';
+import AbandonedFormsAnalytics from '@/components/admin/AbandonedFormsAnalytics';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('postcodes');
 
   const tabs = [
     { id: 'postcodes', name: 'Service Areas', icon: MapPin },
-    { id: 'analytics', name: 'Demand Analytics', icon: BarChart3 }
+    { id: 'analytics', name: 'Demand Analytics', icon: BarChart3 },
+    { id: 'abandoned', name: 'Abandoned Forms', icon: TrendingDown }
   ];
 
   return (
@@ -42,6 +44,7 @@ export default function AdminDashboard() {
       <div>
         {activeTab === 'postcodes' && <AdminPostcodeManager />}
         {activeTab === 'analytics' && <InvalidPostcodeAnalytics />}
+        {activeTab === 'abandoned' && <AbandonedFormsAnalytics />}
       </div>
     </div>
   );
