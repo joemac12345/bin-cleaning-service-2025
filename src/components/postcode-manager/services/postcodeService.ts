@@ -78,17 +78,60 @@ export const extractPostcodeArea = (postcode: string) => {
   return match ? match[1] : '';
 };
 
-// Validate postcode using UK postcodes API
+// Validate postcode using UK postcodes API with fallback to basic format validation
 export const validatePostcode = async (postcode: string): Promise<boolean> => {
   const formattedPostcode = formatPostcode(postcode);
   
-  try {
-    const response = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(formattedPostcode)}`);
-    const data = await response.json();
-    return response.ok && data.status === 200;
-  } catch (error) {
-    console.error('Postcode validation error:', error);
+  // Basic UK postcode format validation as fallback
+  const basicValidation = (pc: string) => {
+    const ukPostcodeRegex = /^[A-Z]{1,2}\d{1,2}\s?\d[A-Z]{2}$/;
+    return ukPostcodeRegex.test(pc.replace(/\s+/g, ' '));
+  };
+
+  // If the postcode doesn't match basic UK format, reject immediately
+  if (!basicValidation(formattedPostcode)) {
+    console.log('❌ Postcode failed basic format validation:', formattedPostcode);
     return false;
+  }
+
+  try {
+    console.log('🔍 Validating postcode with API:', formattedPostcode);
+    
+    // Try the postcodes.io API with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
+    const response = await fetch(
+      `https://api.postcodes.io/postcodes/${encodeURIComponent(formattedPostcode)}`,
+      { 
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        }
+      }
+    );
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      console.warn('⚠️ API validation failed, using basic validation for:', formattedPostcode);
+      return basicValidation(formattedPostcode);
+    }
+    
+    const data = await response.json();
+    const isValid = data.status === 200;
+    
+    console.log(`✅ Postcode ${formattedPostcode} API validation:`, isValid);
+    return isValid;
+    
+  } catch (error: any) {
+    console.warn('⚠️ Postcode API error, falling back to basic validation:', error.message);
+    
+    // If API fails (network issues, CORS, etc.), use basic format validation
+    const isBasicValid = basicValidation(formattedPostcode);
+    console.log(`📝 Basic validation result for ${formattedPostcode}:`, isBasicValid);
+    
+    return isBasicValid;
   }
 };
 

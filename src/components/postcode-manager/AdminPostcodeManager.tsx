@@ -124,14 +124,20 @@ export default function AdminPostcodeManager({ onPostcodeAdded }: AdminPostcodeM
     }
 
     try {
+      console.log('🔍 Validating postcode:', newPostcode);
+      
       // Validate the postcode first
       const isValid = await validatePostcode(newPostcode);
       
+      console.log('✅ Postcode validation result:', isValid);
+      
       if (!isValid) {
-        alert(`${formatPostcode(newPostcode)} is not a valid UK postcode. Please check and try again.`);
+        alert(`${formatPostcode(newPostcode)} is not a valid UK postcode format. Please check and try again.\n\nExample formats:\n• M1 1AA\n• SW1A 1AA\n• B33 8TH`);
         setIsSaving(false);
         return;
       }
+
+      console.log('📤 Sending postcode to API:', newPostcode);
 
       // Add to database via API
       const response = await fetch('/api/service-areas', {
@@ -146,11 +152,14 @@ export default function AdminPostcodeManager({ onPostcodeAdded }: AdminPostcodeM
       });
 
       const result = await response.json();
+      
+      console.log('📥 API response:', { status: response.status, result });
 
       if (!response.ok) {
         if (response.status === 409) {
           alert('This postcode area is already in the service list');
         } else {
+          console.error('API Error:', result);
           throw new Error(result.error || 'Failed to add service area');
         }
         setIsSaving(false);
@@ -176,8 +185,21 @@ export default function AdminPostcodeManager({ onPostcodeAdded }: AdminPostcodeM
       setTimeout(() => setValidationResult(null), 3000);
       
     } catch (error: any) {
-      console.error('Error adding service area:', error);
-      alert(error.message || 'Unable to add postcode. Please check your connection and try again.');
+      console.error('❌ Error adding service area:', error);
+      
+      let errorMessage = 'Unable to add postcode. ';
+      
+      if (error.name === 'AbortError') {
+        errorMessage += 'Request timed out. Please check your internet connection and try again.';
+      } else if (error.message?.includes('fetch')) {
+        errorMessage += 'Network error. Please check your internet connection and try again.';
+      } else if (error.message?.includes('validation')) {
+        errorMessage += 'Postcode validation failed. Please check the format and try again.';
+      } else {
+        errorMessage += error.message || 'Please try again or contact support if the problem persists.';
+      }
+      
+      alert(errorMessage);
     }
     
     setIsSaving(false);
