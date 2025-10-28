@@ -73,6 +73,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     lastName: '',
     email: '',
     phone: '',
+    contactPermission: 'yes', // Default to yes for better UX
     
     // Step 3: Address
     address: '',
@@ -278,7 +279,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
-          postcode: postcode
+          postcode: postcode,
+          contactPermission: formData.contactPermission
         },
         binSelection: formData.binQuantities,
         collectionDay: formData.collectionDays[0],
@@ -356,44 +358,43 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 1 && (
           <>
             <FormSection>
-              <div className="text-center py-4 md:py-8">
+              <div className="text-left py-4 md:py-8">
                 <div className="mb-8 md:mb-6">
-                  <div className="flex justify-center mb-6 md:mb-4">
-                    <div className="w-16 h-16 sm:w-18 sm:h-18 bg-gray-800 rounded-full flex items-center justify-center">
-                      <Trash2 className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+                  <div className="flex items-start mb-6 md:mb-4">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 bg-gray-800 rounded-full flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0">
+                      <Trash2 className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 leading-tight">Let's get you a price</h2>
+                      <h3 className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">for your bin cleaning!</h3>
                     </div>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold mb-3 leading-tight">Let's get you some pricing</h2>
-                  <h3 className="text-lg sm:text-xl text-gray-600 mb-6 leading-relaxed">for your bin cleaning!</h3>
-                  <p className="text-gray-500 mb-8 text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
-                    We'll guide you through a quick setup to provide you with an accurate quote for your bin cleaning service.
-                  </p>
                   
                   {/* Information we'll need */}
-                  <div className="bg-blue-50 p-6 rounded-lg text-left mx-auto" style={{ maxWidth: '28rem' }}>
+                  <div className="text-left" style={{ maxWidth: '28rem' }}>
                     <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
                       To provide accurate pricing, we'll need:
                     </h4>
                     <ul className="space-y-3 text-sm text-gray-700">
                       <li className="flex items-start">
-                        <CreditCard className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <CreditCard className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                         <span className="leading-relaxed">What type of service you prefer (regular or one-off)</span>
                       </li>
                       <li className="flex items-start">
-                        <User className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <User className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                         <span className="leading-relaxed">Your contact details and service address</span>
                       </li>
                       <li className="flex items-start">
-                        <Trash2 className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <Trash2 className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                         <span className="leading-relaxed">Which bins need cleaning and how many</span>
                       </li>
                       <li className="flex items-start">
-                        <Calendar className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <Calendar className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
                         <span className="leading-relaxed">Your bin collection days</span>
                       </li>
                     </ul>
-                    <div className="mt-6 text-sm text-gray-600 bg-white p-4 rounded border flex items-center">
+                    <div className="mt-6 text-sm text-gray-600 p-4 border border-gray-200 rounded-lg flex items-center">
                       <Clock className="w-4 h-4 mr-2 text-gray-500" />
                       <span><span className="font-medium">Takes just 2-3 minutes</span> - Get your instant quote!</span>
                     </div>
@@ -402,13 +403,13 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
             </FormSection>
             
-            <ButtonGroup stickyBottom={true} withBackground={true} withDivider={true}>
+            <ButtonGroup stickyBottom={true} withBackground={true} withDivider={true} className="block">
               <Button
                 onClick={() => setCurrentStep(2)}
                 variant="primary"
                 className="w-full py-4 text-base md:text-lg font-medium"
               >
-                Next
+                Let's get started
               </Button>
             </ButtonGroup>
           </>
@@ -417,7 +418,13 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {/* Step 2: Service Type Selection */}
         {currentStep === 2 && (
           <>
-            <FormSection title="What type of service do you need?">
+            <FormSection>
+              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+                <Trash2 className="w-4 h-4" />
+                <span>What type of service do you need?</span>
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">Choose between regular ongoing service or a one-time clean</p>
+              <div className="border-b border-gray-200 mb-6"></div>
               <div className="grid gap-4">
                 {SERVICE_TYPES.map((service) => (
                   <label key={service.id} className="relative">
@@ -480,8 +487,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <User className="w-4 h-4" />
                 <span>Your Contact Details</span>
               </h3>
+              <p className="text-sm text-gray-600 mb-4">We'll use these details to contact you about your booking</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
-              <div className="grid grid-cols-2 gap-4 mt-6">
+              <div className="grid grid-cols-2 gap-4">
                 <InputField
                   label="First Name"
                   value={formData.firstName}
@@ -511,6 +520,37 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 onChange={(value) => handleInputChange('phone', value)}
                 required
               />
+
+              {/* Contact Permission */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Are you happy for us to contact you?
+                </label>
+                <div className="flex space-x-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="contactPermission"
+                      value="yes"
+                      checked={formData.contactPermission === 'yes'}
+                      onChange={(e) => handleInputChange('contactPermission', e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">Yes, please contact me</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="contactPermission"
+                      value="no"
+                      checked={formData.contactPermission === 'no'}
+                      onChange={(e) => handleInputChange('contactPermission', e.target.value)}
+                      className="mr-2"
+                    />
+                    <span className="text-sm">No, do not contact me</span>
+                  </label>
+                </div>
+              </div>
             </FormSection>
 
             <ButtonGroup stickyBottom={true} withBackground={true} withDivider={true}>
@@ -523,7 +563,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </Button>
               <Button
                 onClick={() => setCurrentStep(4)}
-                disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
+                disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.contactPermission}
                 variant="primary"
                 className="flex-1 py-4"
               >
@@ -541,6 +581,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <MapPin className="w-4 h-4" />
                 <span>Your Address</span>
               </h3>
+              <p className="text-sm text-gray-600 mb-4">Where should we come to clean your bins?</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <TextareaField
                 label="Full Address"
@@ -605,7 +647,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <Trash2 className="w-4 h-4" />
                 <span>Which bins need cleaning?</span>
               </h3>
-              <p className="text-sm text-gray-600 mb-6">Select all the bins you want cleaned:</p>
+              <p className="text-sm text-gray-600 mb-4">Select all the bins you want cleaned and how many of each</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="grid gap-3">
                 {BIN_TYPES.map((bin) => (
@@ -689,7 +732,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <Calendar className="w-4 h-4" />
                 <span>Bin Collection Days</span>
               </h3>
-              <p className="text-sm text-gray-600 mb-6">When are your bins collected? (Select one day)</p>
+              <p className="text-sm text-gray-600 mb-4">When are your bins collected? We clean them after collection</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="grid grid-cols-2 gap-3">
                 {COLLECTION_DAYS.map((day) => (
@@ -744,7 +788,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <MessageSquare className="w-4 h-4" />
                 <span>Special Instructions</span>
               </h3>
-              <p className="text-sm text-gray-600 mb-6">Any additional instructions or special requirements? (Optional)</p>
+              <p className="text-sm text-gray-600 mb-4">Any additional instructions or special requirements? (Optional)</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <TextareaField
                 label="Special Instructions"
@@ -782,7 +827,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <DollarSign className="w-4 h-4" />
                 <span>Payment Method</span>
               </h3>
-              <p className="text-sm text-gray-600 mb-6">How would you like to pay for your bin cleaning service?</p>
+              <p className="text-sm text-gray-600 mb-4">How would you like to pay for your bin cleaning service?</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="grid gap-4">
                 {PAYMENT_METHODS.map((method) => (
@@ -879,6 +925,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <CreditCard className="w-4 h-4" />
                 <span>Review & Confirm Booking</span>
               </h3>
+              <p className="text-sm text-gray-600 mb-4">Please review your details and confirm your booking</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               {/* Final Summary */}
               <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg border">
