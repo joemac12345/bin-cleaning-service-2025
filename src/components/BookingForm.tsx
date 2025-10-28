@@ -356,44 +356,46 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 1 && (
           <>
             <FormSection>
-              <div className="text-left py-8">
-                <div className="mb-6">
-                  <div className="flex justify-center mb-4">
-                    <Trash2 className="w-16 h-16 text-gray-700" />
+              <div className="text-center py-4 md:py-8">
+                <div className="mb-8 md:mb-6">
+                  <div className="flex justify-center mb-6 md:mb-4">
+                    <div className="w-16 h-16 sm:w-18 sm:h-18 bg-gray-800 rounded-full flex items-center justify-center">
+                      <Trash2 className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
+                    </div>
                   </div>
-                  <h2 className="text-2xl font-bold mb-2">Let's get you some pricing</h2>
-                  <h3 className="text-xl text-gray-600 mb-4">for your bin cleaning!</h3>
-                  <p className="text-gray-500 mb-6">
+                  <h2 className="text-xl sm:text-2xl font-bold mb-3 leading-tight">Let's get you some pricing</h2>
+                  <h3 className="text-lg sm:text-xl text-gray-600 mb-6 leading-relaxed">for your bin cleaning!</h3>
+                  <p className="text-gray-500 mb-8 text-sm sm:text-base leading-relaxed max-w-lg mx-auto">
                     We'll guide you through a quick setup to provide you with an accurate quote for your bin cleaning service.
                   </p>
                   
                   {/* Information we'll need */}
-                  <div className="bg-blue-50 p-6 rounded-lg text-left max-w-md">
-                    <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                  <div className="bg-blue-50 p-6 rounded-lg text-left mx-auto" style={{ maxWidth: '28rem' }}>
+                    <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
                       To provide accurate pricing, we'll need:
                     </h4>
-                    <ul className="space-y-2 text-sm text-gray-700">
+                    <ul className="space-y-3 text-sm text-gray-700">
                       <li className="flex items-start">
-                        <CreditCard className="w-3 h-3 text-blue-500 mr-2 mt-1 flex-shrink-0" />
-                        <span>What type of service you prefer (regular or one-off)</span>
+                        <CreditCard className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="leading-relaxed">What type of service you prefer (regular or one-off)</span>
                       </li>
                       <li className="flex items-start">
-                        <User className="w-3 h-3 text-blue-500 mr-2 mt-1 flex-shrink-0" />
-                        <span>Your contact details and service address</span>
+                        <User className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="leading-relaxed">Your contact details and service address</span>
                       </li>
                       <li className="flex items-start">
-                        <Trash2 className="w-3 h-3 text-blue-500 mr-2 mt-1 flex-shrink-0" />
-                        <span>Which bins need cleaning and how many</span>
+                        <Trash2 className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="leading-relaxed">Which bins need cleaning and how many</span>
                       </li>
                       <li className="flex items-start">
-                        <Calendar className="w-3 h-3 text-blue-500 mr-2 mt-1 flex-shrink-0" />
-                        <span>Your bin collection days</span>
+                        <Calendar className="w-4 h-4 text-blue-500 mr-3 mt-0.5 flex-shrink-0" />
+                        <span className="leading-relaxed">Your bin collection days</span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-xs text-gray-600 bg-white p-3 rounded border flex items-center">
-                      <Clock className="w-3 h-3 mr-1" />
-                      <span className="font-medium">Takes just 2-3 minutes</span> - Get your instant quote!
+                    <div className="mt-6 text-sm text-gray-600 bg-white p-4 rounded border flex items-center">
+                      <Clock className="w-4 h-4 mr-2 text-gray-500" />
+                      <span><span className="font-medium">Takes just 2-3 minutes</span> - Get your instant quote!</span>
                     </div>
                   </div>
                 </div>
@@ -404,7 +406,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(2)}
                 variant="primary"
-                className="w-full py-3"
+                className="w-full py-4 text-base md:text-lg font-medium"
               >
                 Continue to Start
               </Button>
@@ -427,7 +429,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       onChange={(e) => handleInputChange('serviceType', e.target.value)}
                       className="sr-only"
                     />
-                    <div className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    <div className={`p-5 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       formData.serviceType === service.id 
                         ? 'border-black bg-gray-50' 
                         : 'border-gray-200 hover:border-gray-300'
@@ -462,7 +464,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(3)}
                 variant="primary"
-                className="w-full py-3"
+                className="w-full py-4 text-base font-medium"
               >
                 Continue to Contact Details
               </Button>
@@ -515,7 +517,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(2)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
@@ -523,7 +525,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 onClick={() => setCurrentStep(4)}
                 disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Continue to Address
               </Button>
@@ -579,7 +581,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(3)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
@@ -587,7 +589,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 onClick={() => setCurrentStep(5)}
                 disabled={!formData.address}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Continue to Bin Selection
               </Button>
@@ -663,7 +665,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(4)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
@@ -671,7 +673,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 onClick={() => setCurrentStep(6)}
                 disabled={totalBinsSelected === 0}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Continue to Collection Days
               </Button>
@@ -700,7 +702,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       onChange={() => selectCollectionDay(day)}
                       className="sr-only"
                     />
-                    <div className={`p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${
+                    <div className={`p-4 sm:p-3 border-2 rounded-lg cursor-pointer text-center transition-all ${
                       formData.collectionDays.includes(day)
                         ? 'border-black bg-gray-50 font-semibold' 
                         : 'border-gray-200 hover:border-gray-300'
@@ -718,7 +720,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(5)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
@@ -726,7 +728,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 onClick={() => setCurrentStep(7)}
                 disabled={formData.collectionDays.length === 0}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Continue
               </Button>
@@ -757,14 +759,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(6)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
               <Button
                 onClick={() => setCurrentStep(8)}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Continue to Payment
               </Button>
@@ -793,7 +795,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
                       className="sr-only"
                     />
-                    <div className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    <div className={`p-5 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
                       formData.paymentMethod === method.id 
                         ? 'border-black bg-gray-50' 
                         : 'border-gray-200 hover:border-gray-300'
@@ -854,14 +856,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(7)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
               <Button
                 onClick={() => setCurrentStep(9)}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Continue to Summary
               </Button>
@@ -958,7 +960,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                     onChange={(e) => handleInputChange('agreeToTerms', e.target.checked.toString())}
                     className="sr-only"
                   />
-                  <div className={`p-4 border-2 rounded-lg transition-all ${
+                  <div className={`p-5 sm:p-4 border-2 rounded-lg transition-all ${
                     formData.agreeToTerms
                       ? 'border-black bg-gray-50 font-semibold' 
                       : 'border-gray-200 hover:border-gray-300'
@@ -991,7 +993,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(8)}
                 variant="outline"
-                className="flex-1 py-3"
+                className="flex-1 py-4"
               >
                 Back
               </Button>
@@ -1000,7 +1002,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 disabled={isSubmitting || !formData.agreeToTerms}
                 loading={isSubmitting}
                 variant="primary"
-                className="flex-1 py-3"
+                className="flex-1 py-4 text-base font-medium"
               >
                 Complete Booking
               </Button>

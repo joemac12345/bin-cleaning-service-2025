@@ -30,11 +30,26 @@ function BookingContent() {
   }
 
   return (
-    <div>
-      <BookingForm 
-        postcode={postcode}
-        onBack={handleBack}
+    <div className="min-h-screen relative">
+      {/* Background Image - same as postcode page */}
+      <div 
+        className="absolute inset-0 bg-repeat"
+        style={{
+          backgroundImage: "url('/Backround grey.png')",
+          backgroundSize: "300px 300px",
+        }}
       />
+      
+      {/* Wallpaper Opacity Overlay */}
+      <div className="absolute inset-0 bg-white/60" />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <BookingForm 
+          postcode={postcode}
+          onBack={handleBack}
+        />
+      </div>
     </div>
   );
 }

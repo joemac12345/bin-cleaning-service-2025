@@ -27,10 +27,10 @@ export function FormContainer({ children, maxWidth = '2xl', variant = 'default',
     minimal: 'rounded-lg shadow-md border border-gray-200'
   };
 
-  // Mobile full-width logic - make it truly full width but allow natural height
+  // Mobile full-width logic - make it truly full width but allow natural height with better spacing
   const responsiveClasses = fullWidthOnMobile 
-    ? `w-full min-h-screen md:${maxWidthClasses[maxWidth]} md:h-auto mx-0 md:mx-auto rounded-none md:rounded-2xl flex flex-col`
-    : `${maxWidthClasses[maxWidth]} mx-auto`;
+    ? `w-full min-h-screen md:${maxWidthClasses[maxWidth]} md:h-auto mx-0 md:mx-auto rounded-none md:rounded-2xl flex flex-col px-6 py-8 md:px-8 md:py-8`
+    : `${maxWidthClasses[maxWidth]} mx-auto px-6 py-8`;
 
   // Adjust variant classes for mobile full-width
   const mobileVariantClasses = fullWidthOnMobile && variant === 'default'
@@ -137,7 +137,7 @@ interface FormContentProps {
   className?: string;
 }
 
-export function FormContent({ children, className = 'p-6 pb-8' }: FormContentProps) {
+export function FormContent({ children, className = '' }: FormContentProps) {
   return (
     <div className={`${className} flex-1 flex flex-col`}>
       {children}
