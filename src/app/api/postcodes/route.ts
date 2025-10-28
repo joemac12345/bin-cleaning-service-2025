@@ -67,10 +67,25 @@ export async function GET(request: NextRequest) {
       }
     );
 
-  } catch (error) {
-    console.error('Postcode validation error:', error);
+  } catch (error: any) {
+    console.error('❌ Postcode validation error:', error);
+    
+    // Get postcode from search params for error response
+    const { searchParams } = new URL(request.url);
+    const requestedPostcode = searchParams.get('postcode');
+    
+    // Return a more helpful error response
+    const errorMessage = error.message?.includes('fetch') 
+      ? 'Database connection error'
+      : 'Postcode validation temporarily unavailable';
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: errorMessage,
+        postcode: requestedPostcode?.replace(/\s+/g, '').toUpperCase() || '',
+        isValid: false,
+        message: 'Service temporarily unavailable. Please try again later.'
+      },
       { status: 500 }
     );
   }

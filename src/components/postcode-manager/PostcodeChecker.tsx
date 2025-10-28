@@ -3,6 +3,12 @@
 import { useState, useEffect } from 'react';
 import { MapPin, CheckCircle, Clock, ArrowRight, Navigation } from 'lucide-react';
 import { formatPostcode, extractPostcodeArea } from '@/components/postcode-manager/services/postcodeService';
+
+// Basic UK postcode validation for offline fallback
+const isValidUKPostcodeFormat = (postcode: string): boolean => {
+  const ukPostcodeRegex = /^[A-Z]{1,2}\d{1,2}\s?\d[A-Z]{2}$/;
+  return ukPostcodeRegex.test(postcode.replace(/\s+/g, ' ').toUpperCase());
+};
 import usePostcodeService from '@/components/postcode-manager/hooks/usePostcodeService';
 import useInvalidPostcodeService from '@/components/postcode-manager/hooks/useInvalidPostcodeService';
 
@@ -73,20 +79,32 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
     setError('');
 
     try {
+      console.log('🔍 Checking postcode:', postcode);
+      
+      // Add timeout to the fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      
       // Call the database API instead of using localStorage
       const response = await fetch(`/api/postcodes?postcode=${encodeURIComponent(postcode)}`, {
         method: 'GET',
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
-        }
+        },
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.error('API response not ok:', response.status, response.statusText);
+        throw new Error(`Server error: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('✅ Postcode API response:', data);
+      
       const formattedPostcode = formatPostcode(postcode);
 
       if (data.isValid) {
@@ -104,9 +122,27 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
         }, 1500);
       }
 
-    } catch (error) {
-      console.error('Postcode validation error:', error);
-      setError('Unable to validate postcode. Please check your connection and try again.');
+    } catch (error: any) {
+      console.error('❌ Postcode validation error:', error);
+      console.log('🔄 Attempting offline fallback validation...');
+      
+      // Offline fallback: basic format validation
+      const formattedPostcode = formatPostcode(postcode);
+      
+      if (!isValidUKPostcodeFormat(formattedPostcode)) {
+        setError('Please enter a valid UK postcode format (e.g., M1 1AA, SW1A 1AA)');
+      } else {
+        // Valid format but can't verify service area - show as waitlist
+        console.log('📝 Using offline fallback - valid format, adding to waitlist');
+        
+        const area = extractPostcodeArea(formattedPostcode);
+        trackInvalid(formattedPostcode, area);
+        
+        setResult('waitlist');
+        setTimeout(() => {
+          onWaitlist(formattedPostcode);
+        }, 1500);
+      }
     }
 
     setIsChecking(false);
