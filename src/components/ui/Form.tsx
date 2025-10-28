@@ -32,13 +32,13 @@ export function FormContainer({ children, maxWidth = '2xl', variant = 'default',
     ? `w-full min-h-screen md:${maxWidthClasses[maxWidth]} md:h-auto mx-0 md:mx-auto rounded-none md:rounded-2xl flex flex-col px-6 py-8 md:px-8 md:py-8`
     : `${maxWidthClasses[maxWidth]} mx-auto px-6 py-8`;
 
-  // Adjust variant classes for mobile full-width
+  // Adjust variant classes for mobile full-width - remove all shadows and borders
   const mobileVariantClasses = fullWidthOnMobile && variant === 'default'
-    ? 'shadow-none md:shadow-xl md:rounded-2xl'
+    ? 'shadow-none md:shadow-none md:rounded-none'
     : fullWidthOnMobile && variant === 'modern'
-    ? 'shadow-none md:shadow-2xl rounded-none md:rounded-3xl border-none md:border md:border-gray-100'
+    ? 'shadow-none md:shadow-none rounded-none md:rounded-none border-none md:border-none'
     : fullWidthOnMobile && variant === 'minimal'
-    ? 'shadow-none md:shadow-md rounded-none md:rounded-lg border-none md:border md:border-gray-200'
+    ? 'shadow-none md:shadow-none rounded-none md:rounded-none border-none md:border-none'
     : variantClasses[variant];
 
   return (

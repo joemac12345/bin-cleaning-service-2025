@@ -348,7 +348,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
   const totalBinsSelected = Object.values(formData.binQuantities).reduce((total, quantity) => total + quantity, 0);
 
   return (
-    <FormContainer fullWidthOnMobile={true}>
+    <FormContainer fullWidthOnMobile={true} className="bg-transparent">
       <FormContent>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
           <div className="flex-1 space-y-6">
@@ -408,7 +408,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="w-full py-4 text-base md:text-lg font-medium"
               >
-                Continue to Start
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -466,7 +466,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="w-full py-4 text-base font-medium"
               >
-                Continue to Contact Details
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -527,7 +527,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="flex-1 py-4"
               >
-                Continue to Address
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -591,7 +591,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="flex-1 py-4"
               >
-                Continue to Bin Selection
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -675,7 +675,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="flex-1 py-4"
               >
-                Continue to Collection Days
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -730,7 +730,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="flex-1 py-4"
               >
-                Continue
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -768,7 +768,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="flex-1 py-4"
               >
-                Continue to Payment
+                Next
               </Button>
             </ButtonGroup>
           </>
@@ -865,7 +865,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 variant="primary"
                 className="flex-1 py-4"
               >
-                Continue to Summary
+                Next
               </Button>
             </ButtonGroup>
           </>
