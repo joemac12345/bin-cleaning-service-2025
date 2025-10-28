@@ -15,7 +15,8 @@ import {
   MapPin,
   FileText,
   CreditCard,
-  Cloud
+  Cloud,
+  Activity
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -27,9 +28,15 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
+    name: 'Back to Home',
+    href: '/',
+    icon: Home,
+    description: 'Return to main website'
+  },
+  {
     name: 'Dashboard',
     href: '/admin',
-    icon: Home,
+    icon: BarChart3,
     description: 'Overview and statistics'
   },
   {
@@ -131,39 +138,52 @@ export default function AdminNavigation({ className = '' }: AdminNavigationProps
           {isOpen && (
             <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
               <div className="py-2">
-                {navigationItems.map((item) => {
+                {navigationItems.map((item, index) => {
                   const Icon = item.icon;
                   const isActive = pathname === item.href;
+                  const isBackToHome = item.href === '/';
                   
                   return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={closeMenu}
-                      className={`
-                        flex items-center px-4 py-3 text-sm transition-colors
-                        ${isActive 
-                          ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' 
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                        }
-                      `}
-                    >
-                      <Icon className={`
-                        h-5 w-5 mr-3 
-                        ${isActive ? 'text-blue-600' : 'text-gray-400'}
-                      `} />
-                      <div className="flex-1">
-                        <div className="font-medium">{item.name}</div>
-                        {item.description && (
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            {item.description}
-                          </div>
+                    <div key={item.name}>
+                      <Link
+                        href={item.href}
+                        onClick={closeMenu}
+                        className={`
+                          flex items-center px-4 py-3 text-sm transition-colors
+                          ${isBackToHome 
+                            ? 'bg-green-50 text-green-700 hover:bg-green-100' 
+                            : isActive 
+                              ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' 
+                              : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                          }
+                        `}
+                      >
+                        <Icon className={`
+                          h-5 w-5 mr-3 
+                          ${isBackToHome 
+                            ? 'text-green-600' 
+                            : isActive 
+                              ? 'text-blue-600' 
+                              : 'text-gray-400'
+                          }
+                        `} />
+                        <div className="flex-1">
+                          <div className="font-medium">{item.name}</div>
+                          {item.description && (
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              {item.description}
+                            </div>
+                          )}
+                        </div>
+                        {isActive && !isBackToHome && (
+                          <div className="ml-2 w-2 h-2 bg-blue-600 rounded-full"></div>
                         )}
-                      </div>
-                      {isActive && (
-                        <div className="ml-2 w-2 h-2 bg-blue-600 rounded-full"></div>
+                      </Link>
+                      {/* Add separator after Back to Home */}
+                      {index === 0 && (
+                        <div className="border-t border-gray-200 my-1 mx-4"></div>
                       )}
-                    </Link>
+                    </div>
                   );
                 })}
               </div>
@@ -173,39 +193,52 @@ export default function AdminNavigation({ className = '' }: AdminNavigationProps
 
         {/* Mobile Navigation Items */}
         <nav className="flex-1 px-2 py-4 space-y-1 md:hidden max-h-screen overflow-y-auto">
-          {navigationItems.map((item) => {
+          {navigationItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
+            const isBackToHome = item.href === '/';
             
             return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={closeMenu}
-                className={`
-                  flex items-center px-3 py-3 rounded-md text-base font-medium transition-colors
-                  ${isActive 
-                    ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700' 
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                  }
-                `}
-              >
-                <Icon className={`
-                  h-6 w-6 mr-4 
-                  ${isActive ? 'text-blue-600' : 'text-gray-400'}
-                `} />
-                <div className="flex-1">
-                  <div className="font-medium">{item.name}</div>
-                  {item.description && (
-                    <div className="text-sm text-gray-500 mt-0.5">
-                      {item.description}
-                    </div>
+              <div key={item.name}>
+                <Link
+                  href={item.href}
+                  onClick={closeMenu}
+                  className={`
+                    flex items-center px-3 py-3 rounded-md text-base font-medium transition-colors
+                    ${isBackToHome 
+                      ? 'bg-green-50 text-green-700 hover:bg-green-100 border-l-4 border-green-500'
+                      : isActive 
+                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700' 
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    }
+                  `}
+                >
+                  <Icon className={`
+                    h-6 w-6 mr-4 
+                    ${isBackToHome 
+                      ? 'text-green-600' 
+                      : isActive 
+                        ? 'text-blue-600' 
+                        : 'text-gray-400'
+                    }
+                  `} />
+                  <div className="flex-1">
+                    <div className="font-medium">{item.name}</div>
+                    {item.description && (
+                      <div className="text-sm text-gray-500 mt-0.5">
+                        {item.description}
+                      </div>
+                    )}
+                  </div>
+                  {isActive && !isBackToHome && (
+                    <div className="ml-2 w-3 h-3 bg-blue-600 rounded-full"></div>
                   )}
-                </div>
-                {isActive && (
-                  <div className="ml-2 w-3 h-3 bg-blue-600 rounded-full"></div>
+                </Link>
+                {/* Add separator after Back to Home */}
+                {index === 0 && (
+                  <div className="border-t border-gray-200 my-2 mx-3"></div>
                 )}
-              </Link>
+              </div>
             );
           })}
         </nav>
