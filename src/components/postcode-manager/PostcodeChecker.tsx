@@ -202,23 +202,23 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
   };
 
   return (
-    <div className="w-full md:max-w-2xl md:mx-auto p-4 md:p-8">
+    <div className="w-full md:max-w-2xl md:mx-auto px-6 py-8 md:p-8">
       {result === null && (
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center">
-              <MapPin className="w-8 h-8 text-white" />
+        <div className="mb-10 md:mb-8">
+          <div className="flex items-center space-x-4 sm:space-x-6 mb-6 md:mb-4">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 bg-black rounded-full flex items-center justify-center flex-shrink-0">
+              <MapPin className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-1">Check Service Area</h2>
-              <p className="text-gray-600">Enter your postcode to see if we serve your area</p>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 leading-tight">Check Service Area</h2>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">Enter your postcode to see if we serve your area</p>
             </div>
           </div>
         </div>
       )}
 
       {result === null && (
-        <div className="space-y-6">
+        <div className="space-y-8 md:space-y-6">
           <div>
             <div className="relative">
               <input
@@ -227,24 +227,24 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
                 value={postcode}
                 onChange={(e) => setPostcode(e.target.value.toUpperCase())}
                 placeholder={`${typewriterText}${showCursor ? '|' : ''}`}
-                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                className="w-full px-4 py-4 sm:py-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all text-base sm:text-sm"
                 onKeyPress={(e) => e.key === 'Enter' && checkPostcode()}
               />
-              <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <MapPin className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             </div>
           </div>
 
           {error && (
-            <div className="text-red-600 text-sm bg-red-50 py-2 px-3 rounded-lg">
+            <div className="text-red-600 text-sm bg-red-50 py-3 px-4 rounded-lg leading-relaxed">
               {error}
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-3">
             <button
               onClick={autoDetectPostcode}
               disabled={isDetecting || isChecking}
-              className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-200 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 border border-gray-300"
+              className="flex-1 bg-gray-100 text-gray-700 py-4 sm:py-3 px-6 rounded-lg font-medium hover:bg-gray-200 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 border border-gray-300 text-base sm:text-sm"
             >
               {isDetecting ? (
                 <>
@@ -262,7 +262,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
             <button
               onClick={checkPostcode}
               disabled={isChecking || !postcode.trim()}
-              className="flex-1 bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+              className="flex-1 bg-black text-white py-4 sm:py-3 px-6 rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2 text-base sm:text-sm"
             >
               {isChecking ? (
                 <>
@@ -280,13 +280,13 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
           
           {/* Active Service Areas Display */}
           {activePostcodes.length > 0 && (
-            <div className="mt-6">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Current Service Areas:</h3>
-              <div className="flex flex-wrap gap-2">
+            <div className="mt-8 sm:mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4 sm:mb-3">Current Service Areas:</h3>
+              <div className="flex flex-wrap gap-3 sm:gap-2">
                 {activePostcodes.map((postcode) => (
                   <span
                     key={postcode}
-                    className="px-3 py-1 bg-black text-white text-sm rounded-full font-medium"
+                    className="px-4 py-2 sm:px-3 sm:py-1 bg-black text-white text-sm rounded-full font-medium"
                   >
                     {postcode}
                   </span>
