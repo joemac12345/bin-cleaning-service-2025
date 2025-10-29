@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List, Send } from 'lucide-react';
+import SendEmailModal from '@/components/SendEmailModal';
 
 interface Booking {
   // API format (camelCase)
@@ -260,6 +261,52 @@ export default function BookingsAdmin() {
       console.error('💥 Email send error details:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       alert(`❌ Failed to send email: ${errorMessage}\n\nCheck browser console for details.`);
+    } finally {
+      setSendingEmail(null);
+    }
+  };
+
+  // Handle sending email from the new modal
+  const handleSendEmailFromModal = async (templateId: string, customMessage: string) => {
+    if (!selectedBooking) return;
+
+    const bookingId = getBookingId(selectedBooking);
+    const customerInfo = getCustomerInfo(selectedBooking);
+
+    if (!customerInfo.email) {
+      alert('No email address found for this customer');
+      return;
+    }
+
+    try {
+      setSendingEmail(bookingId);
+      console.log('🚀 Sending email from modal for booking:', bookingId);
+      console.log('📧 Template:', templateId);
+      console.log('📧 Customer email:', customerInfo.email);
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'admin-send',
+          bookingId,
+          templateType: templateId,
+          customMessage: customMessage || undefined,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send email');
+      }
+
+      console.log('✅ Email sent successfully:', result);
+      alert(`✅ Email sent successfully to ${customerInfo.email}`);
+    } catch (err) {
+      console.error('❌ Email send error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      alert(`❌ Failed to send email: ${errorMessage}`);
     } finally {
       setSendingEmail(null);
     }
@@ -594,10 +641,13 @@ export default function BookingsAdmin() {
                     <Eye className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => sendEmailToCustomer(booking)}
+                    onClick={() => {
+                      setSelectedBooking(booking);
+                      setShowEmailModal(true);
+                    }}
                     disabled={sendingEmail === getBookingId(booking)}
                     className="p-2 text-green-600 hover:bg-green-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Send Email Confirmation"
+                    title="Send Email to Customer"
                   >
                     {sendingEmail === getBookingId(booking) ? (
                       <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
@@ -1187,6 +1237,18 @@ export default function BookingsAdmin() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Send Email Modal */}
+      {showEmailModal && selectedBooking && (
+        <SendEmailModal
+          customerEmail={getCustomerInfo(selectedBooking).email}
+          customerName={`${getCustomerInfo(selectedBooking).firstName} ${getCustomerInfo(selectedBooking).lastName}`}
+          bookingId={getBookingId(selectedBooking)}
+          onSend={handleSendEmailFromModal}
+          onClose={() => setShowEmailModal(false)}
+          isLoading={sendingEmail === getBookingId(selectedBooking)}
+        />
       )}
     </div>
     </div>
