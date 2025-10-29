@@ -1078,37 +1078,62 @@ export default function BookingsAdmin() {
               </div>
 
               {/* Template Preview */}
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-xs text-gray-600 mb-2">Template Preview:</p>
-                <div className="text-sm text-gray-700 space-y-1">
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <p className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Email Template Details</p>
+                <div className="text-sm text-gray-700 space-y-2">
                   {selectedTemplate === 'booking-confirmation' && (
                     <>
-                      <p><strong>Subject:</strong> Booking Confirmed</p>
-                      <p className="text-xs">Confirms the booking and provides details</p>
+                      <div className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold">📋</span>
+                        <div>
+                          <p className="font-semibold">Booking Confirmation</p>
+                          <p className="text-xs text-gray-600">Sent when customer first books. Includes booking ID, date, address, and price.</p>
+                        </div>
+                      </div>
                     </>
                   )}
                   {selectedTemplate === 'service-reminder' && (
                     <>
-                      <p><strong>Subject:</strong> Service Reminder</p>
-                      <p className="text-xs">Reminds customer about upcoming service</p>
+                      <div className="flex items-start gap-2">
+                        <span className="text-blue-600 font-bold">🔔</span>
+                        <div>
+                          <p className="font-semibold">Service Reminder</p>
+                          <p className="text-xs text-gray-600">Reminder 2-3 days before service. Helps reduce no-shows.</p>
+                        </div>
+                      </div>
                     </>
                   )}
                   {selectedTemplate === 'service-completion' && (
                     <>
-                      <p><strong>Subject:</strong> Service Complete</p>
-                      <p className="text-xs">Confirms service has been completed</p>
+                      <div className="flex items-start gap-2">
+                        <span className="text-emerald-600 font-bold">✓</span>
+                        <div>
+                          <p className="font-semibold">Service Completion</p>
+                          <p className="text-xs text-gray-600">Sent after cleaning is complete. Great for requesting reviews!</p>
+                        </div>
+                      </div>
                     </>
                   )}
                   {selectedTemplate === 'payment-reminder' && (
                     <>
-                      <p><strong>Subject:</strong> Payment Reminder</p>
-                      <p className="text-xs">Reminder about pending payment</p>
+                      <div className="flex items-start gap-2">
+                        <span className="text-orange-600 font-bold">💳</span>
+                        <div>
+                          <p className="font-semibold">Payment Reminder</p>
+                          <p className="text-xs text-gray-600">For pending payments. Includes due date and payment instructions.</p>
+                        </div>
+                      </div>
                     </>
                   )}
                   {selectedTemplate === 'cancellation' && (
                     <>
-                      <p><strong>Subject:</strong> Booking Cancelled</p>
-                      <p className="text-xs">Confirms booking cancellation</p>
+                      <div className="flex items-start gap-2">
+                        <span className="text-red-600 font-bold">✕</span>
+                        <div>
+                          <p className="font-semibold">Cancellation Confirmation</p>
+                          <p className="text-xs text-gray-600">When booking is cancelled. Maintains good relationships.</p>
+                        </div>
+                      </div>
                     </>
                   )}
                 </div>
