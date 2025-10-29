@@ -68,10 +68,10 @@ export default function SendEmailModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+      <div className="w-full h-full bg-white dark:bg-zinc-900 rounded-none shadow-none overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-black to-zinc-800 p-6 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-black to-zinc-800 p-6 flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <Mail className="w-6 h-6 text-white" />
             <div>
@@ -89,7 +89,7 @@ export default function SendEmailModal({
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-4">
+        <div className="flex-1 p-6 space-y-4 overflow-y-auto w-full">
           {/* Template Selection */}
           <div>
             <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
@@ -118,6 +118,7 @@ export default function SendEmailModal({
           </div>
 
           {/* Template Preview */}
+          {/* Hidden for now - can be re-enabled later if needed
           {selectedTemplateData && (
             <div className="p-3 bg-zinc-50 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
               <p className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide mb-2">
@@ -128,6 +129,7 @@ export default function SendEmailModal({
               </p>
             </div>
           )}
+          */}
 
           {/* Custom Message */}
           {/* Hidden for now - can be re-enabled later if needed
@@ -151,7 +153,7 @@ export default function SendEmailModal({
         </div>
 
         {/* Footer */}
-        <div className="bg-zinc-50 dark:bg-zinc-800 px-6 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700">
+        <div className="bg-zinc-50 dark:bg-zinc-800 px-6 py-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-700 w-full">
           <button
             onClick={onClose}
             disabled={isSending}
