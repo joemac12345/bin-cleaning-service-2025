@@ -130,6 +130,7 @@ export default function SendEmailModal({
           )}
 
           {/* Custom Message */}
+          {/* Hidden for now - can be re-enabled later if needed
           <div>
             <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
               Add Custom Message (Optional)
@@ -146,6 +147,7 @@ export default function SendEmailModal({
               {customMessage.length}/500 characters
             </p>
           </div>
+          */}
         </div>
 
         {/* Footer */}
