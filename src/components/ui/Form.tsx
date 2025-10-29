@@ -29,8 +29,8 @@ export function FormContainer({ children, maxWidth = '2xl', variant = 'default',
 
   // Mobile full-width logic - make it truly full width but allow natural height with better spacing
   const responsiveClasses = fullWidthOnMobile 
-    ? `w-full min-h-screen md:${maxWidthClasses[maxWidth]} md:h-auto mx-0 md:mx-auto rounded-none md:rounded-2xl flex flex-col px-6 py-8 md:px-8 md:py-8`
-    : `${maxWidthClasses[maxWidth]} mx-auto px-6 py-8`;
+    ? `w-full min-h-screen md:${maxWidthClasses[maxWidth]} md:h-auto mx-0 md:mx-auto rounded-none md:rounded-2xl flex flex-col px-3 py-4 sm:px-6 sm:py-8 md:px-8 md:py-8`
+    : `${maxWidthClasses[maxWidth]} mx-auto px-3 py-4 sm:px-6 sm:py-8`;
 
   // Adjust variant classes for mobile full-width - remove all styling completely
   const mobileVariantClasses = fullWidthOnMobile 

@@ -563,7 +563,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
       <FormContent>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
           {/* Progress Indicator */}
-          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm -mx-4 px-4 mb-6">
+          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm -mx-3 sm:-mx-4 px-3 sm:px-4 mb-3 sm:mb-6">
             <div className="py-3">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-slate-700">
@@ -581,14 +581,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
             </div>
           </div>
 
-          <div className="flex-1 space-y-6">
+          <div className="flex-1 space-y-3 sm:space-y-6">
         {/* Step 1: Welcome */}
         {currentStep === 1 && (
           <>
             <FormSection>
               <div className="text-left py-4 md:py-8">
-                <div className="mb-8 md:mb-6">
-                  <div className="flex items-start mb-6 md:mb-4">
+                <div className="mb-4 sm:mb-8 md:mb-6">
+                  <div className="flex items-start mb-3 sm:mb-6 md:mb-4">
                     <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0 shadow-lg">
                       <Trash2 className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-white" />
                     </div>
