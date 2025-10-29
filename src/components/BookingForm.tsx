@@ -1,3 +1,46 @@
+/**
+ * BOOKING FORM COMPONENT - Multi-Step Service Booking System
+ * ===========================================================
+ * 
+ * This is a comprehensive multi-step booking form for the bin cleaning service.
+ * It guides customers through a 9-step process to complete their booking with pricing.
+ * 
+ * Business Purpose:
+ * - Capture complete customer information and booking preferences
+ * - Calculate dynamic pricing based on service type and bin selections
+ * - Store booking data in Supabase database
+ * - Send confirmation emails to customers
+ * - Enable form abandonment tracking for marketing follow-up
+ * 
+ * User Journey (9 Steps):
+ * 1. Welcome/Introduction - Explain what information is needed
+ * 2. Service Type - Regular or one-off cleaning
+ * 3. Contact Details - Name, email, phone, contact permission
+ * 4. Address - Full service address with location detection
+ * 5. Bin Selection - Choose which bins and quantities (prices update dynamically)
+ * 6. Collection Days - When customer's bins are collected (Mon-Fri only)
+ * 7. Special Instructions - Optional gate codes, location details, preferences
+ * 8. Payment Method - Choose card, cash, or bank transfer
+ * 9. Final Review - Confirm all details before submission
+ * 
+ * Key Features:
+ * - Responsive mobile-first design
+ * - Auto-location detection with geolocation API
+ * - Dynamic pricing calculation
+ * - Form abandonment tracking (tracks user data if they leave)
+ * - Validation at each step (Next button disabled until step is complete)
+ * - Professional UI with Tailwind CSS and Lucide icons
+ * - Error handling and user-friendly alerts
+ * 
+ * Data Stored in Database:
+ * - Customer name, email, phone, address, postcode
+ * - Service type and bin selection with quantities
+ * - Collection day and payment method
+ * - Special instructions and pricing breakdown
+ * - Booking ID (for customer reference)
+ * - Timestamp and status (pending/confirmed/completed)
+ */
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -16,20 +59,29 @@ import {
 import { useFormTracking } from '@/hooks/useFormTracking';
 
 interface BookingFormProps {
-  postcode: string;
-  onBack: () => void;
+  postcode: string;  // Postcode passed from parent (PostcodeChecker validated this)
+  onBack: () => void; // Callback to navigate back to postcode checker
 }
 
+// ============================================================================
+// CONFIGURATION CONSTANTS - Form Options and Pricing
+// ============================================================================
+
+// Available time slots for service appointments (not currently used in form but available for future feature)
 const TIME_SLOTS = [
   '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
   '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
 ];
 
+// Service type options - Regular service vs one-time clean
+// Regular = no service charge (free), One-off = £10 additional charge
 const SERVICE_TYPES = [
   { id: 'regular', name: 'Regular Clean', description: 'Ongoing scheduled cleaning service', popular: true, serviceCharge: 0 },
   { id: 'oneoff', name: 'One-off Clean', description: 'Single cleaning service', serviceCharge: 10 }
 ];
 
+// Bin types available for selection with pricing per unit
+// Customer can select multiple bins and quantities
 const BIN_TYPES = [
   { id: 'wheelie', name: 'Wheelie Bin (Large)', price: 5, description: 'Standard household wheelie bin' },
   { id: 'food', name: 'Food Waste Bin', price: 3, description: 'Small food waste bin' },
@@ -37,10 +89,16 @@ const BIN_TYPES = [
   { id: 'garden', name: 'Garden Waste Bin', price: 6, description: 'Green garden waste bin' }
 ];
 
+// Bin collection days - Only Monday to Friday (Saturday removed)
+// This matches typical UK household bin collection schedules
 const COLLECTION_DAYS = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
 ];
 
+// Payment method options - Three different ways customers can pay
+// Card: Payment taken during booking confirmation
+// Cash: Customer pays cleaner on service day
+// Bank Transfer: Payment requested after service is completed
 const PAYMENT_METHODS = [
   { 
     id: 'card', 
@@ -64,22 +122,30 @@ const PAYMENT_METHODS = [
 ];
 
 export default function BookingForm({ postcode, onBack }: BookingFormProps) {
+  // ============================================================================
+  // STATE MANAGEMENT
+  // ============================================================================
+  
+  // Main form data object - stores all customer input across all 9 steps
+  // Reset on page refresh; persisted temporarily while user navigates steps
   const [formData, setFormData] = useState({
-    // Step 1: Service Type
-    serviceType: 'regular',
+    // Step 1: Not captured (just intro screen)
     
-    // Step 2: Contact Details
+    // Step 2: Service Type Selection
+    serviceType: 'regular', // 'regular' or 'oneoff'
+    
+    // Step 3: Contact Details
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
-    contactPermission: 'yes', // Default to yes for better UX
+    contactPermission: 'yes', // GDPR compliance: user confirms we can contact them
     
-    // Step 3: Address
+    // Step 4: Address
     address: '',
-    useCurrentLocation: false,
+    useCurrentLocation: false, // Flag for location detection success message
     
-    // Step 4: Bin Selection with quantities
+    // Step 5: Bin Selection with quantities
     binQuantities: {
       wheelie: 0,
       food: 0,
@@ -87,32 +153,36 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
       garden: 0
     } as Record<string, number>,
     
-    // Step 5: Collection Days
-    collectionDays: [] as string[],
+    // Step 6: Collection Days
+    collectionDays: [] as string[], // Array but only one day can be selected (radio button behavior)
     
-    // Step 6: Special Instructions
-    // Step 7: Payment Method
-    // Step 8: Final Details & Summary
-    
-    // Additional
+    // Step 7: Special Instructions
     specialInstructions: '',
-    paymentMethod: 'card',
-    agreeToTerms: false
+    
+    // Step 8: Payment Method
+    paymentMethod: 'card', // 'card', 'cash', or 'bank_transfer'
+    
+    // Step 9: Terms Agreement
+    agreeToTerms: false // GDPR/Legal: user must agree before submission
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  // UI state for form submission and navigation
+  const [isSubmitting, setIsSubmitting] = useState(false);     // Show spinner on Complete Booking button
+  const [currentStep, setCurrentStep] = useState(1);           // Current form step (1-9)
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false); // Show spinner on location button
 
-  // Form tracking integration
+  // ============================================================================
+  // FORM TRACKING - Analytics & Abandonment Detection
+  // ============================================================================
+  // Tracks form progress even if user leaves (abandonment tracking for marketing)
   const { trackFieldChange, markAsSubmitted } = useFormTracking({
-    trackingId: `booking-form-${Date.now()}`,
+    trackingId: `booking-form-${Date.now()}`, // Unique ID for this form session
     onAbandon: (formData) => {
-      console.log('📊 Form abandoned with data:', formData);
+      console.log('📊 Form abandoned with data:', formData); // Could send to Supabase for email retargeting
     }
   });
 
-  // Track form data changes
+  // Track all form changes
   useEffect(() => {
     trackFieldChange('formData', formData);
   }, [formData, trackFieldChange]);
@@ -237,6 +307,13 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     return dates;
   };
 
+  // ============================================================================
+  // FORM INPUT HANDLERS - Managing state updates
+  // ============================================================================
+  
+  // Generic handler for all basic form input changes (text, email, phone, checkbox, radio)
+  // Updates formData state with new value for given field
+  // Special handling for agreeToTerms (converts string to boolean)
   const handleInputChange = (field: string, value: string | string[]) => {
     setFormData(prev => ({ 
       ...prev, 
@@ -244,6 +321,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     }));
   };
 
+  // Specialized handler for bin quantity updates
+  // Manages binQuantities object independently
+  // Ensures quantity never goes below 0 (can't have negative bins)
+  // Called by +/- buttons on each bin type
   const updateBinQuantity = (binId: string, quantity: number) => {
     setFormData(prev => ({
       ...prev,
@@ -254,6 +335,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     }));
   };
 
+  // Specialized handler for collection day selection
+  // Implements radio-button behavior: only ONE day can be selected at a time
+  // When user selects a day, replaces entire array with single-item array
+  // If user selects same day again, it stays selected (replace with same)
   const selectCollectionDay = (day: string) => {
     setFormData(prev => ({
       ...prev,
@@ -261,16 +346,23 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     }));
   };
 
+  // ============================================================================
+  // FORM SUBMISSION HANDLER
+  // ============================================================================
+  // Handles the final booking submission after user completes all 9 steps
+  // Validates data, creates booking record in database, sends confirmation email, and redirects to thank-you page
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Mark form as submitted to stop abandonment tracking
+    // This prevents the form from appearing as abandoned if user completes it
     markAsSubmitted();
     
     setIsSubmitting(true);
 
     try {
-      // Create booking object with all necessary data
+      // Step 1: Assemble booking object with all necessary data from form
+      // This gets saved to Supabase and used to generate the email and customer portal
       const bookingData = {
         serviceType: formData.serviceType,
         customerInfo: {
@@ -280,23 +372,27 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           phone: formData.phone,
           address: formData.address,
           postcode: postcode,
-          contactPermission: formData.contactPermission
+          contactPermission: formData.contactPermission // GDPR: Customer consent to contact
         },
         binSelection: formData.binQuantities,
-        collectionDay: formData.collectionDays[0],
+        collectionDay: formData.collectionDays[0], // Only one day selected (radio behavior)
         paymentMethod: formData.paymentMethod,
         specialInstructions: formData.specialInstructions,
         pricing: {
-          binTotal: binTotal,
-          serviceCharge: serviceCharge,
-          totalPrice: totalPrice
+          binTotal: binTotal,              // Sum of all bin prices
+          serviceCharge: serviceCharge,    // Extra charge for one-off service
+          totalPrice: totalPrice           // Grand total
         },
-        status: 'pending',
+        status: 'pending', // New bookings start as pending (awaiting customer payment)
         createdAt: new Date().toISOString(),
-        bookingId: `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+        bookingId: `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` // Unique ID for this booking
       };
 
-      // Save to API endpoint
+      // Step 2: POST booking data to API endpoint
+      // This endpoint (api/bookings) handles:
+      // - Saving to Supabase database
+      // - Generating and sending confirmation email via Gmail SMTP
+      // - Creating customer portal access
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
@@ -313,16 +409,18 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
 
       const result = await response.json();
       
-      // Show success message with booking ID
+      // Step 3: Show success message and redirect to customer portal
+      // Customer can track their booking and make modifications
       alert(`Booking confirmed! Your booking ID is ${result.bookingId}. We'll send you a confirmation email shortly. You'll now be redirected to manage your booking.`);
       
       // Redirect to customer area with booking ID in URL for easy lookup
-      window.location.href = `/customer?booking=${result.bookingId}`;
+      // The thank-you page will show comprehensive booking summary and next steps
+      window.location.href = `/booking/thank-you?booking=${result.bookingId}`;
       
     } catch (error) {
       console.error('Booking submission error:', error);
       
-      // More specific error messages
+      // Provide specific error messages to help customers troubleshoot
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
       if (error instanceof TypeError && errorMessage.includes('fetch')) {
@@ -337,17 +435,93 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     }
   };
 
-  // Calculate total price based on bin quantities and service charge
+  // ============================================================================
+  // PRICE CALCULATION LOGIC
+  // ============================================================================
+  // These values are displayed in the pricing summary and included in the final booking
+  
+  // Calculate total bin cost by summing up: (bin price × quantity) for each bin type
+  // Example: 2 wheelie bins @ £5 each = £10
   const binTotal = Object.entries(formData.binQuantities).reduce((total, [binId, quantity]) => {
     const bin = BIN_TYPES.find(b => b.id === binId);
     return total + (bin ? bin.price * quantity : 0);
   }, 0);
   
+  // Service charge depends on service type:
+  // - Regular service: £0 (no extra charge for standard cleaning)
+  // - One-off service: £10 (extra charge for additional/urgent jobs)
   const serviceCharge = SERVICE_TYPES.find(s => s.id === formData.serviceType)?.serviceCharge || 0;
+  
+  // Grand total = bin costs + service charge
+  // This is what the customer will be asked to pay
   const totalPrice = binTotal + serviceCharge;
 
-  // Calculate total bins selected
+  // Count total individual bins selected (for display purposes)
+  // Used in pricing summary to show "You have selected 3 bins"
   const totalBinsSelected = Object.values(formData.binQuantities).reduce((total, quantity) => total + quantity, 0);
+
+  // ============================================================================
+  // FORM FLOW OVERVIEW (9 STEPS)
+  // ============================================================================
+  // This multi-step form guides customers through a seamless booking experience:
+  //
+  // Step 1: Welcome Screen
+  //   - Explains what information will be needed
+  //   - Sets expectations (2-3 minute completion time)
+  //   - No data collection (just intro)
+  //
+  // Step 2: Service Type Selection
+  //   - Radio buttons for Regular or One-off service
+  //   - Regular: Recurring cleaning service (£0 base charge)
+  //   - One-off: Single additional clean (£10 charge)
+  //
+  // Step 3: Contact Details
+  //   - First Name, Last Name, Email, Phone
+  //   - Auto-detect location button (tries to access device contacts)
+  //   - GDPR contact permission checkbox (user consents to contact)
+  //
+  // Step 4: Service Address
+  //   - Address input field with manual entry
+  //   - "Detect Location" button uses browser geolocation
+  //   - Fetches full address from OpenStreetMap API and postcode
+  //   - Shows success message on detection
+  //
+  // Step 5: Bin Selection
+  //   - Select which types of bins need cleaning
+  //   - Increase/decrease quantities with +/- buttons
+  //   - Real-time price calculation displayed
+  //   - Available bin types: Wheelie, Food Waste, Recycling, Garden
+  //
+  // Step 6: Collection Days
+  //   - Choose preferred collection day (Monday-Friday only)
+  //   - Radio button group (only one day can be selected)
+  //   - Saturday/Sunday excluded for business operations
+  //
+  // Step 7: Special Instructions
+  //   - Optional text area for any special requests
+  //   - Examples: gate codes, pet warnings, best time to call
+  //
+  // Step 8: Payment Method
+  //   - Three payment options: Card, Cash, Bank Transfer
+  //   - Card: Online payment via Stripe (secure)
+  //   - Cash: Pay the cleaner on service day
+  //   - Bank Transfer: Invoice sent after service
+  //
+  // Step 9: Final Summary & Confirmation
+  //   - Review all booking details
+  //   - Display total price breakdown
+  //   - Final terms agreement checkbox (legal compliance)
+  //   - Complete Booking button submits to database
+  //
+  // KEY FEATURES:
+  // - Real-time price calculation updates as user selects bins
+  // - Progress indicator shows current step and total steps
+  // - Previous button allows navigation backward
+  // - Mobile-optimized responsive design
+  // - Form data persisted in state across steps
+  // - Geolocation and contact auto-detection (with fallbacks)
+  // - GDPR compliant with explicit consent checkboxes
+  // ============================================================================
 
   return (
     <FormContainer fullWidthOnMobile={true} className="bg-transparent">
@@ -415,7 +589,20 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 2: Service Type Selection */}
+        {/* Step 2: Service Type Selection
+            WHAT HAPPENS HERE:
+            - User selects between "Regular" (ongoing) or "One-off" (single clean) service
+            - This choice affects the final price (£0 base vs £10 premium)
+            - Stored in formData.serviceType as either 'regular' or 'oneoff'
+            
+            USER DECISIONS:
+            - Regular service: For customers wanting recurring weekly/monthly cleans
+            - One-off service: For customers wanting a one-time deep clean
+            
+            VALIDATION:
+            - Service type is required before proceeding
+            - Defaults to 'regular' if not explicitly changed
+        */}
         {currentStep === 2 && (
           <>
             <FormSection>
@@ -479,7 +666,31 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 3: Contact Details */}
+        {/* Step 3: Contact Details
+            WHAT HAPPENS HERE:
+            - Collects customer's name, email, and phone number
+            - These are required fields (validation prevents proceeding without them)
+            - Contact Permission checkbox: GDPR compliance - user must consent to be contacted
+            - Optional auto-detect feature attempts to pull contacts from device
+            
+            COLLECTED DATA:
+            - firstName: Customer's first name (required, validation enforced)
+            - lastName: Customer's last name (required, validation enforced)
+            - email: Contact email for booking confirmation and updates (required, must be valid email)
+            - phone: Phone number for cleaner to contact on service day (required)
+            - contactPermission: GDPR consent checkbox (required for compliance)
+            
+            VALIDATION RULES:
+            - All fields required (firstName, lastName, email, phone)
+            - Email must be valid format (handled by HTML5 email input type)
+            - Contact permission must be checked to proceed
+            - Next button disabled until all validations pass
+            
+            BUSINESS IMPACT:
+            - Email used for booking confirmation and payment processing
+            - Phone used by cleaner for coordination on service day
+            - Contact permission enables follow-up marketing and customer service
+        */}
         {currentStep === 3 && (
           <>
             <FormSection>
@@ -523,33 +734,36 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
 
               {/* Contact Permission */}
               <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Are you happy for us to contact you?
+                <label className="relative cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.contactPermission === 'yes'}
+                    onChange={(e) => handleInputChange('contactPermission', e.target.checked ? 'yes' : 'no')}
+                    className="sr-only"
+                  />
+                  <div className={`p-4 border-2 rounded-lg transition-all ${
+                    formData.contactPermission === 'yes'
+                      ? 'border-black bg-gray-50' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        formData.contactPermission === 'yes'
+                          ? 'border-black bg-black'
+                          : 'border-gray-300'
+                      }`}>
+                        {formData.contactPermission === 'yes' && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className="text-sm font-medium">
+                        I'm happy for you to contact me about this booking via email, phone, or SMS
+                      </span>
+                    </div>
+                  </div>
                 </label>
-                <div className="flex space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="contactPermission"
-                      value="yes"
-                      checked={formData.contactPermission === 'yes'}
-                      onChange={(e) => handleInputChange('contactPermission', e.target.value)}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">Yes, please contact me</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="contactPermission"
-                      value="no"
-                      checked={formData.contactPermission === 'no'}
-                      onChange={(e) => handleInputChange('contactPermission', e.target.value)}
-                      className="mr-2"
-                    />
-                    <span className="text-sm">No, do not contact me</span>
-                  </label>
-                </div>
               </div>
             </FormSection>
 
@@ -573,7 +787,39 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 4: Address */}
+        {/* Step 4: Address
+            WHAT HAPPENS HERE:
+            - Collects the full service address within the confirmed postcode
+            - User can manually enter their address OR use "Detect Location" button
+            - Geolocation detection uses browser GPS + OpenStreetMap API for reverse geocoding
+            - Shows success message when location is successfully detected
+            
+            COLLECTED DATA:
+            - address: Full street address including house number (required)
+            - useCurrentLocation: Flag showing if location was auto-detected (for UX messaging)
+            
+            GEOLOCATION FLOW (if user clicks "Detect Location"):
+            1. Browser requests permission to access device location
+            2. Gets latitude/longitude from GPS/network triangulation
+            3. Sends to OpenStreetMap Nominatim API for reverse geocoding
+            4. Formats returned data into readable address format
+            5. Populates address field and shows success message
+            6. If API fails, shows coordinates as fallback and prompts manual entry
+            
+            VALIDATION RULES:
+            - Address field required (cannot be empty)
+            - Must contain enough detail for cleaner to locate property
+            - Postcode already confirmed on previous page
+            
+            ERROR HANDLING:
+            - If geolocation disabled: Shows alert prompting manual entry
+            - If API fails: Shows coordinates with fallback message
+            - If browser unsupported: Graceful fallback to manual entry
+            
+            BUSINESS IMPACT:
+            - Address used to dispatch cleaner to correct location
+            - Combined with postcode for full service area verification
+        */}
         {currentStep === 4 && (
           <>
             <FormSection>
@@ -639,7 +885,39 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 5: Bin Selection */}
+        {/* Step 5: Bin Selection
+            WHAT HAPPENS HERE:
+            - User selects which bin types need cleaning and quantities
+            - Price updates in real-time as quantities change
+            - At least 1 bin must be selected to proceed
+            - Each bin type has its own individual price
+            
+            AVAILABLE BIN TYPES & PRICING:
+            - Wheelie Bin (£5): Standard residential bin, most common
+            - Food Waste Bin (£3): Smaller food composting bin
+            - Recycling Bin (£4): Mixed recyclables container
+            - Garden Waste Bin (£6): Leaf/garden waste container
+            
+            COLLECTED DATA:
+            - binQuantities: Object tracking quantity for each bin type
+              { wheelie: 1, food: 0, recycling: 2, garden: 1 } = 4 bins total
+            
+            PRICE CALCULATION (REAL-TIME):
+            - binTotal calculated from: Sum of (bin price × quantity) for each bin
+            - Example: 1 wheelie (£5) + 2 recycling (£4×2=£8) = £13
+            - Real-time calculation provides instant transparency
+            - Final binTotal used in Step 9 summary and booking submission
+            
+            VALIDATION RULES:
+            - At least 1 bin must be selected (totalBinsSelected > 0)
+            - Quantities managed with +/- buttons (cannot go negative)
+            - No upper limit on quantities (customer can select 5, 10, etc.)
+            
+            BUSINESS IMPACT:
+            - Each bin type requires specific cleaning approach
+            - Pricing structure covers equipment, labor, waste disposal costs
+            - Quantity selection affects cleaner dispatch scheduling
+        */}
         {currentStep === 5 && (
           <>
             <FormSection>
@@ -724,7 +1002,37 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 6: Collection Days */}
+        {/* Step 6: Collection Days
+            WHAT HAPPENS HERE:
+            - User selects their bin collection day (the day their council/provider picks up bins)
+            - We schedule cleaning for the SAME DAY (after they're collected)
+            - Only weekdays available (Monday-Friday) - business operations constraint
+            - Radio button behavior (only ONE day can be selected)
+            
+            AVAILABLE COLLECTION DAYS:
+            - Monday, Tuesday, Wednesday, Thursday, Friday
+            - Saturday and Sunday NOT available (no weekend collections scheduled)
+            - Days stored as strings in formData.collectionDays array (though only 1 selected)
+            
+            COLLECTED DATA:
+            - collectionDays: Array with single string value ['Monday'] or ['Wednesday']
+            - Later accessed as: formData.collectionDays[0] when submitting booking
+            
+            WHY THIS MATTERS:
+            - Council collection happens on specific days per postcode
+            - Cleaner needs to schedule after collection to clean dirty bins
+            - Customer provides day → Our system schedules cleaner for same day
+            - Enables efficient route optimization for cleaning team
+            
+            BUSINESS CONSTRAINTS:
+            - No Saturday/Sunday operations (team has weekends off)
+            - Customer must know their council collection day before booking
+            - If unsure, customer can check council website or ask during booking process
+            
+            VALIDATION RULES:
+            - One day must be selected (cannot proceed without selection)
+            - Radio buttons enforce single selection (can't choose multiple days)
+        */}
         {currentStep === 6 && (
           <>
             <FormSection>
@@ -780,7 +1088,42 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 7: Special Instructions */}
+        {/* Step 7: Special Instructions
+            WHAT HAPPENS HERE:
+            - Optional free-text field for customer special requests
+            - Completely optional (not required to proceed)
+            - Examples: gate access codes, preferred times, pet warnings, etc.
+            - Cleaner receives this in booking details before arriving
+            
+            COLLECTED DATA:
+            - specialInstructions: Free text string (can be empty)
+            - Displayed to cleaner as part of job briefing
+            - Shown in customer's booking portal for reference
+            
+            COMMON USE CASES:
+            - "Gate access code is 1234, bins are behind garage"
+            - "Please don't ring doorbell, dog will bark"
+            - "Bins are located in alley on left side of property"
+            - "Best time to call is after 10am"
+            - "Please clean extra carefully, bins have stickers on them"
+            - "Access requires key from front left planter"
+            
+            WHY THIS MATTERS:
+            - Provides context that improves cleaner efficiency and safety
+            - Reduces missed jobs due to unclear access instructions
+            - Prevents misunderstandings about property layout
+            - Improves customer satisfaction through attention to detail
+            
+            VALIDATION:
+            - No validation required (completely optional field)
+            - Maximum length enforced by textarea (practical limit)
+            - Can contain any text relevant to the cleaning job
+            
+            BUSINESS IMPACT:
+            - Better prepared cleaning team = more professional service
+            - Fewer callbacks due to clarification questions
+            - Shows attention to customer needs
+        */}
         {currentStep === 7 && (
           <>
             <FormSection>
@@ -819,7 +1162,49 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 8: Payment Method */}
+        {/* Step 8: Payment Method
+            WHAT HAPPENS HERE:
+            - Customer selects how they want to pay for their booking
+            - Three payment options available (radio buttons - single selection)
+            - Each option has different timing and process
+            - Selection stored and used at payment processing stage
+            
+            PAYMENT OPTIONS:
+            1. CARD PAYMENT (Default, Marked as Popular)
+               - Visa, Mastercard, American Express accepted
+               - Processed securely via Stripe payment gateway
+               - Payment collected UPFRONT (before service)
+               - Fastest checkout process
+               - Best for: Online-savvy customers, quick service
+            
+            2. CASH PAYMENT
+               - Customer pays cleaner directly on service day
+               - No upfront payment required
+               - Cleaner carries payment terminal or takes exact cash
+               - Invoice generated for records
+               - Best for: Customers without card, local payment preference
+            
+            3. BANK TRANSFER
+               - Payment via direct bank transfer/BACS
+               - Invoice issued after service completion
+               - Payment expected within 5-7 working days
+               - Best for: Business customers, accounting purposes, preferred method
+            
+            COLLECTED DATA:
+            - paymentMethod: String value - 'card', 'cash', or 'bank_transfer'
+            - Stored in booking record for payment processing flow
+            - Used to trigger different backend payment workflows
+            
+            BUSINESS WORKFLOW:
+            - Card → Immediate Stripe charge → Service scheduled
+            - Cash → Service scheduled → Invoice emailed → Collected on day
+            - Bank Transfer → Invoice emailed → Awaiting payment → Service after payment cleared
+            
+            VALIDATION:
+            - One payment method must be selected
+            - Defaults to 'card' in initial state
+            - Cannot proceed to final summary without selection
+        */}
         {currentStep === 8 && (
           <>
             <FormSection>
@@ -917,7 +1302,68 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
           </>
         )}
 
-        {/* Step 9: Final Summary & Confirmation */}
+        {/* Step 9: Final Summary & Confirmation
+            WHAT HAPPENS HERE:
+            - Customer reviews ALL booking details in one comprehensive summary
+            - Price breakdown shows bin costs + service charge = total
+            - Final GDPR compliance: Terms & Conditions checkbox
+            - "Complete Booking" button submits everything to database
+            - This is the point of no return - triggers booking creation
+            
+            SUMMARY DISPLAYS:
+            1. Service Type: "Regular" or "One-off" cleaning
+            2. Contact: Customer's name and contact details
+            3. Location: Full address and postcode
+            4. Bins Selected: Detailed list of all bin types and quantities
+            5. Collection Day: The chosen weekday
+            6. Special Instructions: Any notes entered (if provided)
+            7. Payment Method: How customer will pay
+            8. Price Breakdown:
+               - Individual bin costs: e.g., "1x Wheelie bin @ £5"
+               - Service charge: £0 (regular) or £10 (one-off)
+               - Total price: Final amount to pay
+            
+            PRICE BREAKDOWN CALCULATION:
+            - Displayed in real-time as summary
+            - Calculated from: binTotal (sum of all bin prices) + serviceCharge
+            - Example summary:
+              2x Wheelie bin @ £5 = £10
+              1x Recycling bin @ £4 = £4
+              Service charge = £0
+              TOTAL = £14
+            
+            COLLECTED DATA:
+            - agreeToTerms: Boolean checkbox (GDPR/Legal requirement)
+              - Must be TRUE to submit (enforced by disabled button)
+              - Customer acknowledges T&Cs and data processing
+            
+            SUBMISSION FLOW:
+            1. Customer checks all details match their expectations
+            2. Customer reads and checks Terms & Conditions box
+            3. Click "Complete Booking" button
+            4. handleSubmit() function triggered
+            5. All data POSTed to /api/bookings endpoint
+            6. Backend: Save to Supabase + Send confirmation email
+            7. Success: Show confirmation message + Redirect to thank-you page
+            
+            ERROR HANDLING:
+            - Network error: Alert user and allow retry
+            - Validation error: Show specific error message
+            - Server error: Display error code and contact support message
+            - Form stays on step 9 if submission fails (user can retry)
+            
+            VALIDATION RULES:
+            - agreeToTerms must be TRUE (checkbox must be checked)
+            - Cannot complete booking without explicit consent
+            - All previous steps validated before this point
+            
+            BUSINESS IMPACT:
+            - Final checkpoint ensures data accuracy
+            - Terms checkbox provides legal protection
+            - Email confirmation sent immediately after submission
+            - Unique booking ID generated for customer reference
+            - Booking enters system for cleaner assignment and scheduling
+        */}
         {currentStep === 9 && (
           <>
             <FormSection>

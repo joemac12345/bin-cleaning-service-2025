@@ -30,7 +30,7 @@ function BookingContent() {
   }
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative flex items-center justify-center px-4">
       {/* Background Image - same as postcode page */}
       <div 
         className="absolute inset-0 bg-repeat"
@@ -44,7 +44,7 @@ function BookingContent() {
       <div className="absolute inset-0 bg-white/60" />
       
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 w-full max-w-4xl my-8">
         <BookingForm 
           postcode={postcode}
           onBack={handleBack}

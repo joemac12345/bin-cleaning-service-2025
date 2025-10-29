@@ -17,7 +17,7 @@ export default function PostcodeCheckerPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center px-4 py-8 sm:py-12">
+    <div className="min-h-screen relative flex items-center justify-center px-4">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-repeat"
@@ -31,7 +31,7 @@ export default function PostcodeCheckerPage() {
       <div className="absolute inset-0 bg-white/60" />
       
       {/* Content */}
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-4xl my-8">
         {/* Main Content */}
         <div className="flex justify-center">
           <PostcodeChecker 

@@ -333,7 +333,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
   };
 
   return (
-    <div className="w-full md:max-w-2xl md:mx-auto px-6 py-8 md:p-8">
+    <div className="w-full md:max-w-2xl md:mx-auto px-6 py-4 md:p-8">
       {result === null && (
         <div className="mb-10 md:mb-8">
           <div className="flex items-center space-x-4 sm:space-x-6 mb-6 md:mb-4">
