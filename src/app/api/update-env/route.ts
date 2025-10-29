@@ -55,10 +55,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=${mergedVars.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}
 # Only add this if you need admin-level database access
 # SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 
-# Resend Email Configuration
-# Get your API key from resend.com after signing up
-RESEND_API_KEY=${mergedVars.RESEND_API_KEY || ''}
-RESEND_FROM_EMAIL=${mergedVars.RESEND_FROM_EMAIL || 'onboarding@resend.dev'}
+# Email Configuration
+# Using Gmail SMTP for sending emails
+GMAIL_USER=${mergedVars.GMAIL_USER || ''}
+GMAIL_APP_PASS=${mergedVars.GMAIL_APP_PASS || ''}
 ADMIN_EMAIL=${mergedVars.ADMIN_EMAIL || ''}
 
 # Application Configuration

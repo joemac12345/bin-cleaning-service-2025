@@ -8,9 +8,9 @@ interface DeploymentConfig {
   supabaseUrl: string;
   supabaseAnonKey: string;
   
-  // Resend Email
-  resendApiKey: string;
-  resendFromEmail: string;
+  // Gmail Email Configuration
+  gmailUser: string;
+  gmailAppPass: string;
   adminEmail: string;
   
   // Application
@@ -21,15 +21,15 @@ export default function DeploymentSetup() {
   const [config, setConfig] = useState<DeploymentConfig>({
     supabaseUrl: '',
     supabaseAnonKey: '',
-    resendApiKey: '',
-    resendFromEmail: 'onboarding@resend.dev',
+    gmailUser: '',
+    gmailAppPass: '',
     adminEmail: '',
     baseUrl: 'https://your-site.netlify.app'
   });
 
   const [showKeys, setShowKeys] = useState({
     supabaseAnonKey: false,
-    resendApiKey: false
+    gmailAppPass: false
   });
 
   const [connectionStatus, setConnectionStatus] = useState<{
@@ -55,8 +55,8 @@ export default function DeploymentSetup() {
     const savedConfig = {
       supabaseUrl: localStorage.getItem('deployment_supabase_url') || process.env.NEXT_PUBLIC_SUPABASE_URL || '',
       supabaseAnonKey: localStorage.getItem('deployment_supabase_key') || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-      resendApiKey: localStorage.getItem('deployment_resend_key') || '',
-      resendFromEmail: localStorage.getItem('deployment_from_email') || 'onboarding@resend.dev',
+      gmailUser: localStorage.getItem('deployment_gmail_user') || '',
+      gmailAppPass: localStorage.getItem('deployment_gmail_pass') || '',
       adminEmail: localStorage.getItem('deployment_admin_email') || '',
       baseUrl: localStorage.getItem('deployment_base_url') || 'https://your-site.netlify.app'
     };
@@ -78,7 +78,7 @@ export default function DeploymentSetup() {
     setMessage('');
   };
 
-  const toggleKeyVisibility = (keyType: 'supabaseAnonKey' | 'resendApiKey') => {
+  const toggleKeyVisibility = (keyType: 'supabaseAnonKey' | 'gmailAppPass') => {
     setShowKeys(prev => ({
       ...prev,
       [keyType]: !prev[keyType]
@@ -125,8 +125,8 @@ export default function DeploymentSetup() {
   };
 
   const testEmailConnection = async () => {
-    if (!config.resendApiKey || !config.adminEmail) {
-      setMessage('Please provide Resend API key and admin email.');
+    if (!config.gmailUser || !config.gmailAppPass) {
+      setMessage('Please provide both Gmail user and app password.');
       return;
     }
 
@@ -137,9 +137,7 @@ export default function DeploymentSetup() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          apiKey: config.resendApiKey,
-          fromEmail: config.resendFromEmail,
-          toEmail: config.adminEmail
+          testEmail: config.adminEmail || 'test@example.com'
         }),
       });
 
@@ -147,14 +145,14 @@ export default function DeploymentSetup() {
 
       if (result.success) {
         setConnectionStatus(prev => ({ ...prev, email: 'success' }));
-        setMessage('✅ Email system test successful!');
+        setMessage('✅ Gmail SMTP test successful!');
       } else {
         setConnectionStatus(prev => ({ ...prev, email: 'error' }));
-        setMessage(`❌ Email test failed: ${result.error}`);
+        setMessage(`❌ Gmail test failed: ${result.error}`);
       }
     } catch (error: any) {
       setConnectionStatus(prev => ({ ...prev, email: 'error' }));
-      setMessage(`❌ Email test failed: ${error.message}`);
+      setMessage(`❌ Gmail test failed: ${error.message}`);
     }
   };
 
@@ -185,8 +183,8 @@ export default function DeploymentSetup() {
       // Save to localStorage
       localStorage.setItem('deployment_supabase_url', config.supabaseUrl);
       localStorage.setItem('deployment_supabase_key', config.supabaseAnonKey);
-      localStorage.setItem('deployment_resend_key', config.resendApiKey);
-      localStorage.setItem('deployment_from_email', config.resendFromEmail);
+      localStorage.setItem('deployment_gmail_user', config.gmailUser);
+      localStorage.setItem('deployment_gmail_pass', config.gmailAppPass);
       localStorage.setItem('deployment_admin_email', config.adminEmail);
       localStorage.setItem('deployment_base_url', config.baseUrl);
 
@@ -198,8 +196,8 @@ export default function DeploymentSetup() {
           body: JSON.stringify({
             NEXT_PUBLIC_SUPABASE_URL: config.supabaseUrl,
             NEXT_PUBLIC_SUPABASE_ANON_KEY: config.supabaseAnonKey,
-            RESEND_API_KEY: config.resendApiKey,
-            RESEND_FROM_EMAIL: config.resendFromEmail,
+            GMAIL_USER: config.gmailUser,
+            GMAIL_APP_PASS: config.gmailAppPass,
             ADMIN_EMAIL: config.adminEmail,
             NEXT_PUBLIC_BASE_URL: config.baseUrl
           }),
@@ -223,8 +221,8 @@ export default function DeploymentSetup() {
   const generateNetlifyEnvVars = () => {
     const envVars = `NEXT_PUBLIC_SUPABASE_URL=${config.supabaseUrl}
 NEXT_PUBLIC_SUPABASE_ANON_KEY=${config.supabaseAnonKey}
-RESEND_API_KEY=${config.resendApiKey}
-RESEND_FROM_EMAIL=${config.resendFromEmail}
+GMAIL_USER=${config.gmailUser}
+GMAIL_APP_PASS=${config.gmailAppPass}
 ADMIN_EMAIL=${config.adminEmail}
 NEXT_PUBLIC_BASE_URL=${config.baseUrl}`;
 
@@ -364,76 +362,78 @@ NEXT_PUBLIC_BASE_URL=${config.baseUrl}`;
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Globe className="h-5 w-5 text-green-600" />
-            Email System Configuration
+            Gmail SMTP Configuration
           </h3>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Resend API Key
+                Gmail Address
+              </label>
+              <input
+                type="email"
+                value={config.gmailUser}
+                onChange={(e) => handleInputChange('gmailUser', e.target.value)}
+                placeholder="your-email@gmail.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">The Gmail account to send emails from</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Gmail App Password
               </label>
               <div className="relative">
                 <input
-                  type={showKeys.resendApiKey ? 'text' : 'password'}
-                  value={config.resendApiKey}
-                  onChange={(e) => handleInputChange('resendApiKey', e.target.value)}
-                  placeholder="re_..."
+                  type={showKeys.gmailAppPass ? 'text' : 'password'}
+                  value={config.gmailAppPass}
+                  onChange={(e) => handleInputChange('gmailAppPass', e.target.value)}
+                  placeholder="xxxx xxxx xxxx xxxx"
                   className="w-full px-3 py-2 pr-20 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 space-x-1">
                   <button
                     type="button"
-                    onClick={() => toggleKeyVisibility('resendApiKey')}
+                    onClick={() => toggleKeyVisibility('gmailAppPass')}
                     className="text-gray-400 hover:text-gray-600"
                   >
-                    {showKeys.resendApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showKeys.gmailAppPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                   <button
                     type="button"
-                    onClick={() => copyToClipboard(config.resendApiKey, 'Resend API key')}
+                    onClick={() => copyToClipboard(config.gmailAppPass, 'Gmail app password')}
                     className="text-gray-400 hover:text-gray-600"
                   >
                     <Copy className="h-4 w-4" />
                   </button>
                 </div>
               </div>
+              <p className="text-xs text-gray-500 mt-1">
+                Generate at: Google Account &gt; Security &gt; App passwords &gt; Mail/Windows
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  From Email Address
-                </label>
-                <input
-                  type="email"
-                  value={config.resendFromEmail}
-                  onChange={(e) => handleInputChange('resendFromEmail', e.target.value)}
-                  placeholder="onboarding@resend.dev"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Admin Email Address
-                </label>
-                <input
-                  type="email"
-                  value={config.adminEmail}
-                  onChange={(e) => handleInputChange('adminEmail', e.target.value)}
-                  placeholder="admin@yourdomain.com"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Admin Email Address
+              </label>
+              <input
+                type="email"
+                value={config.adminEmail}
+                onChange={(e) => handleInputChange('adminEmail', e.target.value)}
+                placeholder="admin@yourdomain.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
 
             <button
               onClick={testEmailConnection}
-              disabled={!config.resendApiKey || !config.adminEmail}
+              disabled={!config.gmailUser || !config.gmailAppPass}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${connectionStatus.email === 'testing' ? 'animate-spin' : ''}`} />
-              Test Email System
+              Test Gmail SMTP
             </button>
           </div>
         </div>
