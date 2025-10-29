@@ -218,23 +218,6 @@ export default function AbandonedFormsPage() {
           <div>
             <p className="text-zinc-600 dark:text-zinc-400">Recover lost revenue through targeted remarketing</p>
           </div>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <button
-              onClick={fetchForms}
-              disabled={loading}
-              className="inline-flex items-center justify-center px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 disabled:opacity-50 text-sm font-medium transition-colors"
-            >
-              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
-            <button
-              onClick={exportToCSV}
-              className="inline-flex items-center justify-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-100 text-sm font-medium transition-colors"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
-            </button>
-          </div>
         </div>
 
         {/* Stats Cards */}
