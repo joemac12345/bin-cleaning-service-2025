@@ -1,5 +1,10 @@
 import nodemailer from 'nodemailer';
 
+// Email result types
+export type EmailResult = 
+  | { success: true; messageId: string; simulation: boolean }
+  | { success: false; error: string; simulation: boolean };
+
 // Gmail SMTP configuration
 const createGmailTransporter = () => {
   const gmailUser = process.env.GMAIL_USER;
@@ -19,7 +24,7 @@ const createGmailTransporter = () => {
   });
 };
 
-export const sendEmailViaGmail = async (to: string, subject: string, html: string, replyTo?: string) => {
+export const sendEmailViaGmail = async (to: string, subject: string, html: string, replyTo?: string): Promise<EmailResult> => {
   const transporter = createGmailTransporter();
   
   if (!transporter) {
@@ -45,9 +50,13 @@ export const sendEmailViaGmail = async (to: string, subject: string, html: strin
     });
 
     console.log('✅ Gmail email sent successfully:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    return { success: true, messageId: info.messageId, simulation: false };
   } catch (error) {
     console.error('❌ Gmail send error:', error);
-    throw error;
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : String(error),
+      simulation: false 
+    };
   }
 };
