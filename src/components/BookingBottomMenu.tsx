@@ -1,6 +1,6 @@
 'use client';
 
-import { RefreshCw, Eye, EyeOff } from 'lucide-react';
+import { RefreshCw, CheckCircle, CheckCheck } from 'lucide-react';
 
 interface BookingBottomMenuProps {
   showCompleted: boolean;
@@ -9,6 +9,8 @@ interface BookingBottomMenuProps {
   isLoading: boolean;
   activeJobsCount: number;
   completedJobsCount: number;
+  onFilterPending?: () => void;
+  onFilterAll?: () => void;
 }
 
 export default function BookingBottomMenu({
@@ -18,6 +20,8 @@ export default function BookingBottomMenu({
   isLoading,
   activeJobsCount,
   completedJobsCount,
+  onFilterPending,
+  onFilterAll,
 }: BookingBottomMenuProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 shadow-lg">
@@ -39,27 +43,29 @@ export default function BookingBottomMenu({
 
           {/* Right: Action Buttons */}
           <div className="flex items-center gap-2">
-            {/* Toggle Show Completed Button */}
+            {/* Filter Buttons */}
             <button
-              onClick={onToggleShowCompleted}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
-                showCompleted
-                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900/50'
-                  : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700'
+              onClick={onFilterPending || onToggleShowCompleted}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                !showCompleted 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-600'
               }`}
-              title={showCompleted ? 'Hide completed jobs' : 'Show completed jobs'}
             >
-              {showCompleted ? (
-                <>
-                  <EyeOff className="w-4 h-4" />
-                  <span className="hidden sm:inline">Hide Completed</span>
-                </>
-              ) : (
-                <>
-                  <Eye className="w-4 h-4" />
-                  <span className="hidden sm:inline">Show All</span>
-                </>
-              )}
+              <CheckCircle className="w-4 h-4" />
+              <span className="hidden sm:inline">Pending</span>
+            </button>
+            
+            <button
+              onClick={onFilterAll || onToggleShowCompleted}
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                showCompleted 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+              }`}
+            >
+              <CheckCheck className="w-4 h-4" />
+              <span className="hidden sm:inline">All</span>
             </button>
 
             {/* Refresh Button */}
