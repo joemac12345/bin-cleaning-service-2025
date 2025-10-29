@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Package, MapPin, Calendar, Users } from 'lucide-react';
+import { Package, MapPin, Calendar, Users, TrendingDown } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Bin Cleaning',
@@ -69,22 +69,43 @@ export default function AdminPage() {
             </div>
           </Link>
 
-          {/* Abandoned Forms */}
+          {/* Abandoned Forms Analytics */}
+          <Link href="/admin/abandoned-forms-analytics" className="group">
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 hover:border-red-400 dark:hover:border-red-500 transition-all hover:shadow-lg dark:hover:shadow-red-900/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-400 mb-3" />
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                    Abandoned Forms
+                  </h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+                    Analytics and recovery of incomplete bookings
+                  </p>
+                </div>
+              </div>
+              <div className="inline-flex items-center text-sm text-red-600 dark:text-red-400 font-medium group-hover:gap-2 transition-all">
+                <span>View analytics</span>
+                <span>→</span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Abandoned Forms Manager */}
           <Link href="/admin/abandoned-forms" className="group">
             <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 hover:border-amber-400 dark:hover:border-amber-500 transition-all hover:shadow-lg dark:hover:shadow-amber-900/20">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
                   <Users className="h-8 w-8 text-amber-600 dark:text-amber-400 mb-3" />
                   <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
-                    Abandoned Forms
+                    Forms Management
                   </h3>
                   <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                    Track and convert incomplete bookings
+                    Detailed management and tracking of forms
                   </p>
                 </div>
               </div>
               <div className="inline-flex items-center text-sm text-amber-600 dark:text-amber-400 font-medium group-hover:gap-2 transition-all">
-                <span>View forms</span>
+                <span>Manage forms</span>
                 <span>→</span>
               </div>
             </div>
