@@ -30,8 +30,6 @@ export async function POST(request: NextRequest) {
     console.log('📧 Testing Gmail SMTP with configuration:', {
       gmailUser: gmailUser.substring(0, 5) + '***',
       hasPassword: !!gmailPassword,
-      passwordLength: gmailPassword ? gmailPassword.length : 0,
-      passwordPreview: gmailPassword ? gmailPassword.substring(0, 4) + '***' : 'none',
       testEmail
     });
 
@@ -72,7 +70,7 @@ export async function POST(request: NextRequest) {
     } else {
       return NextResponse.json({
         error: 'Gmail SMTP test failed',
-        details: 'Email sending failed',
+        details: result.error,
         service: 'gmail'
       }, { status: 500 });
     }
