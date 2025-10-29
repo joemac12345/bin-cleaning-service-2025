@@ -71,6 +71,10 @@ export default function BookingsAdmin() {
   const [editedBooking, setEditedBooking] = useState<Booking | null>(null);
   const [showCompleted, setShowCompleted] = useState(false);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('booking-confirmation');
+  const [customMessage, setCustomMessage] = useState('');
+  const [emailTemplates, setEmailTemplates] = useState<any[]>([]);
 
   // Fetch bookings
   const fetchBookings = async () => {
@@ -95,6 +99,20 @@ export default function BookingsAdmin() {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch available email templates
+  const fetchEmailTemplates = async () => {
+    try {
+      const response = await fetch('/api/send-email');
+      if (!response.ok) {
+        throw new Error('Failed to fetch email templates');
+      }
+      const data = await response.json();
+      setEmailTemplates(data.templates || []);
+    } catch (err) {
+      console.error('Error fetching email templates:', err);
     }
   };
 
@@ -184,6 +202,66 @@ export default function BookingsAdmin() {
       }
     } catch (err) {
       alert('Failed to update booking status: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    }
+  };
+
+  // Send email to customer with selected template
+  const sendTemplatedEmail = async (booking: Booking) => {
+    const bookingId = getBookingId(booking);
+    const customerInfo = getCustomerInfo(booking);
+    
+    if (!customerInfo.email) {
+      alert('No email address found for this customer');
+      return;
+    }
+
+    try {
+      setSendingEmail(bookingId);
+      console.log('🚀 Sending templated email for booking:', bookingId);
+      console.log('📧 Template:', selectedTemplate);
+      console.log('📧 Customer email:', customerInfo.email);
+      
+      const payload = {
+        type: 'admin-send',
+        bookingId: bookingId,
+        templateType: selectedTemplate,
+        customMessage: customMessage || undefined
+      };
+
+      console.log('📝 Email payload:', payload);
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log('📡 Email API response status:', response.status);
+      
+      const result = await response.json();
+      console.log('📄 Email API response data:', result);
+
+      if (!response.ok) {
+        console.error('❌ Email API error:', result);
+        throw new Error(result.error || result.message || `HTTP ${response.status} error`);
+      }
+
+      console.log('✅ Email sent successfully:', result);
+      alert(`✅ Email sent successfully to ${customerInfo.email}`);
+      
+      // Reset modal
+      setShowEmailModal(false);
+      setCustomMessage('');
+      setSelectedTemplate('booking-confirmation');
+      
+    } catch (err) {
+      console.error('💥 Email send error details:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      alert(`❌ Failed to send email: ${errorMessage}\n\nCheck browser console for details.`);
+    } finally {
+      setSendingEmail(null);
     }
   };
 
@@ -346,6 +424,7 @@ export default function BookingsAdmin() {
 
   useEffect(() => {
     fetchBookings();
+    fetchEmailTemplates();
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -501,8 +580,8 @@ export default function BookingsAdmin() {
 
         {/* Simple Booking Cards - No Filters */}
         <div className="space-y-3">
-          {sortedBookings.map((booking) => (
-            <div key={booking.bookingId} className={`bg-white rounded-lg p-4 max-w-2xl mx-auto ${isNewBooking(booking.createdAt) ? 'border-2 border-red-300 shadow-lg' : 'border border-gray-200'}`}>
+          {sortedBookings.map((booking, index) => (
+            <div key={booking.bookingId || booking.booking_id || `booking-${index}`} className={`bg-white rounded-lg p-4 max-w-2xl mx-auto ${isNewBooking(booking.createdAt) ? 'border-2 border-red-300 shadow-lg' : 'border border-gray-200'}`}>
               {/* Header Row */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 min-w-0">
@@ -932,7 +1011,11 @@ export default function BookingsAdmin() {
                     </select>
                     
                     <button
-                      onClick={() => sendEmailToCustomer(selectedBooking)}
+                      onClick={() => {
+                        setShowEmailModal(true);
+                        setSelectedTemplate('booking-confirmation');
+                        setCustomMessage('');
+                      }}
                       disabled={sendingEmail === getBookingId(selectedBooking)}
                       className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
                     >
@@ -944,7 +1027,7 @@ export default function BookingsAdmin() {
                       ) : (
                         <>
                           <Send className="w-4 h-4" />
-                          <span>Send Email Confirmation</span>
+                          <span>Send Email</span>
                         </>
                       )}
                     </button>
@@ -962,6 +1045,138 @@ export default function BookingsAdmin() {
                   </div>
                 </>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Template Selection Modal */}
+      {showEmailModal && selectedBooking && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-lg mx-auto mt-8 overflow-y-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Send Email to Customer</h3>
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 space-y-4">
+              {/* Customer Info */}
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <p className="text-sm text-blue-700">
+                  <span className="font-semibold">{getCustomerInfo(selectedBooking).firstName} {getCustomerInfo(selectedBooking).lastName}</span>
+                  <span className="text-blue-600"> ({getCustomerInfo(selectedBooking).email})</span>
+                </p>
+              </div>
+
+              {/* Email Template Selection */}
+              <div className="space-y-3">
+                <label className="block text-sm font-semibold text-gray-900">Select Email Template</label>
+                <select
+                  value={selectedTemplate}
+                  onChange={(e) => setSelectedTemplate(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  {emailTemplates.map((template) => (
+                    <option key={template.id} value={template.id}>
+                      {template.name} - {template.description}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Template Preview */}
+              <div className="bg-gray-50 p-3 rounded-lg">
+                <p className="text-xs text-gray-600 mb-2">Template Preview:</p>
+                <div className="text-sm text-gray-700 space-y-1">
+                  {selectedTemplate === 'booking-confirmation' && (
+                    <>
+                      <p><strong>Subject:</strong> Booking Confirmed</p>
+                      <p className="text-xs">Confirms the booking and provides details</p>
+                    </>
+                  )}
+                  {selectedTemplate === 'service-reminder' && (
+                    <>
+                      <p><strong>Subject:</strong> Service Reminder</p>
+                      <p className="text-xs">Reminds customer about upcoming service</p>
+                    </>
+                  )}
+                  {selectedTemplate === 'service-completion' && (
+                    <>
+                      <p><strong>Subject:</strong> Service Complete</p>
+                      <p className="text-xs">Confirms service has been completed</p>
+                    </>
+                  )}
+                  {selectedTemplate === 'payment-reminder' && (
+                    <>
+                      <p><strong>Subject:</strong> Payment Reminder</p>
+                      <p className="text-xs">Reminder about pending payment</p>
+                    </>
+                  )}
+                  {selectedTemplate === 'cancellation' && (
+                    <>
+                      <p><strong>Subject:</strong> Booking Cancelled</p>
+                      <p className="text-xs">Confirms booking cancellation</p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Custom Message */}
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-900">
+                  Add Custom Message (Optional)
+                </label>
+                <textarea
+                  value={customMessage}
+                  onChange={(e) => setCustomMessage(e.target.value)}
+                  placeholder="Add a personal message to include with the email..."
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                />
+                <p className="text-xs text-gray-600">
+                  {customMessage.length} / 500 characters
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-gray-200 space-y-2 flex gap-2">
+                <button
+                  onClick={() => {
+                    sendTemplatedEmail(selectedBooking);
+                  }}
+                  disabled={sendingEmail === getBookingId(selectedBooking)}
+                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {sendingEmail === getBookingId(selectedBooking) ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      <span>Send Email</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowEmailModal(false)}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
