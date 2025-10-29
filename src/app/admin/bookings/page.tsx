@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List, Send, X } from 'lucide-react';
 import SendEmailModal from '@/components/SendEmailModal';
+import BookingBottomMenu from '@/components/BookingBottomMenu';
 
 interface Booking {
   // API format (camelCase)
@@ -576,47 +577,26 @@ export default function BookingsAdmin() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-zinc-900 flex flex-col pb-24">
       {/* Page Header */}
       <div className="bg-gradient-to-r from-black to-zinc-800 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white">Bookings Management</h1>
-              <p className="text-sm text-zinc-300 mt-2">
-                {showCompleted ? bookings.length : filteredBookings.length} 
-                {showCompleted ? ' total bookings' : ' active jobs'}
-                {!showCompleted && bookings.filter(b => b.status === 'completed').length > 0 && (
-                  <span className="text-zinc-400 ml-1">
-                    ({bookings.filter(b => b.status === 'completed').length} completed hidden)
-                  </span>
-                )}
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setShowCompleted(!showCompleted)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  showCompleted
-                    ? 'bg-white text-black hover:bg-zinc-100'
-                    : 'bg-zinc-700 text-white hover:bg-zinc-600'
-                }`}
-              >
-                {showCompleted ? 'Hide Completed' : 'Show All'}
-              </button>
-              <button
-                onClick={fetchBookings}
-                className="p-2 bg-white text-black rounded-lg hover:bg-zinc-100 transition-colors"
-                disabled={loading}
-              >
-                <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
-              </button>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-white">Bookings Management</h1>
+            <p className="text-sm text-zinc-300 mt-2">
+              {showCompleted ? bookings.length : filteredBookings.length} 
+              {showCompleted ? ' total bookings' : ' active jobs'}
+              {!showCompleted && bookings.filter(b => b.status === 'completed').length > 0 && (
+                <span className="text-zinc-400 ml-1">
+                  ({bookings.filter(b => b.status === 'completed').length} completed hidden)
+                </span>
+              )}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
         {error && (
           <div className="bg-red-900/20 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-4">
             {error}
@@ -731,6 +711,7 @@ export default function BookingsAdmin() {
             <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-2">New bookings will appear here</p>
           </div>
         )}
+      </div>
 
       {/* Mobile-Optimized Booking Details Modal */}
       {selectedBooking && (
@@ -1094,162 +1075,7 @@ export default function BookingsAdmin() {
         </div>
       )}
 
-      {/* Email Template Selection Modal */}
-      {showEmailModal && selectedBooking && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg mx-auto mt-8 overflow-y-auto">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 rounded-t-lg">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Send Email to Customer</h3>
-                <button
-                  onClick={() => setShowEmailModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-full"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
 
-            {/* Modal Content */}
-            <div className="p-4 space-y-4">
-              {/* Customer Info */}
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-blue-700">
-                  <span className="font-semibold">{getCustomerInfo(selectedBooking).firstName} {getCustomerInfo(selectedBooking).lastName}</span>
-                  <span className="text-blue-600"> ({getCustomerInfo(selectedBooking).email})</span>
-                </p>
-              </div>
-
-              {/* Email Template Selection */}
-              <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-900">Select Email Template</label>
-                <select
-                  value={selectedTemplate}
-                  onChange={(e) => setSelectedTemplate(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                  {emailTemplates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name} - {template.description}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Template Preview */}
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <p className="text-xs font-semibold text-gray-600 mb-3 uppercase tracking-wide">Email Template Details</p>
-                <div className="text-sm text-gray-700 space-y-2">
-                  {selectedTemplate === 'booking-confirmation' && (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="text-green-600 font-bold">📋</span>
-                        <div>
-                          <p className="font-semibold">Booking Confirmation</p>
-                          <p className="text-xs text-gray-600">Sent when customer first books. Includes booking ID, date, address, and price.</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  {selectedTemplate === 'service-reminder' && (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="text-blue-600 font-bold">🔔</span>
-                        <div>
-                          <p className="font-semibold">Service Reminder</p>
-                          <p className="text-xs text-gray-600">Reminder 2-3 days before service. Helps reduce no-shows.</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  {selectedTemplate === 'service-completion' && (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="text-emerald-600 font-bold">✓</span>
-                        <div>
-                          <p className="font-semibold">Service Completion</p>
-                          <p className="text-xs text-gray-600">Sent after cleaning is complete. Great for requesting reviews!</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  {selectedTemplate === 'payment-reminder' && (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="text-orange-600 font-bold">💳</span>
-                        <div>
-                          <p className="font-semibold">Payment Reminder</p>
-                          <p className="text-xs text-gray-600">For pending payments. Includes due date and payment instructions.</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  {selectedTemplate === 'cancellation' && (
-                    <>
-                      <div className="flex items-start gap-2">
-                        <span className="text-red-600 font-bold">✕</span>
-                        <div>
-                          <p className="font-semibold">Cancellation Confirmation</p>
-                          <p className="text-xs text-gray-600">When booking is cancelled. Maintains good relationships.</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Custom Message */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-900">
-                  Add Custom Message (Optional)
-                </label>
-                <textarea
-                  value={customMessage}
-                  onChange={(e) => setCustomMessage(e.target.value)}
-                  placeholder="Add a personal message to include with the email..."
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-                />
-                <p className="text-xs text-gray-600">
-                  {customMessage.length} / 500 characters
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-4 border-t border-gray-200 space-y-2 flex gap-2">
-                <button
-                  onClick={() => {
-                    sendTemplatedEmail(selectedBooking);
-                  }}
-                  disabled={sendingEmail === getBookingId(selectedBooking)}
-                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                >
-                  {sendingEmail === getBookingId(selectedBooking) ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      <span>Send Email</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowEmailModal(false)}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Send Email Modal */}
       {showEmailModal && emailBooking && (
@@ -1265,7 +1091,16 @@ export default function BookingsAdmin() {
           isLoading={sendingEmail === getBookingId(emailBooking)}
         />
       )}
-    </div>
+
+      {/* Bottom Menu */}
+      <BookingBottomMenu
+        showCompleted={showCompleted}
+        onToggleShowCompleted={() => setShowCompleted(!showCompleted)}
+        onRefresh={fetchBookings}
+        isLoading={loading}
+        activeJobsCount={bookings.filter(b => b.status === 'new-job').length}
+        completedJobsCount={bookings.filter(b => b.status === 'completed').length}
+      />
     </div>
   );
 }
