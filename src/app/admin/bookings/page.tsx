@@ -287,8 +287,7 @@ export default function BookingsAdmin() {
       const emailPayload = {
         type: 'booking-confirmation',
         customerName: `${customerInfo.firstName} ${customerInfo.lastName}`,
-        customerEmail: isTestingMode ? adminEmail : customerInfo.email, // Use admin email in testing mode
-        originalCustomerEmail: customerInfo.email, // Keep track of original for display
+        customerEmail: customerInfo.email,
         bookingId: bookingId,
         serviceType: getServiceType(booking),
         collectionDay: getCollectionDay(booking),
@@ -296,7 +295,6 @@ export default function BookingsAdmin() {
         binCount: binCount,
         totalPrice: getPricing(booking).totalPrice,
         createdAt: getCreatedAt(booking),
-        testingMode: isTestingMode,
       };
 
       console.log('📝 Email payload:', emailPayload);
