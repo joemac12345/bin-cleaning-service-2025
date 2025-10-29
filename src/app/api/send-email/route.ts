@@ -5,14 +5,20 @@ import { sendEmailViaGmail } from '@/lib/gmail-sender';
 // Only initialize Resend if API key is available
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// Determine which email service to use
+// Determine which email service to use based on environment
 const getEmailService = () => {
-  const hasGmailConfig = process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD;
-  const hasResendConfig = !!process.env.RESEND_API_KEY;
+  // Prefer Gmail SMTP if configured (it's free!)
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    return 'gmail';
+  }
   
-  if (hasGmailConfig) return 'gmail';
-  if (hasResendConfig) return 'resend';
-  return 'simulation';
+  // Fall back to Resend if configured
+  if (process.env.RESEND_API_KEY) {
+    return 'resend';
+  }
+  
+  // No email service configured
+  return null;
 };
 
 const createBookingConfirmationEmail = (data: any) => `
@@ -166,25 +172,57 @@ export async function POST(request: NextRequest) {
       
       if (emailService === 'resend' && resend) {
         console.log('Using Resend service');
-        console.log('From:', process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev');
-        console.log('To:', emailData.customerEmail);
-        console.log('Subject:', `Booking Confirmation - ${emailData.bookingId}`);
+        
+        // Handle Resend testing mode limitation
+        const verifiedTestEmail = 'eyeline65@gmail.com';
+        const originalEmail = emailData.customerEmail;
+        const isTestMode = !process.env.RESEND_DOMAIN_VERIFIED || process.env.RESEND_DOMAIN_VERIFIED !== 'true';
+        const emailToSend = isTestMode ? verifiedTestEmail : originalEmail;
+        
+        console.log('🔍 Resend configuration:', {
+          originalEmail,
+          emailToSend,
+          isTestMode,
+          domainVerified: process.env.RESEND_DOMAIN_VERIFIED
+        });
+        
+        // Add test mode notification to email content if needed
+        let emailContent = createBookingConfirmationEmail(emailData);
+        if (isTestMode && originalEmail !== verifiedTestEmail) {
+          const testModeNotice = `
+            <div style="background-color: #fef3c7; padding: 15px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #f59e0b;">
+              <strong>⚠️ Test Mode Notice:</strong> This email was originally intended for <strong>${originalEmail}</strong> but sent to your verified address due to Resend testing limitations.
+            </div>
+          `;
+          emailContent = emailContent.replace('</body>', testModeNotice + '</body>');
+        }
         
         const { data, error } = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-          to: emailData.customerEmail,
-          subject: `🧽 Booking Confirmed - ${emailData.bookingId}`,
-          html: createBookingConfirmationEmail(emailData),
+          to: emailToSend,
+          subject: `🧽 Booking Confirmed - ${emailData.bookingId}${isTestMode && originalEmail !== verifiedTestEmail ? ' (TEST MODE)' : ''}`,
+          html: emailContent,
           replyTo: process.env.ADMIN_EMAIL || 'eyeline65@gmail.com'
         });
 
         if (error) {
           console.error('❌ Resend customer email error:', error);
-          return NextResponse.json({ error: 'Failed to send email', details: error }, { status: 500 });
+          return NextResponse.json({ 
+            error: 'Failed to send email', 
+            details: error, 
+            suggestion: 'Verify domain at resend.com/domains to send to any email address'
+          }, { status: 500 });
         }
 
         console.log('✅ Customer confirmation email sent successfully:', data);
-        return NextResponse.json({ success: true, service: 'resend', data });
+        return NextResponse.json({ 
+          success: true, 
+          service: 'resend', 
+          data,
+          testMode: isTestMode,
+          originalEmail,
+          sentToEmail: emailToSend
+        });
       }
     }
 

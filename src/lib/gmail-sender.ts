@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 // Gmail SMTP configuration
 const createGmailTransporter = () => {
   const gmailUser = process.env.GMAIL_USER;
-  const gmailPassword = process.env.GMAIL_APP_PASSWORD;
+  const gmailPassword = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASS;
 
   if (!gmailUser || !gmailPassword) {
     console.log('Gmail credentials not configured, falling back to simulation');

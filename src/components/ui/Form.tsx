@@ -32,17 +32,13 @@ export function FormContainer({ children, maxWidth = '2xl', variant = 'default',
     ? `w-full min-h-screen md:${maxWidthClasses[maxWidth]} md:h-auto mx-0 md:mx-auto rounded-none md:rounded-2xl flex flex-col px-6 py-8 md:px-8 md:py-8`
     : `${maxWidthClasses[maxWidth]} mx-auto px-6 py-8`;
 
-  // Adjust variant classes for mobile full-width - remove all shadows and borders
-  const mobileVariantClasses = fullWidthOnMobile && variant === 'default'
-    ? 'shadow-none md:shadow-none md:rounded-none'
-    : fullWidthOnMobile && variant === 'modern'
-    ? 'shadow-none md:shadow-none rounded-none md:rounded-none border-none md:border-none'
-    : fullWidthOnMobile && variant === 'minimal'
-    ? 'shadow-none md:shadow-none rounded-none md:rounded-none border-none md:border-none'
+  // Adjust variant classes for mobile full-width - remove all styling completely
+  const mobileVariantClasses = fullWidthOnMobile 
+    ? 'bg-transparent shadow-none border-none rounded-none'
     : variantClasses[variant];
 
   return (
-    <div className={`${responsiveClasses} ${mobileVariantClasses} overflow-hidden ${className}`}>
+    <div className={`${responsiveClasses} ${mobileVariantClasses} overflow-hidden bg-transparent shadow-none border-none ${className}`}>
       {children}
     </div>
   );
@@ -354,9 +350,9 @@ interface ButtonGroupProps {
 }
 
 export function ButtonGroup({ children, className = 'flex space-x-3', withBackground = false, withDivider = false, stickyBottom = false }: ButtonGroupProps) {
-  const backgroundClass = withBackground ? 'bg-gray-50 p-4 rounded-lg' : '';
+  const backgroundClass = ''; // Remove background completely
   const dividerClass = withDivider ? 'border-t border-gray-200 pt-4 mt-6' : '';
-  const stickyClass = stickyBottom ? 'mt-auto sticky bottom-0 bg-white md:bg-transparent md:static' : '';
+  const stickyClass = stickyBottom ? 'mt-auto sticky bottom-0 md:static' : '';
   
   return (
     <div className={`${dividerClass} ${backgroundClass} ${stickyClass}`}>

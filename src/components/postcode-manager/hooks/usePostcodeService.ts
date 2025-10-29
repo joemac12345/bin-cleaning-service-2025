@@ -19,9 +19,11 @@ const usePostcodeService = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         },
-        body: JSON.stringify({ action: 'get-all' }),
+        body: JSON.stringify({ action: 'get-all', timestamp: Date.now() }),
       });
 
       if (!response.ok) {
@@ -44,8 +46,11 @@ const usePostcodeService = () => {
       setServiceAreas(formattedAreas);
       setActivePostcodes(postcodes);
       
-      console.log('Hook - Refreshed areas from database:', formattedAreas.length);
-      console.log('Hook - Active postcodes from database:', postcodes);
+      console.log('🔍 DEBUG - Database response:', data);
+      console.log('🔍 DEBUG - Total areas from DB:', areas.length);
+      console.log('🔍 DEBUG - Active areas from DB:', postcodes);
+      console.log('🔍 DEBUG - User agent:', typeof window !== 'undefined' ? navigator.userAgent : 'server');
+      console.log('🔍 DEBUG - Screen width:', typeof window !== 'undefined' ? window.innerWidth : 'server');
     } catch (error) {
       console.error('Error refreshing postcode service from database:', error);
       // Fallback to localStorage if database fails
@@ -54,7 +59,9 @@ const usePostcodeService = () => {
         const postcodes = getActiveServicePostcodes();
         setServiceAreas(areas);
         setActivePostcodes(postcodes);
-        console.log('Fallback to localStorage data');
+        console.log('🚨 FALLBACK - Using localStorage data instead of database');
+        console.log('🚨 FALLBACK - localStorage areas:', areas);
+        console.log('🚨 FALLBACK - localStorage postcodes:', postcodes);
       } catch (fallbackError) {
         console.error('Fallback also failed:', fallbackError);
       }
@@ -65,6 +72,11 @@ const usePostcodeService = () => {
 
   // Initialize on mount
   useEffect(() => {
+    // Force clear localStorage to ensure we always use database data
+    if (typeof window !== 'undefined') {
+      console.log('🧹 Clearing localStorage to force database fetch');
+      localStorage.removeItem('bin-cleaning-service-areas');
+    }
     refresh();
   }, [refresh]);
 
