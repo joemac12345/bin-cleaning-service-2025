@@ -8,44 +8,48 @@ export const metadata: Metadata = {
 
 export default function SettingsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Email Notification System</h1>
-        <p className="text-gray-600 mt-2">Configure Gmail SMTP for automatic booking confirmations</p>
+    <div className="min-h-screen bg-white dark:bg-zinc-900">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-black to-zinc-800 shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-3xl font-bold text-white">Email Notification System</h1>
+          <p className="text-zinc-300 mt-2">Configure Gmail SMTP for automatic booking confirmations</p>
+        </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Current Status */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex items-center mb-4">
-            <div className="flex-shrink-0">
-              <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-lg font-semibold text-blue-900">Email System Status</h3>
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* Current Status */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200">Email System Status</h3>
+                <p className="text-blue-800 dark:text-blue-300 mt-2">
+                  The email notification system is installed and ready to configure. Customers will automatically receive 
+                  professional booking confirmations when they complete a booking.
+                </p>
+                <div className="bg-white dark:bg-blue-900/30 rounded-md p-4 mt-4">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-200 mb-2">✅ What's Already Set Up:</h4>
+                  <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
+                    <li>• Nodemailer email service integrated</li>
+                    <li>• Professional HTML email template</li>
+                    <li>• Automatic sending after booking creation</li>
+                    <li>• Mobile-responsive email design</li>
+                    <li>• Error handling (booking succeeds even if email fails)</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
-          <p className="text-blue-800 mb-4">
-            The email notification system is installed and ready to configure. Customers will automatically receive 
-            professional booking confirmations when they complete a booking.
-          </p>
-          <div className="bg-white rounded-md p-4">
-            <h4 className="font-medium text-blue-900 mb-2">✅ What's Already Set Up:</h4>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Nodemailer email service integrated</li>
-              <li>• Professional HTML email template</li>
-              <li>• Automatic sending after booking creation</li>
-              <li>• Mobile-responsive email design</li>
-              <li>• Error handling (booking succeeds even if email fails)</li>
-            </ul>
-          </div>
-        </div>
 
-        {/* Gmail Setup Instructions */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Gmail SMTP Configuration</h3>
+          {/* Gmail Setup Instructions */}
+          <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Gmail SMTP Configuration</h3>
           
           <div className="prose max-w-none">
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
@@ -155,6 +159,7 @@ export default function SettingsPage() {
             </a>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

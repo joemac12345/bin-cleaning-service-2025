@@ -203,78 +203,81 @@ export default function AbandonedFormsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-3 sm:p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 space-y-4 sm:space-y-0">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Abandoned Forms</h1>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">Follow up with customers who started booking but didn't finish - perfect for remarketing!</p>
-            </div>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-              <button
-                onClick={fetchForms}
-                disabled={loading}
-                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 text-sm sm:text-base"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
-              </button>
-              <button
-                onClick={exportToCSV}
-                className="inline-flex items-center justify-center px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 text-sm sm:text-base"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
-              </button>
-            </div>
+    <div className="min-h-screen bg-white dark:bg-zinc-900">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-black to-zinc-800 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <h1 className="text-3xl font-bold text-white">Abandoned Forms</h1>
+          <p className="text-zinc-300 mt-2">Follow up with customers who started booking but didn't finish</p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <div>
+            <p className="text-zinc-600 dark:text-zinc-400">Recover lost revenue through targeted remarketing</p>
           </div>
-
-          {/* Stats Cards */}
-          {stats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-                  </div>
-                  <div className="ml-3 sm:ml-4">
-                    <h3 className="text-base sm:text-lg font-medium text-gray-900">Total Abandoned Forms</h3>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.total}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Forms started but not completed</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
-                  </div>
-                  <div className="ml-3 sm:ml-4">
-                    <h3 className="text-base sm:text-lg font-medium text-gray-900">Ready to Contact</h3>
-                    <p className="text-2xl sm:text-3xl font-bold text-gray-900 mt-1">{stats.withContact}</p>
-                    <p className="text-xs sm:text-sm text-gray-500 mt-1">Forms with email or phone provided</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+            <button
+              onClick={fetchForms}
+              disabled={loading}
+              className="inline-flex items-center justify-center px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 disabled:opacity-50 text-sm font-medium transition-colors"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+            <button
+              onClick={exportToCSV}
+              className="inline-flex items-center justify-center px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-lg hover:bg-zinc-800 dark:hover:bg-zinc-100 text-sm font-medium transition-colors"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </button>
+          </div>
         </div>
 
-        {/* Mobile-Friendly Forms List */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {/* Stats Cards */}
+        {stats && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 hover:shadow-md dark:hover:shadow-lg transition-all">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Users className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Total Abandoned Forms</h3>
+                  <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-2">{stats.total}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">Forms started but not completed</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 hover:shadow-md dark:hover:shadow-lg transition-all">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <MessageCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Ready to Contact</h3>
+                  <p className="text-3xl font-bold text-zinc-900 dark:text-white mt-2">{stats.withContact}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-1">Forms with email or phone provided</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Forms List */}
+        <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 overflow-hidden">
           {loading ? (
             <div className="flex justify-center items-center p-12">
-              <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
+              <RefreshCw className="w-8 h-8 animate-spin text-zinc-400 dark:text-zinc-500" />
             </div>
           ) : filteredForms.length === 0 ? (
             <div className="text-center py-12">
-              <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No abandoned forms found</h3>
-              <p className="text-gray-500">
+              <Users className="w-16 h-16 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">No abandoned forms found</h3>
+              <p className="text-zinc-500 dark:text-zinc-400">
                 Abandoned forms will appear here when customers start but don't complete the booking process
               </p>
             </div>

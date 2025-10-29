@@ -178,17 +178,14 @@ export default function SupabaseSetup() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white dark:bg-zinc-900">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="bg-gradient-to-r from-black to-zinc-800 shadow-lg">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center space-x-3">
-            <div className="bg-blue-100 p-2 rounded-lg">
-              <Database className="w-6 h-6 text-blue-600" />
-            </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Supabase Database Setup</h1>
-              <p className="text-gray-600 mt-1">Configure your database connection and create required tables</p>
+              <h1 className="text-3xl font-bold text-white">Supabase Database Setup</h1>
+              <p className="text-zinc-300 mt-2">Configure your database connection and create required tables</p>
             </div>
           </div>
         </div>
@@ -199,10 +196,10 @@ export default function SupabaseSetup() {
         {message && (
           <div className={`mb-6 p-4 rounded-lg border ${
             connectionStatus === 'success' 
-              ? 'bg-green-50 border-green-200 text-green-800'
+              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200'
               : connectionStatus === 'error'
-              ? 'bg-red-50 border-red-200 text-red-800'
-              : 'bg-blue-50 border-blue-200 text-blue-800'
+              ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+              : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200'
           }`}>
             <div className="flex items-center">
               {connectionStatus === 'success' && <CheckCircle className="w-5 h-5 mr-2" />}
@@ -215,12 +212,12 @@ export default function SupabaseSetup() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Setup Form */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Database Credentials</h2>
+            <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Database Credentials</h2>
               
               {/* Project URL */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   Project URL *
                 </label>
                 <div className="relative">
@@ -229,12 +226,12 @@ export default function SupabaseSetup() {
                     value={credentials.url}
                     onChange={(e) => handleInputChange('url', e.target.value)}
                     placeholder="https://your-project-ref.supabase.co"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent"
                   />
                   {credentials.url && (
                     <button
                       onClick={() => copyToClipboard(credentials.url, 'Project URL')}
-                      className="absolute right-2 top-2 p-1 text-gray-400 hover:text-gray-600"
+                      className="absolute right-2 top-2 p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
                     >
                       <Copy className="w-4 h-4" />
                     </button>
@@ -244,7 +241,7 @@ export default function SupabaseSetup() {
 
               {/* Anon Key */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                   Anon/Public Key *
                 </label>
                 <div className="relative">
