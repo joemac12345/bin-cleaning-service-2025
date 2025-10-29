@@ -54,28 +54,48 @@ export async function POST(request: NextRequest) {
 
       try {
         // Retrieve booking from database
-        const db = new DatabaseStorage();
-        const bookings = await db.getAllBookings();
-        const booking = bookings.find((b: any) => b.id === bookingId);
+        const bookings = await DatabaseStorage.getBookings();
+        const booking = bookings.find((b: any) => b.id === bookingId || b.bookingId === bookingId || b.booking_id === bookingId);
 
         if (!booking) {
+          console.error('❌ Booking not found. Looking for ID:', bookingId);
+          console.error('Available bookings:', bookings.map((b: any) => ({ id: b.id, bookingId: b.bookingId, booking_id: b.booking_id })));
           return NextResponse.json(
             { error: `Booking not found: ${bookingId}`, success: false },
             { status: 404 }
           );
         }
 
+        console.log('📋 Found booking:', booking);
+
+        // Extract customer info - handle both nested and flat structures
+        const customerInfo = booking.customerInfo || booking.customer_info || {};
+        const firstName = customerInfo.firstName || booking.firstName || '';
+        const lastName = customerInfo.lastName || booking.lastName || '';
+        const email = customerInfo.email || booking.email || booking.customerEmail || '';
+        const address = customerInfo.address || booking.address || '';
+        const postcode = customerInfo.postcode || booking.postcode || '';
+
+        console.log('👤 Customer info extracted:', { firstName, lastName, email, address, postcode });
+
+        if (!email) {
+          return NextResponse.json(
+            { error: `No email found for booking: ${bookingId}`, success: false },
+            { status: 400 }
+          );
+        }
+
         // Prepare email data
         const emailTemplateData: EmailTemplateData = {
-          customerName: booking.customerName || 'Valued Customer',
-          customerEmail: booking.customerEmail,
-          bookingId: booking.id,
-          serviceType: booking.serviceType || 'regular',
-          collectionDay: booking.collectionDay || 'Soon',
-          address: booking.address || '',
-          postcode: booking.postcode || '',
-          totalPrice: booking.totalPrice || 0,
-          specialInstructions: booking.specialInstructions || undefined
+          customerName: `${firstName} ${lastName}`.trim() || 'Valued Customer',
+          customerEmail: email,
+          bookingId: booking.id || booking.bookingId || booking.booking_id,
+          serviceType: booking.serviceType || booking.service_type || 'regular',
+          collectionDay: booking.collectionDay || booking.collection_day || 'Soon',
+          address: address,
+          postcode: postcode,
+          totalPrice: booking.totalPrice || booking.pricing?.totalPrice || 0,
+          specialInstructions: booking.specialInstructions || booking.special_instructions || undefined
         };
 
         // Get email template
