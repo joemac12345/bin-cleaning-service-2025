@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect } from 'react';
+import TopNavigation from '@/components/TopNavigation';
 import BookingForm from '@/components/BookingForm';
 
 function BookingContent() {
@@ -30,7 +31,9 @@ function BookingContent() {
   }
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center px-4">
+    <>
+      <TopNavigation />
+      <div className="min-h-screen relative flex items-center justify-center px-4">
       {/* Background Image - same as postcode page */}
       <div 
         className="absolute inset-0 bg-repeat"
@@ -44,13 +47,15 @@ function BookingContent() {
       <div className="absolute inset-0 bg-white/60" />
       
       {/* Content */}
-      <div className="relative z-10 w-full max-w-4xl my-8">
+      <div className="relative z-10 w-full max-w-4xl my-8 flex flex-col items-center">
+
         <BookingForm 
           postcode={postcode}
           onBack={handleBack}
         />
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

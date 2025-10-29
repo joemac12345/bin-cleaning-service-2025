@@ -39,6 +39,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import TopNavigation from '@/components/TopNavigation';
 import { PostcodeChecker } from '@/components/postcode-manager';
 
 export default function HomePage() {
@@ -63,7 +64,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center px-4">
+    <>
+      <TopNavigation />
+      <div className="min-h-screen relative flex items-center justify-center px-4">
       
       {/* Page Background Layer */}
       {/* ===================== */}
@@ -108,7 +111,7 @@ export default function HomePage() {
       {/* Main Content Container */}
       {/* ===================== */}
       {/* Centered layout focuses user attention on primary conversion action */}
-      <div className="relative z-10 w-full max-w-4xl">
+      <div className="relative z-10 w-full max-w-4xl flex flex-col items-center">
         
         {/* Primary Conversion Element */}
         {/* ========================= */}
@@ -116,13 +119,14 @@ export default function HomePage() {
         {/* - Validates service availability */}
         {/* - Routes to booking or waitlist */}
         {/* - Connects to Supabase service areas database */}
-        <div className="flex justify-center">
+        <div className="flex justify-center w-full">
           <PostcodeChecker 
             onServiceAvailable={handleServiceAvailable}  // → /booking?postcode=XX
             onWaitlist={handleWaitlist}                   // → /waitlist?postcode=XX
           />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

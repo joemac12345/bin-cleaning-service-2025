@@ -3,10 +3,11 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, Suspense } from 'react';
 import { Clock, Mail } from 'lucide-react';
+import TopNavigation from '@/components/TopNavigation';
 import { 
   FormContainer, 
   FormHeader, 
-  FormContent, 
+  FormContent,
   FormSection,
   InputField,
   Button
@@ -59,10 +60,13 @@ function WaitlistContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-2 sm:px-4 py-4 sm:py-8">
+    <>
+      <TopNavigation />
+      <div className="min-h-screen bg-gradient-to-b from-blue-50 via-white to-blue-50 flex items-center justify-center px-2 sm:px-4 py-4 sm:py-8">
       <div className="w-full max-w-sm sm:max-w-md mx-auto">
         {!isSubmitted ? (
           <FormContainer maxWidth="md">
+            
             <FormHeader 
               title="Join Waitlist" 
               onBack={handleBack}
@@ -71,8 +75,8 @@ function WaitlistContent() {
             <FormContent>
               {/* Icon and main content */}
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock className="w-10 h-10 text-yellow-600" />
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-10 h-10 text-blue-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-3">Not yet available</h2>
                 <p className="text-gray-600 mb-3 leading-relaxed">
@@ -105,7 +109,7 @@ function WaitlistContent() {
                   disabled={isSubmitting}
                   loading={isSubmitting}
                   fullWidth
-                  variant="yellow"
+                  variant="blue"
                 >
                   Join Waitlist
                 </Button>
@@ -127,6 +131,7 @@ function WaitlistContent() {
           </FormContainer>
         ) : (
           <FormContainer maxWidth="md">
+            
             <FormContent className="text-center p-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">✅</span>
@@ -168,7 +173,8 @@ function WaitlistContent() {
           </FormContainer>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

@@ -8,15 +8,10 @@ import {
   X, 
   Home, 
   Package, 
-  Calendar, 
   Users, 
-  Settings, 
   BarChart3,
   MapPin,
-  FileText,
-  CreditCard,
-  Cloud,
-  Activity
+  ChevronRight
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -28,16 +23,10 @@ interface NavigationItem {
 
 const navigationItems: NavigationItem[] = [
   {
-    name: 'Back to Home',
-    href: '/',
-    icon: Home,
-    description: 'Return to main website'
-  },
-  {
     name: 'Dashboard',
     href: '/admin',
     icon: BarChart3,
-    description: 'Overview and statistics'
+    description: 'Overview and key metrics'
   },
   {
     name: 'Bookings',
@@ -49,25 +38,19 @@ const navigationItems: NavigationItem[] = [
     name: 'Abandoned Forms',
     href: '/admin/abandoned-forms',
     icon: Users,
-    description: 'Track and convert incomplete bookings'
+    description: 'Follow up with incomplete bookings'
   },
   {
     name: 'Postcode Manager',
     href: '/admin/postcode-manager',
     icon: MapPin,
-    description: 'Manage service areas'
+    description: 'Manage service areas and demand'
   },
   {
-    name: 'Deployment',
-    href: '/admin/deployment',
-    icon: Cloud,
-    description: 'Configure production deployment'
-  },
-  {
-    name: 'Settings',
-    href: '/admin/settings',
-    icon: Settings,
-    description: 'Configure system settings'
+    name: 'Back to Home',
+    href: '/',
+    icon: Home,
+    description: 'Return to main website'
   }
 ];
 
@@ -85,13 +68,13 @@ export default function AdminNavigation({ className = '' }: AdminNavigationProps
   return (
     <>
       {/* Mobile Menu Button */}
-      <div className={`relative md:hidden ${className}`}>
+      <div className={`relative ${className}`}>
         <button
           onClick={toggleMenu}
-          className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors"
+          className="inline-flex items-center justify-center p-2 rounded-lg text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-colors"
           aria-expanded={isOpen}
         >
-          <span className="sr-only">Open main menu</span>
+          <span className="sr-only">Open admin menu</span>
           {isOpen ? (
             <X className="block h-6 w-6" />
           ) : (
@@ -100,153 +83,116 @@ export default function AdminNavigation({ className = '' }: AdminNavigationProps
         </button>
       </div>
 
-      {/* Overlay */}
+      {/* Full Screen Overlay & Modal */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 dark:bg-black/70 z-40 transition-opacity"
           onClick={closeMenu}
         />
       )}
 
-      {/* Slide-out Navigation Panel */}
+      {/* Full Width Navigation Modal */}
       <div className={`
-        fixed top-0 left-0 z-50 h-full w-80 bg-white shadow-xl transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0 md:static md:h-auto md:w-auto md:bg-transparent md:shadow-none
+        fixed inset-0 z-50 transform transition-all duration-300 ease-in-out
+        ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
       `}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 md:hidden">
-          <h2 className="text-lg font-semibold text-gray-900">Admin Panel</h2>
-          <button
-            onClick={closeMenu}
-            className="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Desktop Dropdown Menu */}
-        <div className="hidden md:block relative">
-          <button
-            onClick={toggleMenu}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <Menu className="h-4 w-4 mr-2" />
-            Admin Menu
-          </button>
-
-          {isOpen && (
-            <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-              <div className="py-2">
-                {navigationItems.map((item, index) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href;
-                  const isBackToHome = item.href === '/';
-                  
-                  return (
-                    <div key={item.name}>
-                      <Link
-                        href={item.href}
-                        onClick={closeMenu}
-                        className={`
-                          flex items-center px-4 py-3 text-sm transition-colors
-                          ${isBackToHome 
-                            ? 'bg-green-50 text-green-700 hover:bg-green-100' 
-                            : isActive 
-                              ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' 
-                              : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                          }
-                        `}
-                      >
-                        <Icon className={`
-                          h-5 w-5 mr-3 
-                          ${isBackToHome 
-                            ? 'text-green-600' 
-                            : isActive 
-                              ? 'text-blue-600' 
-                              : 'text-gray-400'
-                          }
-                        `} />
-                        <div className="flex-1">
-                          <div className="font-medium">{item.name}</div>
-                          {item.description && (
-                            <div className="text-xs text-gray-500 mt-0.5">
-                              {item.description}
-                            </div>
-                          )}
-                        </div>
-                        {isActive && !isBackToHome && (
-                          <div className="ml-2 w-2 h-2 bg-blue-600 rounded-full"></div>
-                        )}
-                      </Link>
-                      {/* Add separator after Back to Home */}
-                      {index === 0 && (
-                        <div className="border-t border-gray-200 my-1 mx-4"></div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+        <div className={`
+          absolute inset-0 bg-white dark:bg-zinc-900 transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-y-0' : '-translate-y-full'}
+        `}>
+          {/* Header with Gradient */}
+          <div className="bg-gradient-to-r from-black to-zinc-800 dark:from-zinc-950 dark:to-black">
+            <div className="flex items-center justify-between px-6 py-6">
+              <h2 className="text-2xl font-bold text-white">Admin Menu</h2>
+              <button
+                onClick={closeMenu}
+                className="p-2 rounded-lg text-zinc-300 hover:bg-zinc-700 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <X className="h-6 w-6" />
+              </button>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Mobile Navigation Items */}
-        <nav className="flex-1 px-2 py-4 space-y-1 md:hidden max-h-screen overflow-y-auto">
-          {navigationItems.map((item, index) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            const isBackToHome = item.href === '/';
-            
-            return (
-              <div key={item.name}>
-                <Link
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={`
-                    flex items-center px-3 py-3 rounded-md text-base font-medium transition-colors
-                    ${isBackToHome 
-                      ? 'bg-green-50 text-green-700 hover:bg-green-100 border-l-4 border-green-500'
-                      : isActive 
-                        ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-700' 
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
-                    }
-                  `}
-                >
-                  <Icon className={`
-                    h-6 w-6 mr-4 
-                    ${isBackToHome 
-                      ? 'text-green-600' 
-                      : isActive 
-                        ? 'text-blue-600' 
-                        : 'text-gray-400'
-                    }
-                  `} />
-                  <div className="flex-1">
-                    <div className="font-medium">{item.name}</div>
-                    {item.description && (
-                      <div className="text-sm text-gray-500 mt-0.5">
-                        {item.description}
+          {/* Navigation Items */}
+          <nav className="max-h-[calc(100vh-140px)] overflow-y-auto">
+            <div className="divide-y divide-zinc-200 dark:divide-zinc-700">
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.href;
+                const isBackToHome = item.href === '/';
+                
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={closeMenu}
+                    className={`
+                      flex items-center justify-between px-6 py-5 transition-all
+                      ${isBackToHome
+                        ? 'bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-green-950/30 dark:to-emerald-950/30 border-l-4 border-green-500'
+                        : isActive
+                          ? 'bg-gradient-to-r from-blue-50/50 to-cyan-50/50 dark:from-blue-950/30 dark:to-cyan-950/30 border-l-4 border-blue-500'
+                          : 'hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 border-l-4 border-transparent'
+                      }
+                    `}
+                  >
+                    <div className="flex items-center flex-1 min-w-0">
+                      <Icon className={`
+                        h-6 w-6 mr-4 flex-shrink-0
+                        ${isBackToHome
+                          ? 'text-green-600 dark:text-green-400'
+                          : isActive
+                            ? 'text-blue-600 dark:text-blue-400'
+                            : 'text-zinc-400 dark:text-zinc-500'
+                        }
+                      `} />
+                      <div className="flex-1 min-w-0">
+                        <div className={`
+                          text-lg font-medium
+                          ${isBackToHome
+                            ? 'text-green-700 dark:text-green-300'
+                            : isActive
+                              ? 'text-blue-700 dark:text-blue-300'
+                              : 'text-zinc-900 dark:text-white'
+                          }
+                        `}>
+                          {item.name}
+                        </div>
+                        {item.description && (
+                          <div className={`
+                            text-sm mt-1
+                            ${isBackToHome
+                              ? 'text-green-600 dark:text-green-400'
+                              : isActive
+                                ? 'text-blue-600 dark:text-blue-400'
+                                : 'text-zinc-500 dark:text-zinc-400'
+                            }
+                          `}>
+                            {item.description}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  {isActive && !isBackToHome && (
-                    <div className="ml-2 w-3 h-3 bg-blue-600 rounded-full"></div>
-                  )}
-                </Link>
-                {/* Add separator after Back to Home */}
-                {index === 0 && (
-                  <div className="border-t border-gray-200 my-2 mx-3"></div>
-                )}
-              </div>
-            );
-          })}
-        </nav>
+                    </div>
+                    <ChevronRight className={`
+                      h-5 w-5 ml-4 flex-shrink-0 transition-transform
+                      ${isBackToHome
+                        ? 'text-green-600 dark:text-green-400'
+                        : isActive
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-zinc-300 dark:text-zinc-600'
+                      }
+                    `} />
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
 
-        {/* Footer for Mobile */}
-        <div className="p-4 border-t border-gray-200 md:hidden">
-          <div className="text-xs text-gray-500 text-center">
-            Bin Cleaning Admin Panel
+          {/* Footer */}
+          <div className="absolute bottom-0 left-0 right-0 bg-zinc-50 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 px-6 py-4">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
+              Bin Cleaning Admin Panel v1.0
+            </p>
           </div>
         </div>
       </div>
