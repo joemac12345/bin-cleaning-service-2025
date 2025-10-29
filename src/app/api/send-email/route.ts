@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
         // Send email
         const result = await sendEmailViaGmail(
-          booking.customerEmail,
+          email,
           subject,
           html,
           process.env.GMAIL_USER || 'noreply@bincleaningservice.com'
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({
             success: true,
             messageId: result.messageId,
-            message: `Email sent successfully to ${booking.customerEmail}`,
+            message: `Email sent successfully to ${email}`,
             simulation: result.simulation,
             service: 'gmail'
           });

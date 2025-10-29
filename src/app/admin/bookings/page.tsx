@@ -73,6 +73,7 @@ export default function BookingsAdmin() {
   const [showCompleted, setShowCompleted] = useState(false);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [emailBooking, setEmailBooking] = useState<Booking | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState('booking-confirmation');
   const [customMessage, setCustomMessage] = useState('');
   const [emailTemplates, setEmailTemplates] = useState<any[]>([]);
@@ -268,10 +269,10 @@ export default function BookingsAdmin() {
 
   // Handle sending email from the new modal
   const handleSendEmailFromModal = async (templateId: string, customMessage: string) => {
-    if (!selectedBooking) return;
+    if (!emailBooking) return;
 
-    const bookingId = getBookingId(selectedBooking);
-    const customerInfo = getCustomerInfo(selectedBooking);
+    const bookingId = getBookingId(emailBooking);
+    const customerInfo = getCustomerInfo(emailBooking);
 
     if (!customerInfo.email) {
       alert('No email address found for this customer');
@@ -642,7 +643,7 @@ export default function BookingsAdmin() {
                   </button>
                   <button
                     onClick={() => {
-                      setSelectedBooking(booking);
+                      setEmailBooking(booking);
                       setShowEmailModal(true);
                     }}
                     disabled={sendingEmail === getBookingId(booking)}
@@ -1240,14 +1241,17 @@ export default function BookingsAdmin() {
       )}
 
       {/* Send Email Modal */}
-      {showEmailModal && selectedBooking && (
+      {showEmailModal && emailBooking && (
         <SendEmailModal
-          customerEmail={getCustomerInfo(selectedBooking).email}
-          customerName={`${getCustomerInfo(selectedBooking).firstName} ${getCustomerInfo(selectedBooking).lastName}`}
-          bookingId={getBookingId(selectedBooking)}
+          customerEmail={getCustomerInfo(emailBooking).email}
+          customerName={`${getCustomerInfo(emailBooking).firstName} ${getCustomerInfo(emailBooking).lastName}`}
+          bookingId={getBookingId(emailBooking)}
           onSend={handleSendEmailFromModal}
-          onClose={() => setShowEmailModal(false)}
-          isLoading={sendingEmail === getBookingId(selectedBooking)}
+          onClose={() => {
+            setShowEmailModal(false);
+            setEmailBooking(null);
+          }}
+          isLoading={sendingEmail === getBookingId(emailBooking)}
         />
       )}
     </div>
