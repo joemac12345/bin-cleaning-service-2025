@@ -55,18 +55,30 @@ export async function POST(request: NextRequest) {
       try {
         // Retrieve booking from database
         const bookings = await DatabaseStorage.getBookings();
+        console.log('📚 Total bookings in database:', bookings.length);
+        
         const booking = bookings.find((b: any) => b.id === bookingId || b.bookingId === bookingId || b.booking_id === bookingId);
 
         if (!booking) {
           console.error('❌ Booking not found. Looking for ID:', bookingId);
-          console.error('Available bookings:', bookings.map((b: any) => ({ id: b.id, bookingId: b.bookingId, booking_id: b.booking_id })));
+          console.error('📚 Available booking IDs:', bookings.map((b: any) => ({
+            id: b.id,
+            bookingId: b.bookingId,
+            booking_id: b.booking_id
+          })));
           return NextResponse.json(
             { error: `Booking not found: ${bookingId}`, success: false },
             { status: 404 }
           );
         }
 
-        console.log('📋 Found booking:', booking);
+        console.log('📋 Found booking:', {
+          id: booking.id,
+          bookingId: booking.bookingId,
+          booking_id: booking.booking_id,
+          hasCustomerInfo: !!booking.customerInfo,
+          hasCustomer_info: !!booking.customer_info
+        });
 
         // Extract customer info - handle both nested and flat structures
         const customerInfo = booking.customerInfo || booking.customer_info || {};
@@ -79,6 +91,7 @@ export async function POST(request: NextRequest) {
         console.log('👤 Customer info extracted:', { firstName, lastName, email, address, postcode });
 
         if (!email) {
+          console.error('❌ No email found. Full booking object:', JSON.stringify(booking, null, 2));
           return NextResponse.json(
             { error: `No email found for booking: ${bookingId}`, success: false },
             { status: 400 }

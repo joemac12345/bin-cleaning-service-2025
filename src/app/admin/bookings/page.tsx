@@ -284,6 +284,7 @@ export default function BookingsAdmin() {
       console.log('🚀 Sending email from modal for booking:', bookingId);
       console.log('📧 Template:', templateId);
       console.log('📧 Customer email:', customerInfo.email);
+      console.log('📧 Customer name:', `${customerInfo.firstName} ${customerInfo.lastName}`);
 
       const response = await fetch('/api/send-email', {
         method: 'POST',
@@ -297,9 +298,22 @@ export default function BookingsAdmin() {
       });
 
       const result = await response.json();
+      
+      console.log('📨 API Response:', {
+        status: response.status,
+        ok: response.ok,
+        result: result
+      });
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to send email');
+        const errorMsg = result.error || result.message || 'Failed to send email';
+        console.error('❌ API Error:', errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      if (!result.success) {
+        console.error('❌ Email send failed:', result);
+        throw new Error(result.error || 'Email sending failed');
       }
 
       console.log('✅ Email sent successfully:', result);
@@ -307,6 +321,7 @@ export default function BookingsAdmin() {
     } catch (err) {
       console.error('❌ Email send error:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error('❌ Full error object:', err);
       alert(`❌ Failed to send email: ${errorMessage}`);
     } finally {
       setSendingEmail(null);

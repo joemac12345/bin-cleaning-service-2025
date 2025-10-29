@@ -25,6 +25,16 @@ const createGmailTransporter = () => {
 };
 
 export const sendEmailViaGmail = async (to: string, subject: string, html: string, replyTo?: string): Promise<EmailResult> => {
+  // Validate recipient email
+  if (!to || !to.includes('@')) {
+    console.error('❌ Invalid recipient email:', to);
+    return { 
+      success: false, 
+      error: `Invalid recipient email: ${to}`,
+      simulation: false 
+    };
+  }
+
   const transporter = createGmailTransporter();
   
   if (!transporter) {
@@ -41,6 +51,11 @@ export const sendEmailViaGmail = async (to: string, subject: string, html: strin
   }
 
   try {
+    console.log('📬 Attempting to send email via Gmail SMTP...');
+    console.log('📧 To:', to);
+    console.log('📧 From:', process.env.GMAIL_USER);
+    console.log('📧 Subject:', subject);
+    
     const info = await transporter.sendMail({
       from: `"Bin Cleaning Service" <${process.env.GMAIL_USER}>`,
       to: to,
@@ -53,9 +68,15 @@ export const sendEmailViaGmail = async (to: string, subject: string, html: strin
     return { success: true, messageId: info.messageId, simulation: false };
   } catch (error) {
     console.error('❌ Gmail send error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('❌ Error details:', {
+      message: errorMessage,
+      code: (error as any)?.code,
+      response: (error as any)?.response?.message
+    });
     return { 
       success: false, 
-      error: error instanceof Error ? error.message : String(error),
+      error: errorMessage,
       simulation: false 
     };
   }
