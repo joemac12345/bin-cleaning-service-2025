@@ -1,16 +1,21 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { CheckCircle, Mail, Calendar, Phone, Home, ArrowLeft } from 'lucide-react';
 
-export default function ThankYouPage() {
+// Component that uses searchParams - must be wrapped in Suspense
+function ThankYouContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isVisible, setIsVisible] = useState(false);
-  
-  // Get booking reference if passed
-  const bookingRef = searchParams.get('ref') || 'BIN-' + Date.now().toString().slice(-6);
+  const [bookingRef, setBookingRef] = useState('');
+
+  useEffect(() => {
+    // Get booking reference safely on client side only
+    const ref = searchParams.get('ref') || 'BIN-' + Date.now().toString().slice(-6);
+    setBookingRef(ref);
+  }, [searchParams]);
 
   useEffect(() => {
     // Smooth entrance animation
@@ -87,11 +92,13 @@ export default function ThankYouPage() {
             </p>
             
             {/* Booking Reference */}
-            <div className="inline-block bg-green-50 border border-green-200 rounded-full px-4 py-2 mb-6">
-              <p className="text-sm font-medium text-green-700">
-                Booking Reference: <span className="font-bold">{bookingRef}</span>
-              </p>
-            </div>
+            {bookingRef && (
+              <div className="inline-block bg-green-50 border border-green-200 rounded-full px-4 py-2 mb-6">
+                <p className="text-sm font-medium text-green-700">
+                  Booking Reference: <span className="font-bold">{bookingRef}</span>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Description */}
@@ -183,5 +190,43 @@ export default function ThankYouPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function ThankYouLoading() {
+  return (
+    <div className="min-h-screen relative flex items-center justify-center px-4 py-8">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-repeat"
+        style={{
+          backgroundImage: "url('/Backround grey.png')",
+          backgroundSize: "300px 300px",
+        }}
+      />
+      
+      {/* Wallpaper Opacity Overlay */}
+      <div className="absolute inset-0 bg-white/60" />
+      
+      {/* Loading Content */}
+      <div className="relative z-10 w-full max-w-2xl text-center">
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6 animate-pulse">
+          <CheckCircle className="w-12 h-12 text-green-500" />
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          Loading... 🧽
+        </h1>
+      </div>
+    </div>
+  );
+}
+
+// Main export with Suspense boundary
+export default function ThankYouPage() {
+  return (
+    <Suspense fallback={<ThankYouLoading />}>
+      <ThankYouContent />
+    </Suspense>
   );
 }
