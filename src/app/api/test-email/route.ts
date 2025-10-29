@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { sendEmailViaGmail } from '@/lib/gmail-sender';
 
-// Test email endpoint to diagnose delivery issues
+// Test email endpoint to diagnose Gmail SMTP delivery
 export async function POST(request: NextRequest) {
   try {
-    console.log('🔬 Testing email delivery...');
+    console.log('🔬 Testing Gmail SMTP delivery...');
     
     const { testEmail } = await request.json();
     
@@ -12,72 +12,75 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Test email address required' }, { status: 400 });
     }
 
-    const resendClient = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+    // Check Gmail configuration
+    const gmailUser = process.env.GMAIL_USER;
+    const gmailPassword = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASS;
     
-    if (!resendClient) {
+    if (!gmailUser || !gmailPassword) {
       return NextResponse.json({ 
-        error: 'RESEND_API_KEY not configured',
+        error: 'Gmail SMTP not configured',
         debug: {
-          hasApiKey: !!process.env.RESEND_API_KEY,
-          fromEmail: process.env.RESEND_FROM_EMAIL,
-          adminEmail: process.env.ADMIN_EMAIL
+          hasGmailUser: !!gmailUser,
+          hasGmailPassword: !!gmailPassword,
+          gmailUser: gmailUser ? gmailUser.substring(0, 5) + '***' : 'not set'
         }
       }, { status: 500 });
     }
 
-    console.log('📧 Testing customer email delivery...');
-    console.log('From:', process.env.RESEND_FROM_EMAIL);
-    console.log('To:', testEmail);
-
-    // Test customer confirmation email
-    const customerTest = await resendClient.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
-      to: testEmail,
-      subject: 'Test Email - Deployment Configuration',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
-          <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h2 style="color: #10b981; margin-bottom: 20px;">✅ Email System Test Successful!</h2>
-            <p style="color: #374151; line-height: 1.6; margin-bottom: 15px;">
-              Your email configuration is working correctly. This test email confirms that:
-            </p>
-            <ul style="color: #374151; line-height: 1.6; margin-bottom: 20px;">
-              <li>Resend API key is valid</li>
-              <li>From email address is authorized</li>
-              <li>Email delivery is functional</li>
-            </ul>
-            <div style="background-color: #ecfdf5; padding: 15px; border-radius: 6px; border-left: 4px solid #10b981;">
-              <p style="color: #065f46; margin: 0; font-weight: 500;">
-                Your bin cleaning service is ready for deployment!
-              </p>
-            </div>
-            <p style="color: #6b7280; font-size: 14px; margin-top: 20px; margin-bottom: 0;">
-              Test performed at: ${new Date().toLocaleString()}
-            </p>
-          </div>
-        </div>
-      `
+    console.log('📧 Testing Gmail SMTP with configuration:', {
+      gmailUser: gmailUser.substring(0, 5) + '***',
+      hasPassword: !!gmailPassword,
+      testEmail
     });
 
-    if (customerTest.error) {
+    // Send test email via Gmail
+    const testEmailContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #059669;">🧪 Gmail SMTP Test Email</h2>
+        <p>This is a test email to verify Gmail SMTP configuration.</p>
+        <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <strong>Test Details:</strong><br>
+          Sent from: ${gmailUser}<br>
+          Sent to: ${testEmail}<br>
+          Timestamp: ${new Date().toISOString()}<br>
+          Service: Gmail SMTP
+        </div>
+        <p>If you received this email, your Gmail SMTP configuration is working correctly! ✅</p>
+      </div>
+    `;
+
+    const result = await sendEmailViaGmail(
+      testEmail,
+      '🧪 Gmail SMTP Test - Bin Cleaning Service',
+      testEmailContent,
+      gmailUser
+    );
+
+    console.log('✅ Gmail test result:', result);
+
+    if (result.success) {
       return NextResponse.json({
-        success: false,
-        error: customerTest.error.message || 'Email test failed'
-      }, { status: 400 });
+        success: true,
+        message: 'Gmail SMTP test email sent successfully!',
+        service: 'gmail',
+        testEmail,
+        sentFrom: gmailUser,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      return NextResponse.json({
+        error: 'Gmail SMTP test failed',
+        details: 'Email sending failed',
+        service: 'gmail'
+      }, { status: 500 });
     }
 
+  } catch (error) {
+    console.error('❌ Gmail test error:', error);
     return NextResponse.json({
-      success: true,
-      message: 'Test email sent successfully',
-      emailId: customerTest.data?.id
-    });
-
-  } catch (error: any) {
-    console.error('Email test error:', error);
-    
-    return NextResponse.json({
-      success: false,
-      error: error.message || 'Failed to test email configuration'
+      error: 'Gmail SMTP test failed',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      service: 'gmail'
     }, { status: 500 });
   }
 }
