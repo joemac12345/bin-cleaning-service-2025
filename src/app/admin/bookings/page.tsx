@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List, Send } from 'lucide-react';
+import { Calendar, User, Phone, Mail, MapPin, Package, Clock, Edit3, Trash2, Eye, Filter, Search, RefreshCw, ChevronDown, Star, CheckCircle, Truck, CheckCheck, List, Send, X } from 'lucide-react';
 import SendEmailModal from '@/components/SendEmailModal';
 
 interface Booking {
@@ -551,28 +551,28 @@ export default function BookingsAdmin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-zinc-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading bookings...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black dark:border-white mx-auto mb-4"></div>
+          <p className="text-zinc-600 dark:text-zinc-300">Loading bookings...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white dark:bg-zinc-900 flex flex-col">
       {/* Page Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="bg-gradient-to-r from-black to-zinc-800 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Bookings Management</h1>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-3xl font-bold text-white">Bookings Management</h1>
+              <p className="text-sm text-zinc-300 mt-2">
                 {showCompleted ? bookings.length : filteredBookings.length} 
                 {showCompleted ? ' total bookings' : ' active jobs'}
                 {!showCompleted && bookings.filter(b => b.status === 'completed').length > 0 && (
-                  <span className="text-gray-400 ml-1">
+                  <span className="text-zinc-400 ml-1">
                     ({bookings.filter(b => b.status === 'completed').length} completed hidden)
                   </span>
                 )}
@@ -581,17 +581,17 @@ export default function BookingsAdmin() {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setShowCompleted(!showCompleted)}
-                className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   showCompleted
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-white text-black hover:bg-zinc-100'
+                    : 'bg-zinc-700 text-white hover:bg-zinc-600'
                 }`}
               >
                 {showCompleted ? 'Hide Completed' : 'Show All'}
               </button>
               <button
                 onClick={fetchBookings}
-                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="p-2 bg-white text-black rounded-lg hover:bg-zinc-100 transition-colors"
                 disabled={loading}
               >
                 <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -601,9 +601,9 @@ export default function BookingsAdmin() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+          <div className="bg-red-900/20 border border-red-700 text-red-300 px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
@@ -611,32 +611,32 @@ export default function BookingsAdmin() {
         {/* Simple Booking Cards - No Filters */}
         <div className="space-y-3">
           {sortedBookings.map((booking, index) => (
-            <div key={booking.bookingId || booking.booking_id || `booking-${index}`} className={`bg-white rounded-lg p-4 max-w-2xl mx-auto ${isNewBooking(booking.createdAt) ? 'border-2 border-red-300 shadow-lg' : 'border border-gray-200'}`}>
+            <div key={booking.bookingId || booking.booking_id || `booking-${index}`} className={`bg-white dark:bg-zinc-800 rounded-lg p-4 max-w-2xl mx-auto ${isNewBooking(booking.createdAt) ? 'border-2 border-red-500 shadow-lg dark:shadow-red-900/50' : 'border border-zinc-200 dark:border-zinc-700'}`}>
               {/* Header Row */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white truncate">
                       {booking.customerInfo?.firstName || booking.customer_info?.firstName || 'Unknown'} {booking.customerInfo?.lastName || booking.customer_info?.lastName || 'Customer'}
                     </h3>
                     <div className="flex items-center space-x-1">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[booking.status]}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${booking.status === 'new-job' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300' : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'}`}>
                         {STATUS_LABELS[booking.status as keyof typeof STATUS_LABELS] || booking.status}
                       </span>
                       {isNewBooking(booking.createdAt) && (
-                        <span className="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-red-100 text-red-800 animate-pulse">
+                        <span className="inline-flex px-2 py-1 text-xs font-bold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 animate-pulse">
                           NEW
                         </span>
                       )}
                     </div>
                   </div>
-                  <p className="text-xs text-gray-500 font-mono mb-1">ID: {getBookingId(booking)}</p>
-                  <p className="text-xs text-gray-600">{getCustomerInfo(booking).email}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono mb-1">ID: {getBookingId(booking)}</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-300">{getCustomerInfo(booking).email}</p>
                 </div>
                 <div className="flex items-center space-x-2 ml-2">
                   <button
                     onClick={() => setSelectedBooking(booking)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
+                    className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors"
                     title="View Details"
                   >
                     <Eye className="w-4 h-4" />
@@ -647,18 +647,18 @@ export default function BookingsAdmin() {
                       setShowEmailModal(true);
                     }}
                     disabled={sendingEmail === getBookingId(booking)}
-                    className="p-2 text-green-600 hover:bg-green-50 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     title="Send Email to Customer"
                   >
                     {sendingEmail === getBookingId(booking) ? (
-                      <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-green-600 dark:border-green-400 border-t-transparent rounded-full animate-spin" />
                     ) : (
                       <Send className="w-4 h-4" />
                     )}
                   </button>
                   <button
                     onClick={() => deleteBooking(getBookingId(booking))}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+                    className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
                     title="Delete Booking"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -669,26 +669,26 @@ export default function BookingsAdmin() {
               {/* Service Details */}
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <span className="text-gray-500">Service:</span>
-                  <span className="ml-1 font-medium capitalize">{getServiceType(booking)}</span>
+                  <span className="text-zinc-500 dark:text-zinc-400">Service:</span>
+                  <span className="ml-1 font-medium capitalize text-zinc-900 dark:text-white">{getServiceType(booking)}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Collection:</span>
-                  <span className="ml-1 font-medium">{getCollectionDay(booking) || 'N/A'}</span>
+                  <span className="text-zinc-500 dark:text-zinc-400">Collection:</span>
+                  <span className="ml-1 font-medium text-zinc-900 dark:text-white">{getCollectionDay(booking) || 'N/A'}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Total:</span>
-                  <span className="ml-1 font-bold text-green-600">£{getPricing(booking).totalPrice}</span>
+                  <span className="text-zinc-500 dark:text-zinc-400">Total:</span>
+                  <span className="ml-1 font-bold text-green-600 dark:text-green-400">£{getPricing(booking).totalPrice}</span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Created:</span>
-                  <span className="ml-1 font-medium">{formatDate(getCreatedAt(booking)).split(' ')[0]}</span>
+                  <span className="text-zinc-500 dark:text-zinc-400">Created:</span>
+                  <span className="ml-1 font-medium text-zinc-900 dark:text-white">{formatDate(getCreatedAt(booking)).split(' ')[0]}</span>
                 </div>
               </div>
 
               {/* Bins Summary */}
-              <div className="mt-3 pt-3 border-t border-gray-100">
-                <div className="text-xs text-gray-600">
+              <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700">
+                <div className="text-xs text-zinc-600 dark:text-zinc-300">
                   <Package className="w-3 h-3 inline mr-1" />
                   {getTotalBinCount(getBinSelection(booking))} bins to clean
                 </div>
@@ -699,7 +699,7 @@ export default function BookingsAdmin() {
                 <select
                   value={booking.status}
                   onChange={(e) => updateBookingStatus(getBookingId(booking), e.target.value)}
-                  className="w-full text-sm border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-sm border border-zinc-300 dark:border-zinc-600 rounded px-3 py-2 bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
                 >
                   <option value="new-job">New Job</option>
                   <option value="completed">Job Completed</option>
@@ -710,53 +710,49 @@ export default function BookingsAdmin() {
         </div>
 
         {sortedBookings.length === 0 && !loading && (
-          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-            <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">No bookings found</p>
-            <p className="text-sm text-gray-400 mt-2">New bookings will appear here</p>
+          <div className="text-center py-12 bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
+            <Package className="w-12 h-12 text-zinc-400 dark:text-zinc-500 mx-auto mb-4" />
+            <p className="text-zinc-500 dark:text-zinc-400">No bookings found</p>
+            <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-2">New bookings will appear here</p>
           </div>
         )}
 
       {/* Mobile-Optimized Booking Details Modal */}
       {selectedBooking && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-lg mx-auto mt-8 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 p-4">
+          <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl max-w-lg mx-auto mt-8 max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 rounded-t-lg">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {isEditing ? 'Edit Booking' : 'Booking Details'}
-                </h3>
-                <div className="flex items-center space-x-2">
-                  {!isEditing && (
-                    <button
-                      onClick={() => startEditing(selectedBooking)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
-                      title="Edit Booking"
-                    >
-                      <Edit3 className="w-5 h-5" />
-                    </button>
-                  )}
+            <div className="sticky top-0 bg-gradient-to-r from-black to-zinc-800 border-b border-zinc-700 px-4 py-4 rounded-t-lg flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">
+                {isEditing ? 'Edit Booking' : 'Booking Details'}
+              </h3>
+              <div className="flex items-center space-x-2">
+                {!isEditing && (
                   <button
-                    onClick={() => {
-                      setSelectedBooking(null);
-                      cancelEditing();
-                    }}
-                    className="p-2 hover:bg-gray-100 rounded-full"
+                    onClick={() => startEditing(selectedBooking)}
+                    className="p-2 text-blue-400 hover:bg-zinc-700 rounded-full transition-colors"
+                    title="Edit Booking"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <Edit3 className="w-5 h-5" />
                   </button>
-                </div>
+                )}
+                <button
+                  onClick={() => {
+                    setSelectedBooking(null);
+                    cancelEditing();
+                  }}
+                  className="p-2 hover:bg-zinc-700 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-white" />
+                </button>
               </div>
             </div>
 
             {/* Modal Content */}
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-4 bg-white dark:bg-zinc-900">
               {/* Booking ID */}
-              <div className="bg-blue-50 p-3 rounded-lg">
-                <p className="text-sm text-blue-600 font-mono">{selectedBooking.bookingId}</p>
+              <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p className="text-sm text-blue-600 dark:text-blue-300 font-mono">{selectedBooking.bookingId}</p>
               </div>
 
               {isEditing && editedBooking ? (
