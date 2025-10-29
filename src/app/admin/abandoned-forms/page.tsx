@@ -15,6 +15,7 @@ import {
   Eye,
   Package
 } from 'lucide-react';
+import FormsManagementBottomMenu from '@/components/FormsManagementBottomMenu';
 
 interface AbandonedForm {
   id: string;
@@ -203,7 +204,7 @@ export default function AbandonedFormsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-900">
+    <div className="min-h-screen bg-white dark:bg-zinc-900 pb-80">
       {/* Header */}
       <div className="bg-gradient-to-r from-black to-zinc-800 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -717,6 +718,21 @@ export default function AbandonedFormsPage() {
           </div>
         )}
       </div>
+
+      {/* Bottom Menu */}
+      <FormsManagementBottomMenu
+        totalForms={filteredForms?.length || 0}
+        contactedCount={filteredForms?.filter(f => f.status === 'contacted').length || 0}
+        convertedCount={filteredForms?.filter(f => f.status === 'converted').length || 0}
+        abandonedCount={filteredForms?.filter(f => f.status === 'abandoned').length || 0}
+        unqualifiedCount={filteredForms?.filter(f => f.status === 'unqualified').length || 0}
+        totalPotentialValue={filteredForms?.reduce((sum, f) => sum + f.potentialValue, 0) || 0}
+        withContactInfo={filteredForms?.filter(f => f.contactInfo.hasEmail || f.contactInfo.hasPhone).length || 0}
+        onRefresh={fetchForms}
+        onExport={exportToCSV}
+        isLoading={loading}
+        hasData={(filteredForms?.length || 0) > 0}
+      />
     </div>
   );
 }
