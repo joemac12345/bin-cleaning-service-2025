@@ -8,15 +8,21 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // Determine which email service to use based on environment
 const getEmailService = () => {
   // Prefer Gmail SMTP if configured (it's free!)
-  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPassword = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASS;
+  
+  if (gmailUser && gmailPassword) {
+    console.log('Using Gmail SMTP service');
     return 'gmail';
   }
   
   // Fall back to Resend if configured
   if (process.env.RESEND_API_KEY) {
+    console.log('Falling back to Resend service');
     return 'resend';
   }
   
+  console.log('No email service configured');
   // No email service configured
   return null;
 };
@@ -124,9 +130,13 @@ export async function POST(request: NextRequest) {
     console.log('🔧 Environment check:', {
       emailService,
       hasResendKey: !!process.env.RESEND_API_KEY,
-      hasGmailConfig: !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD),
+      hasGmailUser: !!process.env.GMAIL_USER,
+      hasGmailAppPassword: !!process.env.GMAIL_APP_PASSWORD,
+      hasGmailAppPass: !!process.env.GMAIL_APP_PASS,
+      hasGmailConfig: !!(process.env.GMAIL_USER && (process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASS)),
       fromEmail: process.env.RESEND_FROM_EMAIL,
-      resendInitialized: !!resend
+      resendInitialized: !!resend,
+      gmailUser: process.env.GMAIL_USER
     });
 
     // If no Resend API key, simulate email sending
