@@ -273,7 +273,7 @@ export default function AbandonedFormsPage() {
             <div className="flex justify-center items-center p-12">
               <RefreshCw className="w-8 h-8 animate-spin text-zinc-400 dark:text-zinc-500" />
             </div>
-          ) : filteredForms.length === 0 ? (
+          ) : !filteredForms || filteredForms.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-zinc-300 dark:text-zinc-600 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-zinc-900 dark:text-white mb-2">No abandoned forms found</h3>
