@@ -89,13 +89,13 @@ export default function SendEmailModal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 p-6 space-y-4 overflow-y-auto w-full">
+        <div className="flex-1 p-6 space-y-4 w-full flex flex-col justify-start">
           {/* Template Selection */}
           <div>
             <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
               Choose Email Template
             </label>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="space-y-2">
               {EMAIL_TEMPLATES.map(template => (
                 <button
                   key={template.id}
