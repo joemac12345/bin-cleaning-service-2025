@@ -33,7 +33,7 @@ function BookingContent() {
   return (
     <>
       <TopNavigation />
-      <div className="min-h-screen relative flex items-center justify-center px-0 sm:px-4">
+      <div className="min-h-screen relative flex items-center justify-center px-2 sm:px-4">
       {/* Background Image - same as postcode page */}
       <div 
         className="absolute inset-0 bg-repeat"
@@ -47,7 +47,7 @@ function BookingContent() {
       <div className="absolute inset-0 bg-white/60" />
       
       {/* Content */}
-      <div className="relative z-10 w-full max-w-4xl my-2 sm:my-8 flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-4xl my-4 sm:my-8 flex flex-col items-center">
 
         <BookingForm 
           postcode={postcode}
