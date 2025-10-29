@@ -275,22 +275,6 @@ export default function BookingsAdmin() {
       return;
     }
 
-    // Check if Resend is in testing mode (can only send to admin email)
-    const adminEmail = 'eyeline65@gmail.com';
-    const isTestingMode = customerInfo.email !== adminEmail;
-    
-    if (isTestingMode) {
-      const proceed = confirm(
-        `⚠️ Resend Testing Mode Detected\n\n` +
-        `Customer email: ${customerInfo.email}\n\n` +
-        `Your Resend account can currently only send emails to: ${adminEmail}\n\n` +
-        `Would you like to send a TEST email to your address (${adminEmail}) instead?\n\n` +
-        `To send to any customer email, you need to verify a custom domain at resend.com/domains`
-      );
-      
-      if (!proceed) return;
-    }
-
     try {
       setSendingEmail(bookingId);
       console.log('🚀 Sending email for booking:', bookingId);
