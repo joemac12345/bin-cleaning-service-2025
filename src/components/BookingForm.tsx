@@ -539,14 +539,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       <Trash2 className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 leading-tight">Let's get you a price</h2>
-                      <h3 className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">for your bin cleaning!</h3>
+                      <h2 className="text-xl sm:text-xl md:text-2xl font-bold mb-1 leading-tight">Let's get you a price</h2>
+                      <h3 className="text-lg sm:text-lg md:text-lg text-gray-600 leading-relaxed">for your bin cleaning!</h3>
                     </div>
                   </div>
                   
                   {/* Information we'll need */}
                   <div className="text-left" style={{ maxWidth: '28rem' }}>
-                    <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
+                    <h4 className="text-sm font-semibold text-gray-800 mb-4 flex items-center">
                       <Calendar className="w-4 h-4 mr-2" />
                       To provide accurate pricing, we'll need:
                     </h4>
@@ -581,7 +581,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => setCurrentStep(2)}
                 variant="primary"
-                className="w-full py-4 text-base md:text-lg font-medium"
+                className="w-full py-4 text-base font-medium"
               >
                 Let's get started
               </Button>
@@ -606,7 +606,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 2 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <Trash2 className="w-4 h-4" />
                 <span>What type of service do you need?</span>
               </h3>
@@ -694,14 +694,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 3 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <User className="w-4 h-4" />
                 <span>Your Contact Details</span>
               </h3>
               <p className="text-sm text-gray-600 mb-4">We'll use these details to contact you about your booking</p>
               <div className="border-b border-gray-200 mb-6"></div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mb-4">
                 <InputField
                   label="First Name"
                   value={formData.firstName}
@@ -716,21 +716,25 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 />
               </div>
 
-              <InputField
-                label="Email Address"
-                type="email"
-                value={formData.email}
-                onChange={(value) => handleInputChange('email', value)}
-                required
-              />
+              <div className="mb-4">
+                <InputField
+                  label="Email Address"
+                  type="email"
+                  value={formData.email}
+                  onChange={(value) => handleInputChange('email', value)}
+                  required
+                />
+              </div>
 
-              <InputField
-                label="Phone Number"
-                type="tel"
-                value={formData.phone}
-                onChange={(value) => handleInputChange('phone', value)}
-                required
-              />
+              <div className="mb-4">
+                <InputField
+                  label="Phone Number"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(value) => handleInputChange('phone', value)}
+                  required
+                />
+              </div>
 
               {/* Contact Permission */}
               <div className="mt-6">
@@ -823,23 +827,25 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 4 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <MapPin className="w-4 h-4" />
                 <span>Your Address</span>
               </h3>
               <p className="text-sm text-gray-600 mb-4">Where should we come to clean your bins?</p>
               <div className="border-b border-gray-200 mb-6"></div>
 
-              <TextareaField
-                label="Full Address"
-                value={formData.address}
-                onChange={(value) => handleInputChange('address', value)}
-                placeholder={`Please provide your full address in ${postcode}...`}
-                rows={3}
-                required
-              />
+              <div className="mb-4">
+                <TextareaField
+                  label="Full Address"
+                  value={formData.address}
+                  onChange={(value) => handleInputChange('address', value)}
+                  placeholder={`Please provide your full address in ${postcode}...`}
+                  rows={3}
+                  required
+                />
+              </div>
 
-              <div className="mt-4">
+              <div className="mb-4">
                 <Button
                   onClick={detectLocation}
                   variant="outline"
@@ -921,7 +927,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 5 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <Trash2 className="w-4 h-4" />
                 <span>Which bins need cleaning?</span>
               </h3>
@@ -1036,7 +1042,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 6 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <Calendar className="w-4 h-4" />
                 <span>Bin Collection Days</span>
               </h3>
@@ -1127,20 +1133,22 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 7 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <MessageSquare className="w-4 h-4" />
                 <span>Special Instructions</span>
               </h3>
               <p className="text-sm text-gray-600 mb-4">Any additional instructions or special requirements? (Optional)</p>
               <div className="border-b border-gray-200 mb-6"></div>
 
-              <TextareaField
-                label="Special Instructions"
-                value={formData.specialInstructions}
-                onChange={(value) => handleInputChange('specialInstructions', value)}
-                placeholder="e.g., Gate access code, bin location details, preferred cleaning time, keys under doormat, any specific requirements..."
-                rows={4}
-              />
+              <div className="mb-4">
+                <TextareaField
+                  label="Special Instructions"
+                  value={formData.specialInstructions}
+                  onChange={(value) => handleInputChange('specialInstructions', value)}
+                  placeholder="e.g., Gate access code, bin location details, preferred cleaning time, keys under doormat, any specific requirements..."
+                  rows={4}
+                />
+              </div>
             </FormSection>
 
             <ButtonGroup stickyBottom={true} withBackground={true} withDivider={true}>
@@ -1208,7 +1216,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 8 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <DollarSign className="w-4 h-4" />
                 <span>Payment Method</span>
               </h3>
@@ -1256,7 +1264,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
 
               {/* Payment method specific information */}
               {formData.paymentMethod === 'card' && (
-                <div className="bg-blue-50 p-4 rounded-lg mt-4">
+                <div className="bg-blue-50 p-4 rounded-lg mb-4">
                   <p className="text-sm text-blue-800 flex items-start">
                     <CreditCard className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                     <span><span className="font-medium">Secure card payment:</span> You'll be able to pay securely with your card when we contact you to confirm your booking.</span>
@@ -1265,7 +1273,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               )}
 
               {formData.paymentMethod === 'cash' && (
-                <div className="bg-green-50 p-4 rounded-lg mt-4">
+                <div className="bg-green-50 p-4 rounded-lg mb-4">
                   <p className="text-sm text-green-800 flex items-start">
                     <Banknote className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                     <span><span className="font-medium">Cash payment:</span> Please have the exact amount ready (£{totalPrice}) for the cleaner on service day.</span>
@@ -1274,7 +1282,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               )}
 
               {formData.paymentMethod === 'bank_transfer' && (
-                <div className="bg-purple-50 p-4 rounded-lg mt-4">
+                <div className="bg-purple-50 p-4 rounded-lg mb-4">
                   <p className="text-sm text-purple-800 flex items-start">
                     <Building2 className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                     <span><span className="font-medium">Bank transfer:</span> We'll send you our bank details after the service is completed. Payment due within 7 days.</span>
@@ -1367,7 +1375,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 9 && (
           <>
             <FormSection>
-              <h3 className="text-base font-semibold mb-2 flex items-center space-x-2">
+              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
                 <CreditCard className="w-4 h-4" />
                 <span>Review & Confirm Booking</span>
               </h3>
@@ -1375,8 +1383,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <div className="border-b border-gray-200 mb-6"></div>
 
               {/* Final Summary */}
-              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg border">
-                <h4 className="font-bold text-lg mb-4">Booking Summary</h4>
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 rounded-lg border mb-4">
+                <h4 className="text-lg font-bold mb-4">Booking Summary</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="font-medium">Service Type:</span>
@@ -1446,7 +1454,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
 
               {/* Terms Agreement */}
-              <div className="mt-6">
+              <div className="mb-4">
                 <label className="relative cursor-pointer">
                   <input
                     type="checkbox"
