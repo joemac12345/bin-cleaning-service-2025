@@ -603,7 +603,33 @@ export default function BookingsAdmin() {
           </div>
         )}
 
-        {/* Simple Booking Cards - No Filters */}
+        {/* Filter Controls */}
+        <div className="mb-6 flex gap-2">
+          <button
+            onClick={() => setShowCompleted(false)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              !showCompleted 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+            }`}
+          >
+            <CheckCircle className="w-4 h-4" />
+            Pending Jobs ({bookings.filter(b => b.status === 'new-job').length})
+          </button>
+          <button
+            onClick={() => setShowCompleted(true)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+              showCompleted 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-300 dark:hover:bg-zinc-600'
+            }`}
+          >
+            <CheckCheck className="w-4 h-4" />
+            All Jobs ({bookings.length})
+          </button>
+        </div>
+
+        {/* Simple Booking Cards */}
         <div className="space-y-3">
           {sortedBookings.map((booking, index) => (
             <div key={booking.bookingId || booking.booking_id || `booking-${index}`} className={`bg-white dark:bg-zinc-800 rounded-lg p-4 max-w-2xl mx-auto ${isNewBooking(booking.createdAt) ? 'border-2 border-red-500 shadow-lg dark:shadow-red-900/50' : 'border border-zinc-200 dark:border-zinc-700'}`}>
