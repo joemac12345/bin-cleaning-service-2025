@@ -48,7 +48,7 @@ interface Booking {
 }
 
 const STATUS_COLORS = {
-  'new-job': 'bg-blue-100 text-blue-800',
+  'new-job': 'bg-green-100 text-green-800',
   completed: 'bg-green-100 text-green-800',
 };
 
@@ -777,10 +777,11 @@ export default function BookingsAdmin() {
                 {!isEditing && (
                   <button
                     onClick={() => startEditing(selectedBooking)}
-                    className="p-2 text-blue-400 hover:bg-zinc-700 rounded-full transition-colors"
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center space-x-1.5"
                     title="Edit Booking"
                   >
-                    <Edit3 className="w-5 h-5" />
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit Booking</span>
                   </button>
                 )}
                 <button
@@ -796,10 +797,55 @@ export default function BookingsAdmin() {
             </div>
 
             {/* Modal Content */}
-            <div className="p-4 sm:p-6 space-y-6 bg-white dark:bg-zinc-900 flex-1 overflow-y-auto">
+            <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 bg-white dark:bg-zinc-900 flex-1 overflow-y-auto">
               {/* Booking ID */}
-              <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                <p className="text-sm text-blue-600 dark:text-blue-300 font-mono">{selectedBooking.bookingId}</p>
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3 sm:p-4 rounded-lg sm:rounded-xl shadow-lg">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-xs text-blue-100 mb-1">Booking Reference</p>
+                    <p className="text-base sm:text-lg font-bold text-white font-mono tracking-wide break-all">{getBookingId(selectedBooking)}</p>
+                  </div>
+                  {!isEditing && (
+                    <button
+                      onClick={() => {
+                        if (confirm('Are you sure you want to delete this booking?')) {
+                          deleteBooking(getBookingId(selectedBooking));
+                        }
+                      }}
+                      className="ml-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors flex-shrink-0"
+                      title="Delete Booking"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Status and Creation Date - At Top */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-zinc-700">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Status</p>
+                  {!isEditing ? (
+                    <select
+                      value={selectedBooking.status}
+                      onChange={(e) => {
+                        updateBookingStatus(getBookingId(selectedBooking), e.target.value);
+                      }}
+                      className="w-full border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
+                    >
+                      <option value="new-job">New Job</option>
+                      <option value="completed">Job Completed</option>
+                    </select>
+                  ) : (
+                    <span className={`inline-block px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg ${STATUS_COLORS[selectedBooking.status]}`}>
+                      {STATUS_LABELS[selectedBooking.status as keyof typeof STATUS_LABELS] || selectedBooking.status}
+                    </span>
+                  )}
+                </div>
+                <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-zinc-700">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Created</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{formatDate(getCreatedAt(selectedBooking))}</p>
+                </div>
               </div>
 
               {isEditing && editedBooking ? (
@@ -988,136 +1034,85 @@ export default function BookingsAdmin() {
                 /* View Mode */
                 <>
                   {/* Customer Info - View Only */}
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
-                      <User className="w-4 h-4 mr-2" />
+                  <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-zinc-700">
+                    <h4 className="font-bold text-gray-900 dark:text-white flex items-center mb-3 sm:mb-4 text-sm sm:text-base">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                        <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
+                      </div>
                       Customer Information
                     </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Name:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{getCustomerInfo(selectedBooking).firstName} {getCustomerInfo(selectedBooking).lastName}</span>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-zinc-700">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Name</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white text-right ml-2">{getCustomerInfo(selectedBooking).firstName} {getCustomerInfo(selectedBooking).lastName}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Email:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{getCustomerInfo(selectedBooking).email}</span>
+                      <div className="flex items-start justify-between py-2 border-b border-gray-200 dark:border-zinc-700">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex-shrink-0">Email</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white break-all text-right ml-2">{getCustomerInfo(selectedBooking).email}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Phone:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{getCustomerInfo(selectedBooking).phone}</span>
+                      <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-zinc-700">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Phone</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">{getCustomerInfo(selectedBooking).phone}</span>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-gray-600 dark:text-gray-300 mb-1">Address:</span>
-                        <span className="font-medium text-sm text-gray-900 dark:text-white">{getCustomerInfo(selectedBooking).address}</span>
+                      <div className="py-2">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 block mb-2">Address</span>
+                        <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white block bg-white dark:bg-zinc-900 p-2 sm:p-3 rounded-lg">{getCustomerInfo(selectedBooking).address}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Service Details - View Only */}
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
-                      <Package className="w-4 h-4 mr-2" />
+                  <div className="bg-gray-50 dark:bg-zinc-800/50 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-gray-200 dark:border-zinc-700">
+                    <h4 className="font-bold text-gray-900 dark:text-white flex items-center mb-3 sm:mb-4 text-sm sm:text-base">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                        <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
+                      </div>
                       Service Details
                     </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Service Type:</span>
-                        <span className="font-medium capitalize text-gray-900 dark:text-white">{selectedBooking.serviceType}</span>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-zinc-700">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Service Type</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white capitalize">{getServiceType(selectedBooking)}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Collection Day:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{getCollectionDay(selectedBooking) || 'Not specified'}</span>
+                      <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-zinc-700">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Collection Day</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{getCollectionDay(selectedBooking) || 'Not specified'}</span>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-gray-600 dark:text-gray-300 mb-1">Bins:</span>
-                        <span className="font-medium text-sm text-gray-900 dark:text-white">{formatBinSelection(getBinSelection(selectedBooking))}</span>
+                      <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-zinc-700">
+                        <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Bins to be Cleaned</span>
+                        <span className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{getTotalBinCount(getBinSelection(selectedBooking))} bins</span>
                       </div>
                       {selectedBooking.specialInstructions && (
-                        <div className="flex flex-col">
-                          <span className="text-gray-600 dark:text-gray-300 mb-1">Special Instructions:</span>
-                          <span className="font-medium text-sm bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded text-gray-900 dark:text-white border border-yellow-200 dark:border-yellow-800">{selectedBooking.specialInstructions}</span>
+                        <div className="py-2">
+                          <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 block mb-2">Special Instructions</span>
+                          <span className="text-xs sm:text-sm font-medium block bg-yellow-50 dark:bg-yellow-900/20 p-2 sm:p-3 rounded-lg text-gray-900 dark:text-white border border-yellow-200 dark:border-yellow-800">{selectedBooking.specialInstructions}</span>
                         </div>
                       )}
                     </div>
                   </div>
 
                   {/* Pricing - View Only */}
-                  <div className="space-y-3">
-                    <h4 className="font-semibold text-gray-900 dark:text-white flex items-center">
-                      <Clock className="w-4 h-4 mr-2" />
-                      Pricing & Status
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-green-200 dark:border-green-800">
+                    <h4 className="font-bold text-gray-900 dark:text-white flex items-center mb-3 sm:mb-4 text-sm sm:text-base">
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                        <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 dark:text-green-400" />
+                      </div>
+                      Pricing
                     </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Bin Total:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">£{getPricing(selectedBooking).binTotal}</span>
+                    <div className="space-y-2 sm:space-y-3">
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Bin Total</span>
+                        <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">£{getPricing(selectedBooking).binTotal}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Service Charge:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">£{getPricing(selectedBooking).serviceCharge}</span>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-xs sm:text-sm text-gray-700 dark:text-gray-300">Service Charge</span>
+                        <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">£{getPricing(selectedBooking).serviceCharge}</span>
                       </div>
-                      <div className="flex justify-between border-t border-gray-200 dark:border-zinc-700 pt-2">
-                        <span className="text-gray-900 dark:text-white font-semibold">Total:</span>
-                        <span className="font-bold text-green-600 dark:text-green-400">£{getPricing(selectedBooking).totalPrice}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Status:</span>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${STATUS_COLORS[selectedBooking.status]}`}>
-                          {STATUS_LABELS[selectedBooking.status as keyof typeof STATUS_LABELS] || selectedBooking.status}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Created:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{formatDate(selectedBooking.createdAt)}</span>
+                      <div className="flex justify-between items-center pt-2 sm:pt-3 border-t-2 border-green-300 dark:border-green-700">
+                        <span className="text-sm sm:text-base font-bold text-gray-900 dark:text-white">Total Amount</span>
+                        <span className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400">£{getPricing(selectedBooking).totalPrice}</span>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Action Buttons - View Mode */}
-                  <div className="pt-4 border-t border-gray-200 dark:border-zinc-700 space-y-3">
-                    <select
-                      value={selectedBooking.status}
-                      onChange={(e) => {
-                        updateBookingStatus(getBookingId(selectedBooking), e.target.value);
-                      }}
-                      className="w-full border border-gray-300 dark:border-zinc-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-zinc-800 text-gray-900 dark:text-white"
-                    >
-                      <option value="new-job">New Job</option>
-                      <option value="completed">Job Completed</option>
-                    </select>
-                    
-                    <button
-                      onClick={() => {
-                        setShowEmailModal(true);
-                        setSelectedTemplate('booking-confirmation');
-                        setCustomMessage('');
-                      }}
-                      disabled={sendingEmail === getBookingId(selectedBooking)}
-                      className="w-full bg-green-600 dark:bg-green-700 text-white py-2 px-4 rounded-lg hover:bg-green-700 dark:hover:bg-green-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                    >
-                      {sendingEmail === getBookingId(selectedBooking) ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Sending...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          <span>Send Email</span>
-                        </>
-                      )}
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        if (confirm('Are you sure you want to delete this booking?')) {
-                          deleteBooking(getBookingId(selectedBooking));
-                        }
-                      }}
-                      className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
-                    >
-                      Delete Booking
-                    </button>
                   </div>
                 </>
               )}
