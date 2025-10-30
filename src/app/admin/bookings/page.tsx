@@ -130,7 +130,23 @@ export default function BookingsAdmin() {
 
   // Start editing a booking
   const startEditing = (booking: Booking) => {
-    setEditedBooking({ ...booking });
+    // Normalize the booking data to ensure camelCase fields for editing
+    const normalizedBooking: Booking = {
+      ...booking,
+      collectionDay: booking.collectionDay || booking.collection_day || '',
+      serviceType: booking.serviceType || booking.service_type || '',
+      binSelection: booking.binSelection || booking.bin_selection || {},
+      specialInstructions: booking.specialInstructions || booking.special_instructions || '',
+      customerInfo: booking.customerInfo || booking.customer_info || {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        address: '',
+        postcode: ''
+      }
+    };
+    setEditedBooking(normalizedBooking);
     setIsEditing(true);
   };
 
@@ -1010,7 +1026,7 @@ export default function BookingsAdmin() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600 dark:text-gray-300">Collection Day:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">{selectedBooking.collectionDay || 'Not specified'}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{getCollectionDay(selectedBooking) || 'Not specified'}</span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-gray-600 dark:text-gray-300 mb-1">Bins:</span>
