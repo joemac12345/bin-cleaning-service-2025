@@ -12,7 +12,8 @@ import {
   X,
   CheckCircle,
   AlertCircle,
-  Calendar
+  Calendar,
+  Home
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -271,6 +272,14 @@ export default function WaitlistAdminPage() {
       {/* Bottom Filter Menu */}
       <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 px-4 py-3 safe-area-inset-bottom">
         <div className="flex items-center justify-around">
+          <Link
+            href="/"
+            className="flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors text-zinc-500 hover:bg-zinc-800 hover:text-white"
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-xs font-medium">Home</span>
+          </Link>
+
           <button
             onClick={() => setFilterStatus('all')}
             className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors ${

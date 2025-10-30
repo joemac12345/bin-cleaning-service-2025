@@ -97,10 +97,10 @@ const SERVICE_TYPES = [
 // Bin types available for selection with pricing per unit
 // Customer can select multiple bins and quantities
 const BIN_TYPES = [
-  { id: 'wheelie', name: 'Wheelie Bin (Large)', price: 5, description: 'Standard household wheelie bin' },
-  { id: 'food', name: 'Food Waste Bin', price: 3, description: 'Small food waste bin' },
-  { id: 'recycling', name: 'Recycling Bin', price: 4, description: 'Recycling wheelie bin' },
-  { id: 'garden', name: 'Garden Waste Bin', price: 6, description: 'Green garden waste bin' }
+  { id: 'wheelie', name: 'Wheelie Bin (Large)', price: 5, description: 'Standard household wheelie bin', emoji: '🗑️' },
+  { id: 'food', name: 'Food Waste Bin', price: 3, description: 'Small food waste bin', emoji: '🍎' },
+  { id: 'recycling', name: 'Recycling Bin', price: 4, description: 'Recycling wheelie bin', emoji: '♻️' },
+  { id: 'garden', name: 'Garden Waste Bin', price: 6, description: 'Green garden waste bin', emoji: '🌿' }
 ];
 
 // Bin collection days - Only Monday to Friday (Saturday removed)
@@ -562,70 +562,93 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     <FormContainer fullWidthOnMobile={true} className="bg-transparent">
       <FormContent>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-          {/* Progress Indicator */}
-          <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm -mx-4 px-4 mb-4 sm:mb-6">
-            <div className="py-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-semibold text-slate-700">
+          {/* Progress Indicator - Corporate Flat Design */}
+          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 -mx-4 px-4 mb-6">
+            <div className="py-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm font-semibold text-gray-900">
                   Step {currentStep} of 10
                 </span>
-                <span className="text-xs text-slate-500">{Math.round((currentStep / 10) * 100)}% complete</span>
+                <span className="text-xs font-medium text-gray-500">{Math.round((currentStep / 10) * 100)}% Complete</span>
               </div>
-              {/* Progress Bar */}
-              <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+              {/* Progress Bar - Flat Design */}
+              <div className="w-full h-1.5 bg-gray-200">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-400 via-blue-500 to-slate-400 transition-all duration-500 ease-out"
+                  className="h-full bg-blue-600 transition-all duration-300 ease-out"
                   style={{ width: `${(currentStep / 10) * 100}%` }}
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex-1 space-y-4 sm:space-y-6">
-        {/* Step 1: Welcome */}
+          <div className="flex-1 space-y-6">
+        {/* Step 1: Welcome - Corporate Professional Design */}
         {currentStep === 1 && (
           <>
             <FormSection>
-              <div className="text-left py-4 md:py-8">
-                <div className="mb-6 sm:mb-8 md:mb-6">
-                  <div className="flex items-start mb-4 sm:mb-6 md:mb-4">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-3 sm:mr-4 flex-shrink-0 shadow-lg">
-                      <Trash2 className="w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 text-white" />
+              <div className="text-left py-6">
+                <div className="mb-8">
+                  <div className="flex items-start mb-6">
+                    <div className="w-16 h-16 bg-blue-600 flex items-center justify-center mr-4 flex-shrink-0">
+                      <Trash2 className="w-8 h-8 text-white" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h2 className="text-xl sm:text-xl md:text-2xl font-bold mb-1 leading-tight bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">Let's get you a price</h2>
-                      <h3 className="text-lg sm:text-lg md:text-lg text-slate-600 leading-relaxed">for your bin cleaning! 🎉</h3>
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold mb-2 text-gray-900">Get Your Quote</h2>
+                      <p className="text-base text-gray-600">Professional bin cleaning service pricing in minutes</p>
                     </div>
                   </div>
                   
-                  {/* Information we'll need */}
-                  <div className="text-left" style={{ maxWidth: '28rem' }}>
-                    <h4 className="text-sm font-semibold text-slate-800 mb-4 flex items-center">
-
-                      <Calendar className="w-4 h-4 mr-2" />
-                      To provide accurate pricing, we'll need:
+                  {/* Information Cards */}
+                  <div className="space-y-3">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-4">
+                      Information Required:
                     </h4>
-                    <ul className="space-y-3 text-sm text-gray-700">
-                      <li className="flex items-start">
-                        <CreditCard className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="leading-relaxed">What type of service you prefer (regular or one-off)</span>
-                      </li>
-                      <li className="flex items-start">
-                        <User className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="leading-relaxed">Your contact details and service address</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Trash2 className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="leading-relaxed">Which bins need cleaning and how many</span>
-                      </li>
-                      <li className="flex items-start">
-                        <Calendar className="w-4 h-4 text-gray-600 mr-3 mt-0.5 flex-shrink-0" />
-                        <span className="leading-relaxed">Your bin collection days</span>
-                      </li>
-                    </ul>
-                    <div className="mt-6 text-sm text-gray-600 p-4 border border-gray-200 rounded-lg flex items-center">
-                      <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                      <span><span className="font-medium">Takes just 2-3 minutes</span> - Get your instant quote!</span>
+                    
+                    <div className="border border-gray-200 p-4 bg-white">
+                      <div className="flex items-start">
+                        <CreditCard className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h5 className="font-medium text-gray-900 text-sm">Service Type</h5>
+                          <p className="text-sm text-gray-600 mt-1">Regular or one-off cleaning service</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-gray-200 p-4 bg-white">
+                      <div className="flex items-start">
+                        <User className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h5 className="font-medium text-gray-900 text-sm">Contact Details</h5>
+                          <p className="text-sm text-gray-600 mt-1">Name, email, and phone number</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-gray-200 p-4 bg-white">
+                      <div className="flex items-start">
+                        <Trash2 className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h5 className="font-medium text-gray-900 text-sm">Bin Selection</h5>
+                          <p className="text-sm text-gray-600 mt-1">Types and quantities of bins to clean</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border border-gray-200 p-4 bg-white">
+                      <div className="flex items-start">
+                        <Calendar className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h5 className="font-medium text-gray-900 text-sm">Collection Schedule</h5>
+                          <p className="text-sm text-gray-600 mt-1">Your regular bin collection day</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 p-4 mt-4">
+                      <div className="flex items-center">
+                        <Clock className="w-5 h-5 mr-3 text-blue-600 flex-shrink-0" />
+                        <p className="text-sm text-gray-900"><span className="font-semibold">2-3 minutes</span> to complete · Instant quote provided</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -636,39 +659,25 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToNextStep(2)}
                 variant="primary"
-                className="w-full py-4 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                className="w-full py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Let's get started 🚀
+                Get Started
               </Button>
             </ButtonGroup>
           </>
         )}
 
-        {/* Step 2: Service Type Selection
-            WHAT HAPPENS HERE:
-            - User selects between "Regular" (ongoing) or "One-off" (single clean) service
-            - This choice affects the final price (£0 base vs £10 premium)
-            - Stored in formData.serviceType as either 'regular' or 'oneoff'
-            
-            USER DECISIONS:
-            - Regular service: For customers wanting recurring weekly/monthly cleans
-            - One-off service: For customers wanting a one-time deep clean
-            
-            VALIDATION:
-            - Service type is required before proceeding
-            - Defaults to 'regular' if not explicitly changed
-        */}
+        {/* Step 2: Service Type - Corporate Flat Design */}
         {currentStep === 2 && (
           <>
             <FormSection>
-              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
-                <span className="text-2xl">🧹</span>
-                <span>What service do you need?</span>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">
+                Select Service Type
               </h3>
-              <p className="text-sm text-slate-600 mb-6">Choose the perfect plan for your needs!</p>
-              <div className="grid gap-3">
+              <p className="text-sm text-gray-600 mb-6">Choose the service that best fits your needs</p>
+              <div className="space-y-3">
                 {SERVICE_TYPES.map((service) => (
-                  <label key={service.id} className="relative group">
+                  <label key={service.id} className="relative group cursor-pointer">
                     <input
                       type="radio"
                       name="serviceType"
@@ -677,30 +686,29 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       onChange={(e) => handleInputChange('serviceType', e.target.value)}
                       className="sr-only"
                     />
-                    <div className={`p-5 sm:p-4 border-2 rounded-xl cursor-pointer transition-all transform ${
+                    <div className={`p-5 border-2 transition-all ${
                       formData.serviceType === service.id 
-                        ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-slate-50 shadow-md scale-105' 
-                        : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'
+                        ? 'border-blue-600 bg-blue-50' 
+                        : 'border-gray-300 bg-white hover:border-gray-400'
                     }`}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <span className="text-2xl">{service.id === 'regular' ? '📦' : '✨'}</span>
-                            <h4 className="font-semibold text-slate-900">{service.name}</h4>
+                          <div className="flex items-center mb-2">
+                            <h4 className="font-semibold text-gray-900 text-base">{service.name}</h4>
                             {service.popular && (
-                              <span className="px-2.5 py-1 bg-gradient-to-r from-blue-100 to-slate-100 text-blue-800 text-xs font-semibold rounded-full">
-                                Most Popular ⭐
+                              <span className="ml-3 px-2.5 py-0.5 bg-blue-600 text-white text-xs font-semibold">
+                                POPULAR
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-slate-600 mt-2 ml-8">{service.description}</p>
+                          <p className="text-sm text-gray-600">{service.description}</p>
                           {service.id === 'regular' && (
-                            <p className="text-xs text-blue-700 font-medium mt-2 ml-8">💚 Save 20% compared to one-off</p>
+                            <p className="text-xs text-blue-600 font-medium mt-2">Save 20% with regular service</p>
                           )}
                         </div>
                         <div className="ml-4 text-right flex-shrink-0">
                           {service.serviceCharge > 0 && (
-                            <p className="text-sm font-semibold text-blue-600">
+                            <p className="text-base font-bold text-gray-900">
                               +£{service.serviceCharge}
                             </p>
                           )}
@@ -716,39 +724,15 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToNextStep(3)}
                 variant="primary"
-                className="w-full py-4 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                className="w-full py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </>
         )}
 
-        {/* Step 3: Contact Details
-            WHAT HAPPENS HERE:
-            - Collects customer's name, email, and phone number
-            - These are required fields (validation prevents proceeding without them)
-            - Contact Permission checkbox: GDPR compliance - user must consent to be contacted
-            - Optional auto-detect feature attempts to pull contacts from device
-            
-            COLLECTED DATA:
-            - firstName: Customer's first name (required, validation enforced)
-            - lastName: Customer's last name (required, validation enforced)
-            - email: Contact email for booking confirmation and updates (required, must be valid email)
-            - phone: Phone number for cleaner to contact on service day (required)
-            - contactPermission: GDPR consent checkbox (required for compliance)
-            
-            VALIDATION RULES:
-            - All fields required (firstName, lastName, email, phone)
-            - Email must be valid format (handled by HTML5 email input type)
-            - Contact permission must be checked to proceed
-            - Next button disabled until all validations pass
-            
-            BUSINESS IMPACT:
-            - Email used for booking confirmation and payment processing
-            - Phone used by cleaner for coordination on service day
-            - Contact permission enables follow-up marketing and customer service
-        */}
+        {/* Step 3: Contact Details - Corporate Flat Design */}
         {currentStep === 3 && (
           <>
             <FormSection>
@@ -832,17 +816,17 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(2)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 onClick={() => goToNextStep(4)}
                 disabled={!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.contactPermission}
                 variant="primary"
-                className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Next
+                Continue
               </Button>
             </ButtonGroup>
           </>
@@ -931,117 +915,76 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(3)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 onClick={() => goToNextStep(5)}
                 disabled={!formData.address}
                 variant="primary"
-                className="flex-1 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </>
         )}
 
-        {/* Step 5: Bin Selection
-            WHAT HAPPENS HERE:
-            - User selects which bin types need cleaning and quantities
-            - Price updates in real-time as quantities change
-            - At least 1 bin must be selected to proceed
-            - Each bin type has its own individual price
-            
-            AVAILABLE BIN TYPES & PRICING:
-            - Wheelie Bin (£5): Standard residential bin, most common
-            - Food Waste Bin (£3): Smaller food composting bin
-            - Recycling Bin (£4): Mixed recyclables container
-            - Garden Waste Bin (£6): Leaf/garden waste container
-            
-            COLLECTED DATA:
-            - binQuantities: Object tracking quantity for each bin type
-              { wheelie: 1, food: 0, recycling: 2, garden: 1 } = 4 bins total
-            
-            PRICE CALCULATION (REAL-TIME):
-            - binTotal calculated from: Sum of (bin price × quantity) for each bin
-            - Example: 1 wheelie (£5) + 2 recycling (£4×2=£8) = £13
-            - Real-time calculation provides instant transparency
-            - Final binTotal used in Step 9 summary and booking submission
-            
-            VALIDATION RULES:
-            - At least 1 bin must be selected (totalBinsSelected > 0)
-            - Quantities managed with +/- buttons (cannot go negative)
-            - No upper limit on quantities (customer can select 5, 10, etc.)
-            
-            BUSINESS IMPACT:
-            - Each bin type requires specific cleaning approach
-            - Pricing structure covers equipment, labor, waste disposal costs
-            - Quantity selection affects cleaner dispatch scheduling
-        */}
+        {/* Step 5: Bin Selection - Corporate Flat Design */}
         {currentStep === 5 && (
           <>
             <FormSection>
-              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
-                <span className="text-2xl">🗑️</span>
-                <span>Which bins need cleaning?</span>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">
+                Which bins need cleaning?
               </h3>
-              <p className="text-sm text-slate-600 mb-6">Select the bins and how many of each</p>
+              <p className="text-sm text-gray-600 mb-6">Select the bins and how many of each</p>
 
-              <div className="grid gap-3">
+              <div className="space-y-3">
                 {BIN_TYPES.map((bin) => {
-                  const binEmojis = {
-                    wheelie: '🗑️',
-                    food: '🥗',
-                    recycling: '♻️',
-                    garden: '🌿'
-                  };
-                  const emoji = binEmojis[bin.id as keyof typeof binEmojis] || '📦';
                   const quantity = formData.binQuantities[bin.id];
                   
                   return (
-                    <div key={bin.id} className={`p-4 border-2 rounded-xl transition-all transform ${
+                    <div key={bin.id} className={`p-5 border-2 transition-all ${
                       quantity > 0
-                        ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-slate-50 shadow-md' 
-                        : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50'
+                        ? 'border-blue-600 bg-blue-50' 
+                        : 'border-gray-300 bg-white hover:border-gray-400'
                     }`}>
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
-                            <span className="text-3xl">{emoji}</span>
-                            <div>
-                              <h4 className="font-semibold text-slate-900">{bin.name}</h4>
-                              <p className="text-xs text-slate-500">{bin.description}</p>
-                            </div>
+                            <span className="text-2xl">{bin.emoji}</span>
+                            <h4 className="font-semibold text-gray-900 text-base">{bin.name}</h4>
                           </div>
+                          <p className="text-xs text-gray-600">{bin.description}</p>
                         </div>
-                        <div className="text-right flex-shrink-0 ml-3">
-                          <p className="text-sm font-semibold text-slate-900">£{bin.price}</p>
-                          <p className="text-xs text-slate-500">per bin</p>
+                        <div className="text-right flex-shrink-0 ml-4">
+                          <p className="text-sm font-bold text-gray-900">£{bin.price}</p>
+                          <p className="text-xs text-gray-600">per bin</p>
                         </div>
                       </div>
                       
                       {/* Quantity Selector */}
-                      <div className="flex items-center justify-between bg-white/60 rounded-lg p-2">
-                        <span className="text-xs font-medium text-slate-600 px-2">Quantity:</span>
-                        <div className="flex items-center space-x-1">
+                      <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                        <span className="text-sm font-medium text-gray-700">Quantity:</span>
+                        <div className="flex items-center space-x-3">
                           <button
                             type="button"
                             onClick={() => updateBinQuantity(bin.id, Math.max(0, quantity - 1))}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold transition-all ${
+                            className={`w-10 h-10 border-2 flex items-center justify-center font-bold text-lg transition-all ${
                               quantity <= 0
-                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:bg-blue-50'
                             }`}
+                            disabled={quantity <= 0}
                           >
                             −
                           </button>
-                          <span className="w-8 text-center font-bold text-slate-900">{quantity}</span>
+                          <span className="w-12 text-center font-bold text-xl text-gray-900">{quantity}</span>
                           <button
                             type="button"
                             onClick={() => updateBinQuantity(bin.id, quantity + 1)}
-                            className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center justify-center font-semibold transition-all"
+                            className="w-10 h-10 border-2 border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:bg-blue-50 flex items-center justify-center font-bold text-lg transition-all"
                           >
                             +
                           </button>
@@ -1049,8 +992,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       </div>
                       
                       {quantity > 0 && (
-                        <div className="mt-2 text-right text-sm font-semibold text-emerald-700">
-                          Subtotal: £{(bin.price * quantity).toFixed(2)}
+                        <div className="mt-3 pt-3 border-t border-gray-200 text-right">
+                          <span className="text-sm font-semibold text-blue-600">
+                            Subtotal: £{(bin.price * quantity).toFixed(2)}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -1060,15 +1005,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
 
               {/* Selection Summary */}
               {totalBinsSelected > 0 && (
-                <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 p-4 rounded-xl mt-6">
+                <div className="bg-blue-50 border border-blue-200 p-4 mt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        ✓ {totalBinsSelected} bin{totalBinsSelected !== 1 ? 's' : ''} selected
+                      <p className="text-sm font-semibold text-gray-900">
+                        {totalBinsSelected} bin{totalBinsSelected !== 1 ? 's' : ''} selected
                       </p>
-                      <p className="text-xs text-slate-600 mt-1">Bin cost: £{binTotal.toFixed(2)}</p>
+                      <p className="text-xs text-gray-600 mt-1">Bin cost: £{binTotal.toFixed(2)}</p>
                     </div>
-                    <span className="text-2xl">🎯</span>
                   </div>
                 </div>
               )}
@@ -1078,17 +1022,17 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(4)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 onClick={() => goToNextStep(6)}
                 disabled={totalBinsSelected === 0}
                 variant="primary"
-                className="flex-1 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </>
@@ -1128,24 +1072,15 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 6 && (
           <>
             <FormSection>
-              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
-                <span className="text-2xl">📅</span>
-                <span>When do your bins get collected?</span>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">
+                When do your bins get collected?
               </h3>
-              <p className="text-sm text-slate-600 mb-6">We'll clean them the same day after collection</p>
+              <p className="text-sm text-gray-600 mb-6">We'll clean them the same day after collection</p>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {COLLECTION_DAYS.map((day) => {
-                  const dayEmojis: { [key: string]: string } = {
-                    'Monday': '🌙',
-                    'Tuesday': '📍',
-                    'Wednesday': '⏰',
-                    'Thursday': '🎯',
-                    'Friday': '🎉'
-                  };
-                  
                   return (
-                    <label key={day} className="relative">
+                    <label key={day} className="relative cursor-pointer">
                       <input
                         type="radio"
                         name="collectionDay"
@@ -1154,22 +1089,32 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                         onChange={() => selectCollectionDay(day)}
                         className="sr-only"
                       />
-                      <div className={`p-4 border-2 rounded-xl cursor-pointer text-center transition-all transform ${
+                      <div className={`p-4 border-2 transition-all ${
                         formData.collectionDays.includes(day)
-                          ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100 shadow-md scale-105' 
-                          : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50'
+                          ? 'border-blue-600 bg-blue-50' 
+                          : 'border-gray-300 bg-white hover:border-gray-400'
                       }`}>
-                        <div className="text-2xl mb-2">{dayEmojis[day]}</div>
-                        <div className="font-semibold text-sm text-slate-900">{day}</div>
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-base text-gray-900">{day}</span>
+                          <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ml-4 ${
+                            formData.collectionDays.includes(day)
+                              ? 'border-blue-600 bg-blue-600'
+                              : 'border-gray-300 bg-white'
+                          }`}>
+                            {formData.collectionDays.includes(day) && (
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </label>
                   );
                 })}
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                <p className="text-xs text-slate-600">
-                  ℹ️ Not sure which day? Check your local council website or contact them to find out when they collect bins in your area.
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200">
+                <p className="text-xs text-gray-700">
+                  <span className="font-semibold">Not sure which day?</span> Check your local council website or contact them to find out when they collect bins in your area.
                 </p>
               </div>
             </FormSection>
@@ -1178,17 +1123,17 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(5)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 onClick={() => goToNextStep(7)}
                 disabled={formData.collectionDays.length === 0}
                 variant="primary"
-                className="flex-1 py-4 bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </>
@@ -1233,11 +1178,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 7 && (
           <>
             <FormSection>
-              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
-                <span className="text-2xl">📝</span>
-                <span>Any special instructions?</span>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">
+                Any special instructions?
               </h3>
-              <p className="text-sm text-slate-600 mb-6">Tell us anything we should know (optional)</p>
+              <p className="text-sm text-gray-600 mb-6">Tell us anything we should know (optional)</p>
 
               <div className="mb-5">
                 <TextareaField
@@ -1250,14 +1194,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
 
               {/* Examples */}
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-4">
-                <p className="text-xs font-semibold text-slate-700 mb-3">💡 Helpful examples:</p>
-                <ul className="space-y-2 text-xs text-slate-600">
-                  <li>✓ Gate/property access codes</li>
-                  <li>✓ Exact bin location or access route</li>
-                  <li>✓ Preferred time window for visit</li>
-                  <li>✓ Pets or safety considerations</li>
-                  <li>✓ Where to leave bins after cleaning</li>
+              <div className="bg-gray-50 border border-gray-200 p-4 mb-4">
+                <p className="text-xs font-semibold text-gray-900 mb-3">Helpful examples:</p>
+                <ul className="space-y-2 text-xs text-gray-700">
+                  <li>• Gate/property access codes</li>
+                  <li>• Exact bin location or access route</li>
+                  <li>• Preferred time window for visit</li>
+                  <li>• Pets or safety considerations</li>
+                  <li>• Where to leave bins after cleaning</li>
                 </ul>
               </div>
             </FormSection>
@@ -1266,16 +1210,16 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(6)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 onClick={() => goToNextStep(8)}
                 variant="primary"
-                className="flex-1 py-4 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Continue →
+                Continue
               </Button>
             </ButtonGroup>
           </>
@@ -1327,22 +1271,15 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 8 && (
           <>
             <FormSection>
-              <h3 className="text-lg font-semibold mb-2 flex items-center space-x-2">
-                <span className="text-2xl">💳</span>
-                <span>How would you like to pay?</span>
+              <h3 className="text-xl font-bold mb-2 text-gray-900">
+                How would you like to pay?
               </h3>
-              <p className="text-sm text-slate-600 mb-6">Choose what works best for you</p>
+              <p className="text-sm text-gray-600 mb-6">Choose what works best for you</p>
 
-              <div className="grid gap-3">
+              <div className="space-y-4">
                 {PAYMENT_METHODS.map((method) => {
-                  const methodEmojis: { [key: string]: string } = {
-                    card: '💳',
-                    cash: '💵',
-                    bank_transfer: '🏦'
-                  };
-                  
                   return (
-                    <label key={method.id} className="relative group">
+                    <label key={method.id} className="relative cursor-pointer">
                       <input
                         type="radio"
                         name="paymentMethod"
@@ -1351,23 +1288,31 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                         onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
                         className="sr-only"
                       />
-                      <div className={`p-5 border-2 rounded-xl cursor-pointer transition-all transform ${
+                      <div className={`py-6 px-5 border-2 transition-all ${
                         formData.paymentMethod === method.id 
-                          ? 'border-purple-400 bg-gradient-to-br from-purple-50 to-purple-100 shadow-md scale-105' 
-                          : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-slate-50'
+                          ? 'border-blue-600 bg-blue-50' 
+                          : 'border-gray-300 bg-white hover:border-gray-400'
                       }`}>
-                        <div className="flex items-start space-x-3">
-                          <span className="text-3xl">{methodEmojis[method.id] || '💰'}</span>
+                        <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="font-semibold text-slate-900">{method.name}</h4>
+                            <div className="flex items-center mb-2">
+                              <h4 className="font-semibold text-gray-900 text-base">{method.name}</h4>
                               {method.popular && (
-                                <span className="px-2.5 py-1 bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-800 text-xs font-semibold rounded-full">
-                                  Popular ⭐
+                                <span className="ml-3 px-2.5 py-0.5 bg-blue-600 text-white text-xs font-semibold">
+                                  POPULAR
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-slate-600">{method.description}</p>
+                            <p className="text-sm text-gray-600">{method.description}</p>
+                          </div>
+                          <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ml-4 flex-shrink-0 ${
+                            formData.paymentMethod === method.id
+                              ? 'border-blue-600 bg-blue-600'
+                              : 'border-gray-300 bg-white'
+                          }`}>
+                            {formData.paymentMethod === method.id && (
+                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1377,48 +1322,36 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
 
               {/* Payment Details & Trust Indicators */}
-              <div className="mt-6 p-4 rounded-xl border-2 border-slate-200 bg-slate-50">
+              <div className="mt-6 p-4 border border-gray-200 bg-gray-50">
                 {formData.paymentMethod === 'card' && (
                   <div className="space-y-3">
-                    <p className="text-sm text-slate-900 flex items-start space-x-2">
-                      <span className="text-xl">✅</span>
-                      <span>
-                        <strong>Secure payment:</strong> We use industry-standard encryption to keep your card details safe. You'll pay securely when we confirm your booking.
-                      </span>
+                    <p className="text-sm text-gray-900">
+                      <strong>Secure payment:</strong> We use industry-standard encryption to keep your card details safe. You'll pay securely when we confirm your booking.
                     </p>
-                    <div className="flex items-center space-x-3 pt-2 border-t border-slate-300">
-                      <span className="text-xl">🔒</span>
-                      <p className="text-xs text-slate-600">PCI DSS Compliant • 256-bit Encryption • No card data stored</p>
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-600">PCI DSS Compliant • 256-bit Encryption • No card data stored</p>
                     </div>
                   </div>
                 )}
 
                 {formData.paymentMethod === 'cash' && (
                   <div className="space-y-3">
-                    <p className="text-sm text-slate-900 flex items-start space-x-2">
-                      <span className="text-xl">💷</span>
-                      <span>
-                        <strong>Easy & straightforward:</strong> Have the exact amount ready (£{totalPrice.toFixed(2)}) for the cleaner on service day.
-                      </span>
+                    <p className="text-sm text-gray-900">
+                      <strong>Easy & straightforward:</strong> Have the exact amount ready (£{totalPrice.toFixed(2)}) for the cleaner on service day.
                     </p>
-                    <div className="flex items-center space-x-3 pt-2 border-t border-slate-300">
-                      <span className="text-xl">📌</span>
-                      <p className="text-xs text-slate-600">No bank details needed • Receipt provided • Change available</p>
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-600">No bank details needed • Receipt provided • Change available</p>
                     </div>
                   </div>
                 )}
 
                 {formData.paymentMethod === 'bank_transfer' && (
                   <div className="space-y-3">
-                    <p className="text-sm text-slate-900 flex items-start space-x-2">
-                      <span className="text-xl">🏦</span>
-                      <span>
-                        <strong>Bank transfer:</strong> Pay directly from your bank account. We'll send you our details after the service is completed.
-                      </span>
+                    <p className="text-sm text-gray-900">
+                      <strong>Bank transfer:</strong> Pay directly from your bank account. We'll send you our details after the service is completed.
                     </p>
-                    <div className="flex items-center space-x-3 pt-2 border-t border-slate-300">
-                      <span className="text-xl">⏰</span>
-                      <p className="text-xs text-slate-600">Payment due within 7 days • Invoice provided • Reference tracking</p>
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-xs text-gray-600">Payment due within 7 days • Invoice provided • Reference tracking</p>
                     </div>
                   </div>
                 )}
@@ -1429,16 +1362,16 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(7)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 onClick={() => goToNextStep(9)}
                 variant="primary"
-                className="flex-1 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                Review →
+                Continue
               </Button>
             </ButtonGroup>
           </>
@@ -1509,116 +1442,111 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
         {currentStep === 9 && (
           <>
             <FormSection>
-              <div className="text-center mb-6 py-4">
-                <div className="text-6xl mb-4 animate-bounce">🎉</div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-orange-600 via-emerald-600 to-orange-600 bg-clip-text text-transparent">
-                  You're All Set!
+              <div className="mb-6">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Review Your Booking
                 </h3>
-                <p className="text-slate-600 mt-2">Just confirm your details and you're ready to go</p>
+                <p className="text-sm text-gray-600">Please confirm all details are correct before completing your booking</p>
               </div>
 
-              {/* Final Summary Card */}
-              <div className="bg-gradient-to-br from-orange-50 via-amber-50 to-emerald-50 p-6 rounded-2xl border-2 border-orange-200 mb-6 shadow-lg">
-                <h4 className="text-lg font-bold text-slate-900 mb-5 flex items-center space-x-2">
-                  <span>📋</span>
-                  <span>Your Booking</span>
+              {/* Final Summary Card - Corporate Flat Design */}
+              <div className="bg-white border-2 border-gray-300 p-6 mb-6">
+                <h4 className="text-base font-bold text-gray-900 mb-5 pb-3 border-b-2 border-gray-200">
+                  Booking Summary
                 </h4>
                 
-                <div className="space-y-3 text-sm">
+                <div className="space-y-4 text-sm">
                   {/* Service Info */}
-                  <div className="flex items-start justify-between pb-3 border-b border-orange-200">
-                    <div>
-                      <p className="text-xs font-semibold text-slate-600 mb-1">SERVICE TYPE</p>
-                      <p className="font-semibold text-slate-900 flex items-center space-x-2">
-                        <span>{formData.serviceType === 'regular' ? '📦' : '✨'}</span>
-                        <span className="capitalize">{formData.serviceType} cleaning</span>
-                      </p>
-                    </div>
+                  <div className="pb-4 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">SERVICE TYPE</p>
+                    <p className="font-semibold text-gray-900 capitalize">
+                      {formData.serviceType} cleaning
+                    </p>
                   </div>
 
                   {/* Contact Info */}
-                  <div className="pb-3 border-b border-orange-200">
-                    <p className="text-xs font-semibold text-slate-600 mb-2">CONTACT INFO</p>
+                  <div className="pb-4 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">CONTACT DETAILS</p>
                     <div className="space-y-1">
-                      <p className="font-semibold text-slate-900">{formData.firstName} {formData.lastName}</p>
-                      <p className="text-slate-600">{formData.email}</p>
-                      <p className="text-slate-600">{formData.phone}</p>
+                      <p className="font-semibold text-gray-900">{formData.firstName} {formData.lastName}</p>
+                      <p className="text-gray-700">{formData.email}</p>
+                      <p className="text-gray-700">{formData.phone}</p>
                     </div>
                   </div>
 
                   {/* Address & Location */}
-                  <div className="pb-3 border-b border-orange-200">
-                    <p className="text-xs font-semibold text-slate-600 mb-1">ADDRESS</p>
-                    <p className="text-slate-900 font-medium">{formData.address}</p>
+                  <div className="pb-4 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">SERVICE ADDRESS</p>
+                    <p className="text-gray-900 font-medium">{formData.address}</p>
+                    <p className="text-gray-700 text-xs mt-1">{postcode}</p>
                   </div>
 
-                  {/* Bins & Schedule */}
-                  <div className="pb-3 border-b border-orange-200">
-                    <p className="text-xs font-semibold text-slate-600 mb-2">BINS & SCHEDULE</p>
+                  {/* Bins Selected */}
+                  <div className="pb-4 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">BINS SELECTED</p>
                     <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xl">🗑️</span>
-                        <div className="text-sm">
-                          {Object.entries(formData.binQuantities)
-                            .filter(([_, quantity]) => quantity > 0)
-                            .map(([binId, quantity]) => {
-                              const bin = BIN_TYPES.find(b => b.id === binId);
-                              const binEmojis: { [key: string]: string } = {
-                                wheelie: '🗑️',
-                                food: '🥗',
-                                recycling: '♻️',
-                                garden: '🌿'
-                              };
-                              return `${quantity}x ${bin?.name}`;
-                            })
-                            .join(', ')
-                          }
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xl">📅</span>
-                        <span className="font-semibold text-slate-900">{formData.collectionDays[0]} Collections</span>
-                      </div>
+                      {Object.entries(formData.binQuantities)
+                        .filter(([_, quantity]) => quantity > 0)
+                        .map(([binId, quantity]) => {
+                          const bin = BIN_TYPES.find(b => b.id === binId);
+                          return (
+                            <div key={binId} className="flex justify-between items-center">
+                              <span className="text-gray-900">
+                                {quantity}x {bin?.name}
+                              </span>
+                              <span className="font-semibold text-gray-900">
+                                £{bin ? (bin.price * quantity).toFixed(2) : '0.00'}
+                              </span>
+                            </div>
+                          );
+                        })
+                      }
                     </div>
                   </div>
 
+                  {/* Collection Day */}
+                  <div className="pb-4 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">COLLECTION DAY</p>
+                    <p className="font-semibold text-gray-900">{formData.collectionDays[0]}</p>
+                  </div>
+
                   {/* Payment Info */}
-                  <div className="pb-3">
-                    <p className="text-xs font-semibold text-slate-600 mb-1">PAYMENT METHOD</p>
-                    <p className="font-semibold text-slate-900 capitalize">{PAYMENT_METHODS.find(p => p.id === formData.paymentMethod)?.name || 'Card Payment'}</p>
+                  <div className="pb-4 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-gray-500 mb-2">PAYMENT METHOD</p>
+                    <p className="font-semibold text-gray-900">{PAYMENT_METHODS.find(p => p.id === formData.paymentMethod)?.name || 'Card Payment'}</p>
                   </div>
 
                   {/* Special Instructions if any */}
                   {formData.specialInstructions && (
-                    <div className="bg-white/70 p-3 rounded-lg">
-                      <p className="text-xs font-semibold text-slate-600 mb-1">📝 SPECIAL INSTRUCTIONS</p>
-                      <p className="text-slate-900 text-sm">{formData.specialInstructions}</p>
+                    <div className="pb-4 border-b border-gray-200">
+                      <p className="text-xs font-semibold text-gray-500 mb-2">SPECIAL INSTRUCTIONS</p>
+                      <p className="text-gray-900 text-sm">{formData.specialInstructions}</p>
                     </div>
                   )}
                 </div>
 
                 {/* Price Breakdown */}
-                <div className="mt-6 pt-4 border-t-2 border-orange-300 space-y-2">
+                <div className="mt-6 pt-4 border-t-2 border-gray-300 space-y-3">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-700">Bins subtotal:</span>
-                    <span className="font-semibold text-slate-900">£{binTotal.toFixed(2)}</span>
+                    <span className="text-gray-700">Bins subtotal</span>
+                    <span className="font-semibold text-gray-900">£{binTotal.toFixed(2)}</span>
                   </div>
                   {serviceCharge > 0 && (
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-700">Service charge:</span>
-                      <span className="font-semibold text-slate-900">£{serviceCharge.toFixed(2)}</span>
+                      <span className="text-gray-700">Service charge</span>
+                      <span className="font-semibold text-gray-900">£{serviceCharge.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center text-lg font-bold pt-2 border-t border-orange-200">
-                    <span className="text-slate-900">Total per clean:</span>
-                    <span className="text-transparent bg-gradient-to-r from-orange-600 to-emerald-600 bg-clip-text">
+                  <div className="flex justify-between items-center text-base font-bold pt-3 border-t-2 border-gray-200">
+                    <span className="text-gray-900">Total per clean</span>
+                    <span className="text-blue-600 text-lg">
                       £{totalPrice.toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Terms Agreement */}
+              {/* Terms Agreement - Corporate Flat Design */}
               <div className="mb-4">
                 <label className="relative cursor-pointer">
                   <input
@@ -1627,16 +1555,16 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                     onChange={(e) => handleInputChange('agreeToTerms', e.target.checked.toString())}
                     className="sr-only"
                   />
-                  <div className={`p-5 sm:p-4 border-2 rounded-lg transition-all ${
+                  <div className={`p-5 border-2 transition-all ${
                     formData.agreeToTerms
-                      ? 'border-black bg-gray-50 font-semibold' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-blue-600 bg-blue-50' 
+                      : 'border-gray-300 bg-white hover:border-gray-400'
                   }`}>
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                    <div className="flex items-start space-x-3">
+                      <div className={`w-5 h-5 border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                         formData.agreeToTerms
-                          ? 'border-black bg-black'
-                          : 'border-gray-300'
+                          ? 'border-blue-600 bg-blue-600'
+                          : 'border-gray-300 bg-white'
                       }`}>
                         {formData.agreeToTerms && (
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -1644,11 +1572,11 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                           </svg>
                         )}
                       </div>
-                      <span className="text-sm">
+                      <span className="text-sm text-gray-900">
                         I agree to the{' '}
-                        <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>
+                        <a href="#" className="text-blue-600 hover:underline font-medium">Terms of Service</a>
                         {' '}and{' '}
-                        <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
+                        <a href="#" className="text-blue-600 hover:underline font-medium">Privacy Policy</a>
                       </span>
                     </div>
                   </div>
@@ -1660,18 +1588,18 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(8)}
                 variant="outline"
-                className="flex-1 py-4"
+                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
               >
-                ← Back
+                Back
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting || !formData.agreeToTerms}
                 loading={isSubmitting}
                 variant="primary"
-                className="flex-1 py-4 text-base font-medium bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+                className="flex-1 py-4 text-base font-semibold bg-blue-600 hover:bg-blue-700"
               >
-                ✓ Complete Booking
+                Complete Booking
               </Button>
             </ButtonGroup>
           </>
