@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Package, MapPin, Calendar, Users, TrendingDown } from 'lucide-react';
+import { Package, MapPin, Calendar, Users, TrendingDown, Clock } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Bin Cleaning',
@@ -106,6 +106,27 @@ export default function AdminPage() {
               </div>
               <div className="inline-flex items-center text-sm text-amber-600 dark:text-amber-400 font-medium group-hover:gap-2 transition-all">
                 <span>Manage forms</span>
+                <span>→</span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Waitlist Viewer */}
+          <Link href="/admin/waitlist" className="group">
+            <div className="bg-white dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700 p-6 hover:border-cyan-400 dark:hover:border-cyan-500 transition-all hover:shadow-lg dark:hover:shadow-cyan-900/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <Clock className="h-8 w-8 text-cyan-600 dark:text-cyan-400 mb-3" />
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
+                    Waitlist Viewer
+                  </h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
+                    View service expansion leads and contacts
+                  </p>
+                </div>
+              </div>
+              <div className="inline-flex items-center text-sm text-cyan-600 dark:text-cyan-400 font-medium group-hover:gap-2 transition-all">
+                <span>View waitlist</span>
                 <span>→</span>
               </div>
             </div>

@@ -49,14 +49,34 @@ function WaitlistContent() {
     setIsSubmitting(true);
     setError('');
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Here you would typically send the data to your backend
-    console.log('Waitlist submission:', { postcode, name, email });
-    
-    setIsSubmitted(true);
-    setIsSubmitting(false);
+    try {
+      // Send to API
+      const response = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          postcode: postcode
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to join waitlist');
+      }
+
+      console.log('Waitlist submission successful:', data);
+      setIsSubmitted(true);
+    } catch (err: any) {
+      console.error('Waitlist submission error:', err);
+      setError(err.message || 'Failed to join waitlist. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // If no postcode is provided, redirect to postcode checker

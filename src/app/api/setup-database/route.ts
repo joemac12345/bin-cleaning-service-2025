@@ -48,11 +48,26 @@ export async function POST(request: NextRequest) {
       );
     `;
 
+    // SQL to create the waitlist table
+    const createWaitlistTable = `
+      CREATE TABLE IF NOT EXISTS waitlist (
+        id BIGSERIAL PRIMARY KEY,
+        entry_id TEXT UNIQUE NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        postcode TEXT NOT NULL,
+        status TEXT DEFAULT 'pending',
+        notes TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `;
+
     // SQL to enable RLS and create policies
     const setupSecurity = `
       -- Enable Row Level Security
       ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
       ALTER TABLE abandoned_forms ENABLE ROW LEVEL SECURITY;
+      ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
       
       -- Create policies (allow all operations for now - you can customize these)
       DROP POLICY IF EXISTS "Allow all operations" ON bookings;
@@ -60,6 +75,9 @@ export async function POST(request: NextRequest) {
       
       DROP POLICY IF EXISTS "Allow all operations" ON abandoned_forms;
       CREATE POLICY "Allow all operations" ON abandoned_forms FOR ALL USING (true) WITH CHECK (true);
+      
+      DROP POLICY IF EXISTS "Allow all operations" ON waitlist;
+      CREATE POLICY "Allow all operations" ON waitlist FOR ALL USING (true) WITH CHECK (true);
     `;
 
     // Execute the SQL commands
@@ -93,6 +111,15 @@ export async function POST(request: NextRequest) {
 
     if (!formsError) {
       results.push('Abandoned forms table created/verified');
+    }
+
+    // Create waitlist table
+    const { error: waitlistError } = await adminClient.rpc('exec_sql', { 
+      sql: createWaitlistTable 
+    });
+
+    if (!waitlistError) {
+      results.push('Waitlist table created/verified');
     }
 
     // Set up security (this might fail if policies already exist, which is OK)
