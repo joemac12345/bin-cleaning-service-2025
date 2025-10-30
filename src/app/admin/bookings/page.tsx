@@ -141,34 +141,69 @@ export default function BookingsAdmin() {
   };
 
   // Update booking (full booking update)
-  const updateBooking = async (updates: Partial<Booking>) => {
+  const updateBooking = async (editedData: Booking) => {
     if (!selectedBooking) return;
 
     try {
+      // Convert camelCase fields to snake_case for database
+      const updates: any = {};
+      
+      if (editedData.serviceType) {
+        updates.service_type = editedData.serviceType;
+      }
+      if (editedData.customerInfo) {
+        updates.customer_info = editedData.customerInfo;
+      }
+      if (editedData.binSelection) {
+        updates.bin_selection = editedData.binSelection;
+      }
+      if (editedData.collectionDay) {
+        updates.collection_day = editedData.collectionDay;
+      }
+      if (editedData.specialInstructions !== undefined) {
+        updates.special_instructions = editedData.specialInstructions;
+      }
+      if (editedData.pricing) {
+        updates.pricing = editedData.pricing;
+      }
+      if (editedData.status) {
+        updates.status = editedData.status;
+      }
+
+      console.log('📝 Sending updates to API:', updates);
+
       const response = await fetch('/api/bookings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          bookingId: selectedBooking.bookingId,
+          bookingId: selectedBooking.bookingId || selectedBooking.booking_id,
           updates
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update booking');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update booking');
       }
+
+      const result = await response.json();
+      console.log('✅ Booking updated successfully:', result);
 
       // Refresh bookings
       await fetchBookings();
       
-      // Update selected booking
-      const updatedBooking = { ...selectedBooking, ...updates };
-      setSelectedBooking(updatedBooking);
+      // Update selected booking with the response data
+      if (result.booking) {
+        setSelectedBooking(result.booking);
+      }
       setEditedBooking(null);
       setIsEditing(false);
+      
+      alert('Booking updated successfully!');
     } catch (err) {
+      console.error('❌ Error updating booking:', err);
       alert('Failed to update booking: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
