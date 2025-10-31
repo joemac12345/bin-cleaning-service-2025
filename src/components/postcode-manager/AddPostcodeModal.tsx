@@ -24,57 +24,98 @@ export default function AddPostcodeModal({
 
   const detectLocationPostcode = async () => {
     setIsDetectingLocation(true);
+    console.log('🎯 Starting location detection...');
+    
     try {
       // Check if geolocation is supported
       if (!navigator.geolocation) {
-        alert('⚠️ Location services are not supported by your browser.\n\nPlease enter the postcode manually.');
+        const msg = '⚠️ Location services are not supported by your browser.\n\nPlease enter the postcode manually.';
+        alert(msg);
+        console.error('Geolocation not supported');
         return;
       }
 
+      // Check if HTTPS (required for geolocation on most browsers)
+      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+        const msg = '⚠️ Location detection requires a secure connection (HTTPS).\n\nPlease enter the postcode manually.';
+        alert(msg);
+        console.error('Not HTTPS - geolocation blocked');
+        return;
+      }
+
+      console.log('📍 Requesting geolocation permission...');
+
       const position = await new Promise<GeolocationCoordinates>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
-          (pos) => resolve(pos.coords),
+          (pos) => {
+            console.log('✅ Geolocation granted:', { 
+              lat: pos.coords.latitude, 
+              lon: pos.coords.longitude,
+              accuracy: pos.coords.accuracy 
+            });
+            resolve(pos.coords);
+          },
           (err) => {
+            console.error('❌ Geolocation error:', { code: err.code, message: err.message });
+            
             // Provide specific error messages
             let errorMessage = '⚠️ Unable to detect location.\n\n';
             switch(err.code) {
               case err.PERMISSION_DENIED:
-                errorMessage += 'Location permission denied. Please:\n1. Click the location icon in your browser address bar\n2. Select "Allow" for location access\n3. Try again';
+                errorMessage += 'Location permission denied.\n\nTo enable:\n1. Click the 🔒 or ⓘ icon in your browser address bar\n2. Find Location/Site permissions\n3. Select "Allow" for location access\n4. Refresh the page and try again';
                 break;
               case err.POSITION_UNAVAILABLE:
-                errorMessage += 'Location information unavailable. Please check your device settings and try again.';
+                errorMessage += 'Location information unavailable.\n\nPlease check:\n• Device location services are ON\n• You have internet connection\n• Try again in a few moments';
                 break;
               case err.TIMEOUT:
-                errorMessage += 'Location request timed out. Please try again.';
+                errorMessage += 'Location request timed out.\n\nPlease:\n• Check your internet connection\n• Try again\n• Or enter postcode manually';
                 break;
               default:
-                errorMessage += 'An unknown error occurred. Please enter the postcode manually.';
+                errorMessage += 'An unknown error occurred.\n\nPlease enter the postcode manually.';
             }
             reject(new Error(errorMessage));
           },
           {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 0
+            enableHighAccuracy: true, // Use GPS for better accuracy
+            timeout: 15000, // 15 second timeout
+            maximumAge: 0 // Don't use cached position
           }
         );
       });
 
-      const response = await fetch(`/api/postcode?lat=${position.latitude}&lon=${position.longitude}`);
-      if (!response.ok) throw new Error('Failed to detect postcode from coordinates');
+      console.log('🌍 Reverse geocoding coordinates...');
+      const apiUrl = `/api/reverse-geocode?lat=${position.latitude}&lon=${position.longitude}`;
+      console.log('API URL:', apiUrl);
 
+      const response = await fetch(apiUrl);
       const data = await response.json();
+
+      console.log('API Response:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Failed to detect postcode from coordinates');
+      }
+
       if (data.postcode) {
         setPostcode(data.postcode);
-        alert(`✅ Location detected!\n\nPostcode: ${data.postcode}`);
+        
+        // Auto-fill area name if available
+        if (data.address?.city && !areaName) {
+          setAreaName(data.address.city);
+        }
+        
+        const successMsg = `✅ Location detected successfully!\n\nPostcode: ${data.postcode}${data.address?.city ? '\nArea: ' + data.address.city : ''}`;
+        alert(successMsg);
+        console.log('✅ Detection complete:', data.postcode);
       } else {
-        throw new Error('No postcode found for your location');
+        throw new Error(data.message || 'No postcode found for your location');
       }
     } catch (error: any) {
-      console.error('Error detecting location:', error);
+      console.error('❌ Location detection failed:', error);
       alert(error.message || 'Unable to detect location. Please enter the postcode manually.');
     } finally {
       setIsDetectingLocation(false);
+      console.log('🏁 Location detection finished');
     }
   };
 
