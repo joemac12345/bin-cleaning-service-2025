@@ -3,82 +3,103 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X, Facebook, Instagram, Twitter, Phone } from 'lucide-react';
-import Logo from './Logo';
+import { usePathname } from 'next/navigation';
+import { Menu, X, Phone, Home, Calendar, Clock } from 'lucide-react';
+
+// Navigation pages configuration
+// Add new pages here and they'll automatically appear in the navigation
+const navigationPages = [
+  { href: '/landing', label: 'Home', icon: Home },
+  { href: '/booking', label: 'Book Now', icon: Calendar },
+  { href: '/waitlist', label: 'Waitlist', icon: Clock },
+  { href: '/contact', label: 'Contact', icon: Phone },
+];
 
 export default function TopNavigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <>
       {/* Top Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-200/50">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-24">
-            {/* Logo - Left Side */}
-            <div className="flex-shrink-0 flex items-center gap-3">
-              <Link href="/" className="hover:opacity-80 transition-opacity">
-                <Image 
-                  src="/3.png" 
-                  alt="Bin Cleaning Service" 
-                  width={180} 
-                  height={180}
-                  className="object-contain"
-                />
-              </Link>
+          <div className="flex items-center justify-center h-24">
+            {/* Navigation Carousel - Desktop */}
+            <div className="hidden md:flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
+              {navigationPages.map((page) => {
+                const IconComponent = page.icon;
+                const isActive = pathname === page.href;
+                
+                return (
+                  <Link
+                    key={page.href}
+                    href={page.href}
+                    className={`flex-none snap-start px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-[#3B4044] text-white shadow-md'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:shadow-sm'
+                    }`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    <span>{page.label}</span>
+                  </Link>
+                );
+              })}
             </div>
 
-            {/* Right Side - Social Icons and Button */}
-            <div className="flex items-center gap-4">
-              {/* Social Icons */}
-              <div className="flex items-center gap-3">
-                <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-600 hover:text-blue-600 transition-colors"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-600 hover:text-pink-600 transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-slate-600 hover:text-blue-400 transition-colors"
-                  aria-label="Twitter"
-                >
-                  <Twitter className="w-5 h-5" />
-                </a>
-              </div>
-
-              {/* Book Now Button */}
-              <Link
-                href="/booking"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                aria-label="Toggle menu"
               >
-                <Phone className="w-4 h-4" />
-                <span>Book Now</span>
-              </Link>
+                {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Navigation Carousel */}
+      <div className="md:hidden fixed top-24 left-0 right-0 bg-white/95 backdrop-blur-md border-b border-slate-200/50 z-40 px-4 py-3">
+        <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-1">
+          {navigationPages.map((page) => {
+            const IconComponent = page.icon;
+            const isActive = pathname === page.href;
+            
+            return (
+              <Link
+                key={page.href}
+                href={page.href}
+                onClick={() => setIsOpen(false)}
+                className={`flex-none snap-start px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 whitespace-nowrap ${
+                  isActive
+                    ? 'bg-[#3B4044] text-white shadow-md'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                <IconComponent className="w-4 h-4" />
+                <span>{page.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+        
+        {/* Scroll Hint */}
+        <div className="flex justify-center gap-1 mt-2">
+          {navigationPages.map((_, index) => (
+            <div key={index} className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 top-24 bg-black/50 z-40" onClick={() => setIsOpen(false)}>
+        <div className="fixed inset-0 top-24 bg-black/50 z-30 md:hidden" onClick={() => setIsOpen(false)}>
           <div
-            className="absolute top-24 right-0 bg-white shadow-lg max-w-xs w-full sm:w-80"
+            className="absolute top-[116px] right-0 bg-white shadow-lg max-w-xs w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-4 py-6 space-y-4">
@@ -90,50 +111,6 @@ export default function TopNavigation() {
               >
                 <span>🔧</span>
                 <span className="ml-3">Admin Dashboard</span>
-              </Link>
-
-              {/* Divider */}
-              <div className="border-t border-slate-200"></div>
-
-              {/* Customer Pages Quick Links */}
-              <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 py-2">
-                Quick Links
-              </div>
-              
-              <Link
-                href="/"
-                className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                🏠
-                <span className="ml-3">Home</span>
-              </Link>
-
-              <Link
-                href="/postcode"
-                className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                📍
-                <span className="ml-3">Check Service Area</span>
-              </Link>
-
-              <Link
-                href="/booking"
-                className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                📅
-                <span className="ml-3">Book Now</span>
-              </Link>
-
-              <Link
-                href="/waitlist"
-                className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                onClick={() => setIsOpen(false)}
-              >
-                ⏰
-                <span className="ml-3">Join Waitlist</span>
               </Link>
 
               {/* Divider */}
@@ -152,7 +129,8 @@ export default function TopNavigation() {
       )}
 
       {/* Spacer to prevent content overlap */}
-      <div className="h-24"></div>
+      <div className="h-24 md:h-24"></div>
+      <div className="h-16 md:hidden"></div> {/* Extra space for mobile carousel */}
     </>
   );
 }
