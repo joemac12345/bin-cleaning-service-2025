@@ -269,7 +269,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
               type="text"
               value={postcode}
               onChange={(e) => setPostcode(e.target.value.toUpperCase())}
-              placeholder="e.g. M1 1AA"
+              placeholder={typewriterText + (showCursor ? '|' : '')}
               className={`w-full px-4 py-3 bg-gray-50 border text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:outline-none text-base ${
                 error ? 'border-red-600' : 'border-gray-300'
               }`}

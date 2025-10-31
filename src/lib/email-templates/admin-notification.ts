@@ -1,52 +1,128 @@
 export const createAdminNotificationEmail = (data: any) => `
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Booking - Admin Notification</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background-color: #f8fafc; margin: 0; padding: 20px;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+    <!-- Header with accent -->
+    <tr>
+      <td style="padding: 0;">
+        <div style="height: 4px; background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);"></div>
+      </td>
+    </tr>
     
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 30px;">
-      <h1 style="color: #dc2626; font-size: 24px; margin: 0; font-weight: 600;">🔔 New Booking Alert</h1>
-      <p style="color: #7c2d12; font-size: 16px; margin: 10px 0 0 0;">Admin Notification</p>
-    </div>
+    <tr>
+      <td style="padding: 40px 24px 24px 24px;">
+        <!-- Header -->
+        <h1 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 700; color: #1a1a1a; line-height: 1.3; letter-spacing: -0.5px;">
+          New Booking Received
+        </h1>
+        <p style="margin: 0 0 32px 0; font-size: 15px; color: #525252; line-height: 1.6;">
+          A new booking has been submitted and requires your attention.
+        </p>
+
+        <!-- Booking Details -->
+        <div style="margin-bottom: 32px;">
+          <h2 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #dc2626; text-transform: uppercase; letter-spacing: 0.5px;">
+            Booking Details
+          </h2>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; background-color: #fafafa; border: 1px solid #e5e5e5;">
+            <tr>
+              <td style="padding: 12px 12px 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Booking ID</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 600;">${data.bookingId}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Customer Name</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${data.customerName}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Email</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${data.customerEmail}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Phone</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${data.phone}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Service</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${data.serviceType}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Address</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${data.address}, ${data.postcode}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px; border-bottom: 1px solid #e5e5e5;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Contact Permission</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${data.contactPermission === 'yes' ? 'Yes, may contact' : 'Do not contact'}</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 10px 12px 12px 12px;">
+                <p style="margin: 0 0 3px 0; font-size: 11px; color: #737373; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px;">Submitted</p>
+                <p style="margin: 0; font-size: 14px; color: #1a1a1a; font-weight: 500;">${new Date().toLocaleString()}</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Action Required -->
+        <div style="margin-bottom: 32px;">
+          <h2 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; color: #dc2626; text-transform: uppercase; letter-spacing: 0.5px;">
+            Action Required
+          </h2>
+          <div style="padding: 20px; background-color: #fef2f2; border-left: 3px solid #dc2626;">
+            <p style="margin: 0 0 12px 0; font-size: 15px; color: #1a1a1a; line-height: 1.6; font-weight: 500;">
+              Review the booking details and schedule the service.
+            </p>
+            <p style="margin: 0; font-size: 15px; color: #525252; line-height: 1.6;">
+              Update the booking status in the admin panel once confirmed.
+            </p>
+          </div>
+        </div>
+
+        <!-- Admin Link Section -->
+        <div style="padding: 20px; background-color: #fafafa; border: 1px solid #e5e5e5;">
+          <h3 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 600; color: #1a1a1a;">
+            Quick Actions
+          </h3>
+          <a href="https://bin-cleaning-service.netlify.app/admin/bookings" style="display: inline-block; padding: 8px 16px; background-color: #dc2626; color: #ffffff; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 500;">
+            View in Admin Panel
+          </a>
+        </div>
+
+        <!-- Footer -->
+        <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #e5e5e5;">
+          <p style="margin: 0; font-size: 13px; color: #737373;">
+            This is an automated notification sent to admins only.
+          </p>
+        </div>
+      </td>
+    </tr>
     
-    <!-- Booking Details Card -->
-    <div style="background-color: #fef2f2; padding: 20px; border-radius: 8px; border-left: 4px solid #ef4444; margin: 25px 0;">
-      <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 18px;">📋 Booking Details</h3>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Booking ID:</strong> ${data.bookingId}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Customer:</strong> ${data.customerName}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Email:</strong> ${data.customerEmail}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Phone:</strong> ${data.phone}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Service:</strong> ${data.serviceType}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Address:</strong> ${data.address}, ${data.postcode}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Contact Permission:</strong> ${data.contactPermission === 'yes' ? 'Yes, may contact' : 'Do not contact'}</p>
-      <p style="margin: 5px 0; font-size: 15px;"><strong>Submitted:</strong> ${new Date().toLocaleString()}</p>
-    </div>
-    
-    <!-- Action Required Card -->
-    <div style="background-color: #fffbeb; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 25px 0;">
-      <h3 style="color: #92400e; margin: 0 0 10px 0; font-size: 16px;">⚡ Action Required</h3>
-      <ul style="margin: 0; padding-left: 20px; color: #78350f;">
-        <li style="margin-bottom: 8px;">Review booking details for accuracy</li>
-        <li style="margin-bottom: 8px;">Check service availability for the area</li>
-        <li style="margin-bottom: 8px;">Contact customer within 24 hours</li>
-        <li style="margin-bottom: 8px;">Update booking status in admin panel</li>
-      </ul>
-    </div>
-    
-    <!-- Admin Links (Optional) -->
-    <div style="text-align: center; margin: 25px 0;">
-      <a href="#" style="background-color: #1d4ed8; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-block;">
-        View in Admin Panel
-      </a>
-    </div>
-    
-  </div>
+    <!-- Footer accent -->
+    <tr>
+      <td style="padding: 0;">
+        <div style="height: 2px; background-color: #e5e5e5;"></div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;

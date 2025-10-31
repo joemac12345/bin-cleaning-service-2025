@@ -168,6 +168,30 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
+    // Preview/Test email - send any HTML directly
+    if (type === 'preview') {
+      console.log('📧 Sending preview/test email via Gmail...');
+      
+      const { to, subject, html } = body;
+      
+      if (!to || !subject || !html) {
+        return NextResponse.json({ 
+          error: 'Missing required fields: to, subject, html',
+          success: false 
+        }, { status: 400 });
+      }
+      
+      const result = await sendEmailViaGmail(
+        to,
+        subject,
+        html,
+        process.env.GMAIL_USER
+      );
+      
+      console.log('✅ Preview email result:', result);
+      return NextResponse.json({ ...result, service: 'gmail' });
+    }
+
     // Send booking confirmation email
     if (type === 'booking-confirmation') {
       console.log('📧 Sending customer confirmation email via Gmail...');
@@ -200,7 +224,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ 
-      error: 'Invalid email type. Use "booking-confirmation", "admin-notification", or "admin-send"',
+      error: 'Invalid email type. Use "booking-confirmation", "admin-notification", "admin-send", or "preview"',
       success: false 
     }, { status: 400 });
 

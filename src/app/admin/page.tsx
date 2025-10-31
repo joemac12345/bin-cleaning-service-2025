@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Package, MapPin, Calendar, Users, TrendingDown, Clock } from 'lucide-react';
+import { Package, MapPin, Calendar, Users, TrendingDown, Clock, Mail } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Bin Cleaning',
@@ -76,27 +76,6 @@ export default function AdminPage() {
             </div>
           </Link>
 
-          {/* Abandoned Forms Manager */}
-          <Link href="/admin/abandoned-forms" className="group">
-            <div className="bg-zinc-800 rounded-lg border border-zinc-700 p-6 hover:border-amber-400 transition-all hover:shadow-lg hover:shadow-amber-900/20 h-[220px] flex flex-col">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <Users className="h-8 w-8 text-amber-400 mb-3" />
-                  <h3 className="text-lg font-semibold text-white">
-                    Forms Management
-                  </h3>
-                  <p className="text-sm text-zinc-400 mt-2">
-                    Detailed management and tracking of forms
-                  </p>
-                </div>
-              </div>
-              <div className="inline-flex items-center text-sm text-amber-400 font-medium group-hover:gap-2 transition-all mt-auto">
-                <span>Manage forms</span>
-                <span>→</span>
-              </div>
-            </div>
-          </Link>
-
           {/* Waitlist Viewer */}
           <Link href="/admin/waitlist" className="group">
             <div className="bg-zinc-800 rounded-lg border border-zinc-700 p-6 hover:border-cyan-400 transition-all hover:shadow-lg hover:shadow-cyan-900/20 h-[220px] flex flex-col">
@@ -113,6 +92,27 @@ export default function AdminPage() {
               </div>
               <div className="inline-flex items-center text-sm text-cyan-400 font-medium group-hover:gap-2 transition-all mt-auto">
                 <span>View waitlist</span>
+                <span>→</span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Email Templates Preview */}
+          <Link href="/admin/email-preview" className="group">
+            <div className="bg-zinc-800 rounded-lg border border-zinc-700 p-6 hover:border-purple-400 transition-all hover:shadow-lg hover:shadow-purple-900/20 h-[220px] flex flex-col">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <Mail className="h-8 w-8 text-purple-400 mb-3" />
+                  <h3 className="text-lg font-semibold text-white">
+                    Email Templates
+                  </h3>
+                  <p className="text-sm text-zinc-400 mt-2">
+                    Preview and manage email templates
+                  </p>
+                </div>
+              </div>
+              <div className="inline-flex items-center text-sm text-purple-400 font-medium group-hover:gap-2 transition-all mt-auto">
+                <span>View templates</span>
                 <span>→</span>
               </div>
             </div>

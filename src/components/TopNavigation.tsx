@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X, Facebook, Instagram, Twitter, Phone } from 'lucide-react';
 import Logo from './Logo';
 
 export default function TopNavigation() {
@@ -11,41 +12,73 @@ export default function TopNavigation() {
   return (
     <>
       {/* Top Navigation Bar */}
-      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-slate-50 via-white to-slate-50 shadow-md z-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-50 border-b border-slate-200/50">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-24">
             {/* Logo - Left Side */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex items-center gap-3">
               <Link href="/" className="hover:opacity-80 transition-opacity">
-                <Logo size="small" />
+                <Image 
+                  src="/3.png" 
+                  alt="Bin Cleaning Service" 
+                  width={180} 
+                  height={180}
+                  className="object-contain"
+                />
               </Link>
             </div>
 
-            {/* Spacer for mobile */}
-            <div className="flex-1"></div>
+            {/* Right Side - Social Icons and Button */}
+            <div className="flex items-center gap-4">
+              {/* Social Icons */}
+              <div className="flex items-center gap-3">
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-600 hover:text-blue-600 transition-colors"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-600 hover:text-pink-600 transition-colors"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-600 hover:text-blue-400 transition-colors"
+                  aria-label="Twitter"
+                >
+                  <Twitter className="w-5 h-5" />
+                </a>
+              </div>
 
-            {/* Hamburger Menu - Right Side */}
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-              aria-expanded={isOpen}
-              aria-label="Toggle menu"
-            >
-              {isOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
-            </button>
+              {/* Book Now Button */}
+              <Link
+                href="/booking"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Phone className="w-4 h-4" />
+                <span>Book Now</span>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="fixed inset-0 top-16 bg-black/50 z-40" onClick={() => setIsOpen(false)}>
+        <div className="fixed inset-0 top-24 bg-black/50 z-40" onClick={() => setIsOpen(false)}>
           <div
-            className="absolute top-16 right-0 bg-white shadow-lg max-w-xs w-full sm:w-80"
+            className="absolute top-24 right-0 bg-white shadow-lg max-w-xs w-full sm:w-80"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-4 py-6 space-y-4">
@@ -119,7 +152,7 @@ export default function TopNavigation() {
       )}
 
       {/* Spacer to prevent content overlap */}
-      <div className="h-16"></div>
+      <div className="h-24"></div>
     </>
   );
 }
