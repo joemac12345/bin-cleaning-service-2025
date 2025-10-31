@@ -270,8 +270,8 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
               value={postcode}
               onChange={(e) => setPostcode(e.target.value.toUpperCase())}
               placeholder={typewriterText + (showCursor ? '|' : '')}
-              className={`w-full px-4 py-3 bg-gray-50 border text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:outline-none text-base ${
-                error ? 'border-red-600' : 'border-gray-300'
+              className={`w-full px-4 py-3 bg-gray-100 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none text-base ${
+                error ? 'bg-red-50' : ''
               }`}
               onKeyPress={(e) => e.key === 'Enter' && checkPostcode()}
             />
@@ -279,7 +279,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
 
           {/* Error Message */}
           {error && (
-            <div className="text-red-600 text-sm bg-red-50 border border-red-200 py-2 px-3">
+            <div className="text-red-600 text-sm bg-red-50 py-2 px-3">
               {error}
             </div>
           )}
@@ -288,7 +288,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
           <button
             onClick={checkPostcode}
             disabled={isChecking || !postcode.trim()}
-            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium py-3.5 px-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-[#3B4044] hover:bg-[#2a2d30] active:bg-[#1f2124] text-white font-medium py-3.5 px-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isChecking ? (
               <span className="flex items-center justify-center">
@@ -305,7 +305,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
             <button
               onClick={autoDetectPostcode}
               disabled={isDetecting || isChecking}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+              className="text-sm text-[#3B4044] hover:text-[#2a2d30] font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
             >
               {isDetecting ? 'Detecting location...' : 'Auto-detect my location'}
             </button>
@@ -321,7 +321,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
                 {activePostcodes.map((postcode) => (
                   <span
                     key={postcode}
-                    className="px-3 py-1 bg-gray-200 text-gray-900 text-xs font-medium"
+                    className="px-3 py-1 bg-gray-100 text-gray-900 text-xs font-medium"
                   >
                     {postcode}
                   </span>
@@ -335,15 +335,15 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
       {/* SUCCESS STATE - Service Available */}
       {result === 'available' && (
         <div className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 px-4 py-6">
+          <div className="bg-gray-100 px-4 py-6">
             <div className="flex items-start gap-3 mb-3">
-              <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+              <CheckCircle className="w-6 h-6 text-[#3B4044] flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   Service Available
                 </h3>
                 <p className="text-sm text-gray-700">
-                  We service <span className="font-semibold text-blue-600">{formatPostcode(postcode)}</span>
+                  We service <span className="font-semibold text-[#3B4044]">{formatPostcode(postcode)}</span>
                 </p>
               </div>
             </div>
@@ -357,9 +357,9 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
       {/* WAITLIST STATE - Not Yet Available */}
       {result === 'waitlist' && (
         <div className="space-y-4">
-          <div className="bg-gray-100 border border-gray-300 px-4 py-6">
+          <div className="bg-gray-100 px-4 py-6">
             <div className="flex items-start gap-3 mb-3">
-              <Clock className="w-6 h-6 text-gray-600 flex-shrink-0 mt-0.5" />
+              <Clock className="w-6 h-6 text-[#3B4044] flex-shrink-0 mt-0.5" />
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">
                   Area Not Serviced

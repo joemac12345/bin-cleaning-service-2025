@@ -40,7 +40,9 @@
 
 import { useRouter } from 'next/navigation';
 import TopNavigation from '@/components/TopNavigation';
+import PageHeader from '@/components/PageHeader';
 import { PostcodeChecker } from '@/components/postcode-manager';
+import { Trash2 } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
@@ -68,39 +70,12 @@ export default function HomePage() {
       <TopNavigation />
       <div className="min-h-screen bg-white">
         {/* Compact Hero Section - Following Design System */}
-        <div className="bg-blue-600">
-          <div className="px-4 py-6 max-w-3xl mx-auto">
-            <div className="flex items-center gap-4">
-              {/* Icon - Compact */}
-              <div className="w-14 h-14 bg-white flex items-center justify-center flex-shrink-0">
-                <svg 
-                  width="32" 
-                  height="32" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round"
-                  className="text-blue-600"
-                >
-                  <path d="M3 6h18"/>
-                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-                </svg>
-              </div>
-              
-              <div className="flex-1">
-                <h1 className="text-xl font-bold text-white mb-1">
-                  Professional Bin Cleaning
-                </h1>
-                <p className="text-sm text-white/90">
-                  Fast, reliable service for your area
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PageHeader
+          icon={Trash2}
+          title="Professional Bin Cleaning"
+          subtitle="Fast, reliable service for your area"
+          backgroundColor="bg-[#3B4044]"
+        />
 
         {/* Main Content */}
         <div className="px-4 py-8 max-w-3xl mx-auto">

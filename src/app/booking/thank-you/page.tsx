@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { CheckCircle, Mail, Calendar, Phone, Home, Sparkles, Clock, Bell } from 'lucide-react';
+import PageHeader, { BookingReference } from '@/components/PageHeader';
 
 // Component that uses searchParams - must be wrapped in Suspense
 function ThankYouContent() {
@@ -55,35 +56,15 @@ function ThankYouContent() {
       `}</style>
       
       {/* Success Hero Section - Compact, Left-Aligned */}
-      <div className="bg-blue-600">
-        <div className="px-4 py-6 max-w-3xl mx-auto">
-          <div className="flex items-start gap-4 mb-4">
-            {/* Success Icon - Compact */}
-            <div className="w-14 h-14 bg-white flex items-center justify-center flex-shrink-0">
-              <CheckCircle className="w-8 h-8 text-blue-600" strokeWidth={2.5} />
-            </div>
-            
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-white mb-1">
-                Booking Confirmed
-              </h1>
-              <p className="text-sm text-white/90">
-                Thank you for your booking
-              </p>
-            </div>
-          </div>
-
-          {/* Booking Reference - Below confirmation */}
-          {bookingRef && (
-            <div className="bg-white px-3 py-2">
-              <div className="flex items-center gap-2">
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Ref:</p>
-                <p className="text-sm font-bold text-gray-900 font-mono">{bookingRef}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        icon={CheckCircle}
+        title="Booking Confirmed"
+        subtitle="Thank you for your booking"
+        variant="success"
+      >
+        {/* Booking Reference - Below confirmation */}
+        {bookingRef && <BookingReference reference={bookingRef} />}
+      </PageHeader>
 
       {/* Main Content */}
       <div className="px-4 py-8 max-w-3xl mx-auto">
