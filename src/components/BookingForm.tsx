@@ -655,8 +655,9 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <h3 className="text-xl font-bold mb-2 text-gray-900">
                 Select Service Type
               </h3>
-              <p className="text-sm text-gray-600 mb-6">Choose the service that best fits your needs</p>
-              <div className="space-y-3">
+              <p className="text-sm text-gray-600 mb-4">Choose the service that best fits your needs</p>
+              <div className="border-b border-gray-200 mb-6"></div>
+              <div className="space-y-4">
                 {SERVICE_TYPES.map((service) => (
                   <label key={service.id} className="relative group cursor-pointer">
                     <input
@@ -667,29 +668,41 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       onChange={(e) => handleInputChange('serviceType', e.target.value)}
                       className="sr-only"
                     />
-                    <div className={`p-5 border-2 transition-all ${
+                    <div className={`p-5 transition-all ${
                       formData.serviceType === service.id 
-                        ? 'border-blue-600 bg-blue-50' 
-                        : 'border-gray-300 bg-white hover:border-gray-400'
+                        ? 'bg-blue-600' 
+                        : 'bg-gray-100 hover:bg-gray-200'
                     }`}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center mb-2">
-                            <h4 className="font-semibold text-gray-900 text-base">{service.name}</h4>
+                            <h4 className={`font-semibold text-base ${
+                              formData.serviceType === service.id ? 'text-white' : 'text-gray-900'
+                            }`}>{service.name}</h4>
                             {service.popular && (
-                              <span className="ml-3 px-2.5 py-0.5 bg-blue-600 text-white text-xs font-semibold">
+                              <span className={`ml-3 px-2.5 py-0.5 text-xs font-semibold ${
+                                formData.serviceType === service.id 
+                                  ? 'bg-white text-blue-600' 
+                                  : 'bg-blue-600 text-white'
+                              }`}>
                                 POPULAR
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600">{service.description}</p>
+                          <p className={`text-sm ${
+                            formData.serviceType === service.id ? 'text-white/90' : 'text-gray-600'
+                          }`}>{service.description}</p>
                           {service.id === 'regular' && (
-                            <p className="text-xs text-blue-600 font-medium mt-2">Save 20% with regular service</p>
+                            <p className={`text-xs font-medium mt-2 ${
+                              formData.serviceType === service.id ? 'text-white' : 'text-blue-600'
+                            }`}>Save 20% with regular service</p>
                           )}
                         </div>
                         <div className="ml-4 text-right flex-shrink-0">
                           {service.serviceCharge > 0 && (
-                            <p className="text-base font-bold text-gray-900">
+                            <p className={`text-base font-bold ${
+                              formData.serviceType === service.id ? 'text-white' : 'text-gray-900'
+                            }`}>
                               +£{service.serviceCharge}
                             </p>
                           )}
@@ -721,7 +734,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <span className="text-2xl">👋</span>
                 <span>Let's get to know you!</span>
               </h3>
-              <p className="text-sm text-slate-600 mb-6">We need a few details to confirm your booking</p>
+              <p className="text-sm text-slate-600 mb-4">We need a few details to confirm your booking</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <InputField
@@ -767,16 +781,16 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                     onChange={(e) => handleInputChange('contactPermission', e.target.checked ? 'yes' : 'no')}
                     className="sr-only"
                   />
-                  <div className={`p-4 border-2 rounded-lg transition-all ${
+                  <div className={`p-4 transition-all ${
                     formData.contactPermission === 'yes'
-                      ? 'border-black bg-gray-50' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'bg-gray-200' 
+                      : 'bg-gray-100 hover:bg-gray-200'
                   }`}>
                     <div className="flex items-center space-x-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                      <div className={`w-5 h-5 flex items-center justify-center ${
                         formData.contactPermission === 'yes'
-                          ? 'border-black bg-black'
-                          : 'border-gray-300'
+                          ? 'bg-blue-600'
+                          : 'bg-gray-300'
                       }`}>
                         {formData.contactPermission === 'yes' && (
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -797,7 +811,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(2)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>
@@ -853,7 +867,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <span className="text-2xl">📍</span>
                 <span>Where do we need to go?</span>
               </h3>
-              <p className="text-sm text-slate-600 mb-6">We'll come to this address to clean your bins</p>
+              <p className="text-sm text-slate-600 mb-4">We'll come to this address to clean your bins</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="mb-5">
                 <TextareaField
@@ -870,7 +885,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <Button
                   onClick={detectLocation}
                   variant="outline"
-                  className="w-full py-3 border-2 border-slate-300 hover:border-blue-400 hover:bg-blue-50 transition-all"
+                  className="w-full py-3 bg-gray-100 hover:bg-gray-200 transition-all"
                   loading={isDetectingLocation}
                 >
                   <MapPin className="w-4 h-4 mr-2" />
@@ -879,12 +894,12 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
 
               {formData.useCurrentLocation && (
-                <div className="bg-gradient-to-r from-blue-50 to-slate-50 border-2 border-blue-200 p-4 rounded-xl text-sm text-blue-900 mb-6">
+                <div className="bg-gray-900 p-4 text-sm text-white mb-6">
                   <div className="flex items-center mb-3">
                     <span className="text-xl mr-2">✓</span>
                     <span className="font-semibold">Location detected successfully!</span>
                   </div>
-                  <div className="text-blue-800 flex items-start">
+                  <div className="text-white/90 flex items-start">
                     <span className="text-lg mr-2">💡</span>
                     <span>Please verify the address above is correct, especially house number and postcode</span>
                   </div>
@@ -896,7 +911,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(3)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>
@@ -919,23 +934,24 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <h3 className="text-xl font-bold mb-2 text-gray-900">
                 Which bins need cleaning?
               </h3>
-              <p className="text-sm text-gray-600 mb-6">Select the bins and how many of each</p>
+              <p className="text-sm text-gray-600 mb-4">Select the bins and how many of each</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="space-y-3">
                 {BIN_TYPES.map((bin) => {
                   const quantity = formData.binQuantities[bin.id];
                   
                   return (
-                    <div key={bin.id} className={`p-5 border-2 transition-all ${
+                    <div key={bin.id} className={`p-5 transition-all ${
                       quantity > 0
-                        ? 'border-blue-600 bg-blue-50' 
-                        : 'border-gray-300 bg-white hover:border-gray-400'
+                        ? 'bg-gray-200' 
+                        : 'bg-gray-100 hover:bg-gray-200'
                     }`}>
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <span className="text-2xl">{bin.emoji}</span>
-                            <h4 className="font-semibold text-gray-900 text-base">{bin.name}</h4>
+                            <h4 className="font-semibold text-base text-gray-900">{bin.name}</h4>
                           </div>
                           <p className="text-xs text-gray-600">{bin.description}</p>
                         </div>
@@ -946,16 +962,16 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       </div>
                       
                       {/* Quantity Selector */}
-                      <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                      <div className="flex items-center justify-between pt-4">
                         <span className="text-sm font-medium text-gray-700">Quantity:</span>
                         <div className="flex items-center space-x-3">
                           <button
                             type="button"
                             onClick={() => updateBinQuantity(bin.id, Math.max(0, quantity - 1))}
-                            className={`w-10 h-10 border-2 flex items-center justify-center font-bold text-lg transition-all ${
+                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-all ${
                               quantity <= 0
-                                ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                                : 'border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:bg-blue-50'
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-gray-600 text-white hover:bg-gray-700'
                             }`}
                             disabled={quantity <= 0}
                           >
@@ -965,45 +981,23 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                           <button
                             type="button"
                             onClick={() => updateBinQuantity(bin.id, quantity + 1)}
-                            className="w-10 h-10 border-2 border-gray-300 bg-white text-gray-700 hover:border-blue-600 hover:bg-blue-50 flex items-center justify-center font-bold text-lg transition-all"
+                            className="w-10 h-10 rounded-full bg-gray-600 text-white hover:bg-gray-700 flex items-center justify-center font-bold text-lg transition-all"
                           >
                             +
                           </button>
                         </div>
                       </div>
-                      
-                      {quantity > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 text-right">
-                          <span className="text-sm font-semibold text-blue-600">
-                            Subtotal: £{(bin.price * quantity).toFixed(2)}
-                          </span>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
               </div>
-
-              {/* Selection Summary */}
-              {totalBinsSelected > 0 && (
-                <div className="bg-blue-50 border border-blue-200 p-4 mt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {totalBinsSelected} bin{totalBinsSelected !== 1 ? 's' : ''} selected
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Bin cost: £{binTotal.toFixed(2)}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </FormSection>
 
             <ButtonGroup stickyBottom={true} withBackground={true} withDivider={true}>
               <Button
                 onClick={() => goToPreviousStep(4)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>
@@ -1056,7 +1050,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <h3 className="text-xl font-bold mb-2 text-gray-900">
                 When do your bins get collected?
               </h3>
-              <p className="text-sm text-gray-600 mb-6">We'll clean them the same day after collection</p>
+              <p className="text-sm text-gray-600 mb-4">We'll clean them the same day after collection</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {COLLECTION_DAYS.map((day) => {
@@ -1070,20 +1065,24 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                         onChange={() => selectCollectionDay(day)}
                         className="sr-only"
                       />
-                      <div className={`p-4 border-2 transition-all ${
+                      <div className={`p-4 transition-all ${
                         formData.collectionDays.includes(day)
-                          ? 'border-blue-600 bg-blue-50' 
-                          : 'border-gray-300 bg-white hover:border-gray-400'
+                          ? 'bg-blue-600' 
+                          : 'bg-gray-100 hover:bg-gray-200'
                       }`}>
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-base text-gray-900">{day}</span>
-                          <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ml-4 ${
+                          <span className={`font-semibold text-base ${
                             formData.collectionDays.includes(day)
-                              ? 'border-blue-600 bg-blue-600'
-                              : 'border-gray-300 bg-white'
+                              ? 'text-white'
+                              : 'text-gray-900'
+                          }`}>{day}</span>
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center ml-4 ${
+                            formData.collectionDays.includes(day)
+                              ? 'bg-white'
+                              : 'bg-gray-300'
                           }`}>
                             {formData.collectionDays.includes(day) && (
-                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                             )}
                           </div>
                         </div>
@@ -1093,8 +1092,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 })}
               </div>
 
-              <div className="mt-6 p-4 bg-blue-50 border border-blue-200">
-                <p className="text-xs text-gray-700">
+              <div className="mt-6 p-4 bg-gray-900">
+                <p className="text-xs text-white">
                   <span className="font-semibold">Not sure which day?</span> Check your local council website or contact them to find out when they collect bins in your area.
                 </p>
               </div>
@@ -1104,7 +1103,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(5)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>
@@ -1162,7 +1161,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <h3 className="text-xl font-bold mb-2 text-gray-900">
                 Any special instructions?
               </h3>
-              <p className="text-sm text-gray-600 mb-6">Tell us anything we should know (optional)</p>
+              <p className="text-sm text-gray-600 mb-4">Tell us anything we should know (optional)</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="mb-5">
                 <TextareaField
@@ -1175,7 +1175,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
 
               {/* Examples */}
-              <div className="bg-gray-50 border border-gray-200 p-4 mb-4">
+              <div className="bg-gray-100 p-4 mb-4">
                 <p className="text-xs font-semibold text-gray-900 mb-3">Helpful examples:</p>
                 <ul className="space-y-2 text-xs text-gray-700">
                   <li>• Gate/property access codes</li>
@@ -1191,7 +1191,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(6)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>
@@ -1255,7 +1255,8 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <h3 className="text-xl font-bold mb-2 text-gray-900">
                 How would you like to pay?
               </h3>
-              <p className="text-sm text-gray-600 mb-6">Choose what works best for you</p>
+              <p className="text-sm text-gray-600 mb-4">Choose what works best for you</p>
+              <div className="border-b border-gray-200 mb-6"></div>
 
               <div className="space-y-4">
                 {PAYMENT_METHODS.map((method) => {
@@ -1269,30 +1270,38 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                         onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
                         className="sr-only"
                       />
-                      <div className={`py-6 px-5 border-2 transition-all ${
+                      <div className={`p-5 transition-all ${
                         formData.paymentMethod === method.id 
-                          ? 'border-blue-600 bg-blue-50' 
-                          : 'border-gray-300 bg-white hover:border-gray-400'
+                          ? 'bg-blue-600' 
+                          : 'bg-gray-100 hover:bg-gray-200'
                       }`}>
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center mb-2">
-                              <h4 className="font-semibold text-gray-900 text-base">{method.name}</h4>
+                              <h4 className={`font-semibold text-base ${
+                                formData.paymentMethod === method.id ? 'text-white' : 'text-gray-900'
+                              }`}>{method.name}</h4>
                               {method.popular && (
-                                <span className="ml-3 px-2.5 py-0.5 bg-blue-600 text-white text-xs font-semibold">
+                                <span className={`ml-3 px-2.5 py-0.5 text-xs font-semibold ${
+                                  formData.paymentMethod === method.id 
+                                    ? 'bg-white text-blue-600' 
+                                    : 'bg-blue-600 text-white'
+                                }`}>
                                   POPULAR
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-600">{method.description}</p>
+                            <p className={`text-sm ${
+                              formData.paymentMethod === method.id ? 'text-white/90' : 'text-gray-600'
+                            }`}>{method.description}</p>
                           </div>
-                          <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center ml-4 flex-shrink-0 ${
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center ml-4 flex-shrink-0 ${
                             formData.paymentMethod === method.id
-                              ? 'border-blue-600 bg-blue-600'
-                              : 'border-gray-300 bg-white'
+                              ? 'bg-white'
+                              : 'bg-gray-300'
                           }`}>
                             {formData.paymentMethod === method.id && (
-                              <div className="w-2 h-2 bg-white rounded-full"></div>
+                              <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                             )}
                           </div>
                         </div>
@@ -1303,13 +1312,13 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               </div>
 
               {/* Payment Details & Trust Indicators */}
-              <div className="mt-6 p-4 border border-gray-200 bg-gray-50">
+              <div className="mt-6 p-4 bg-gray-100">
                 {formData.paymentMethod === 'card' && (
                   <div className="space-y-3">
                     <p className="text-sm text-gray-900">
                       <strong>Secure payment:</strong> We use industry-standard encryption to keep your card details safe. You'll pay securely when we confirm your booking.
                     </p>
-                    <div className="pt-3 border-t border-gray-200">
+                    <div className="pt-3">
                       <p className="text-xs text-gray-600">PCI DSS Compliant • 256-bit Encryption • No card data stored</p>
                     </div>
                   </div>
@@ -1320,7 +1329,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                     <p className="text-sm text-gray-900">
                       <strong>Easy & straightforward:</strong> Have the exact amount ready (£{totalPrice.toFixed(2)}) for the cleaner on service day.
                     </p>
-                    <div className="pt-3 border-t border-gray-200">
+                    <div className="pt-3">
                       <p className="text-xs text-gray-600">No bank details needed • Receipt provided • Change available</p>
                     </div>
                   </div>
@@ -1331,7 +1340,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                     <p className="text-sm text-gray-900">
                       <strong>Bank transfer:</strong> Pay directly from your bank account. We'll send you our details after the service is completed.
                     </p>
-                    <div className="pt-3 border-t border-gray-200">
+                    <div className="pt-3">
                       <p className="text-xs text-gray-600">Payment due within 7 days • Invoice provided • Reference tracking</p>
                     </div>
                   </div>
@@ -1343,7 +1352,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(7)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>
@@ -1427,18 +1436,19 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Review Your Booking
                 </h3>
-                <p className="text-sm text-gray-600">Please confirm all details are correct before completing your booking</p>
+                <p className="text-sm text-gray-600 mb-4">Please confirm all details are correct before completing your booking</p>
+                <div className="border-b border-gray-200"></div>
               </div>
 
               {/* Final Summary Card - Corporate Flat Design */}
-              <div className="bg-white border-2 border-gray-300 p-6 mb-6">
-                <h4 className="text-base font-bold text-gray-900 mb-5 pb-3 border-b-2 border-gray-200">
+              <div className="bg-gray-100 p-6 mb-6">
+                <h4 className="text-base font-bold text-gray-900 mb-5 pb-3">
                   Booking Summary
                 </h4>
                 
                 <div className="space-y-4 text-sm">
                   {/* Service Info */}
-                  <div className="pb-4 border-b border-gray-200">
+                  <div className="pb-4">
                     <p className="text-xs font-semibold text-gray-500 mb-2">SERVICE TYPE</p>
                     <p className="font-semibold text-gray-900 capitalize">
                       {formData.serviceType} cleaning
@@ -1446,7 +1456,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                   </div>
 
                   {/* Contact Info */}
-                  <div className="pb-4 border-b border-gray-200">
+                  <div className="pb-4">
                     <p className="text-xs font-semibold text-gray-500 mb-2">CONTACT DETAILS</p>
                     <div className="space-y-1">
                       <p className="font-semibold text-gray-900">{formData.firstName} {formData.lastName}</p>
@@ -1456,14 +1466,14 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                   </div>
 
                   {/* Address & Location */}
-                  <div className="pb-4 border-b border-gray-200">
+                  <div className="pb-4">
                     <p className="text-xs font-semibold text-gray-500 mb-2">SERVICE ADDRESS</p>
                     <p className="text-gray-900 font-medium">{formData.address}</p>
                     <p className="text-gray-700 text-xs mt-1">{postcode}</p>
                   </div>
 
                   {/* Bins Selected */}
-                  <div className="pb-4 border-b border-gray-200">
+                  <div className="pb-4">
                     <p className="text-xs font-semibold text-gray-500 mb-2">BINS SELECTED</p>
                     <div className="space-y-2">
                       {Object.entries(formData.binQuantities)
@@ -1486,20 +1496,20 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                   </div>
 
                   {/* Collection Day */}
-                  <div className="pb-4 border-b border-gray-200">
+                  <div className="pb-4">
                     <p className="text-xs font-semibold text-gray-500 mb-2">COLLECTION DAY</p>
                     <p className="font-semibold text-gray-900">{formData.collectionDays[0]}</p>
                   </div>
 
                   {/* Payment Info */}
-                  <div className="pb-4 border-b border-gray-200">
+                  <div className="pb-4">
                     <p className="text-xs font-semibold text-gray-500 mb-2">PAYMENT METHOD</p>
                     <p className="font-semibold text-gray-900">{PAYMENT_METHODS.find(p => p.id === formData.paymentMethod)?.name || 'Card Payment'}</p>
                   </div>
 
                   {/* Special Instructions if any */}
                   {formData.specialInstructions && (
-                    <div className="pb-4 border-b border-gray-200">
+                    <div className="pb-4">
                       <p className="text-xs font-semibold text-gray-500 mb-2">SPECIAL INSTRUCTIONS</p>
                       <p className="text-gray-900 text-sm">{formData.specialInstructions}</p>
                     </div>
@@ -1507,7 +1517,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                 </div>
 
                 {/* Price Breakdown */}
-                <div className="mt-6 pt-4 border-t-2 border-gray-300 space-y-3">
+                <div className="mt-6 pt-4 bg-gray-200 p-4 space-y-3">
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-gray-700">Bins subtotal</span>
                     <span className="font-semibold text-gray-900">£{binTotal.toFixed(2)}</span>
@@ -1518,7 +1528,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       <span className="font-semibold text-gray-900">£{serviceCharge.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center text-base font-bold pt-3 border-t-2 border-gray-200">
+                  <div className="flex justify-between items-center text-base font-bold pt-3">
                     <span className="text-gray-900">Total per clean</span>
                     <span className="text-blue-600 text-lg">
                       £{totalPrice.toFixed(2)}
@@ -1536,16 +1546,16 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                     onChange={(e) => handleInputChange('agreeToTerms', e.target.checked.toString())}
                     className="sr-only"
                   />
-                  <div className={`p-5 border-2 transition-all ${
+                  <div className={`p-5 transition-all ${
                     formData.agreeToTerms
-                      ? 'border-blue-600 bg-blue-50' 
-                      : 'border-gray-300 bg-white hover:border-gray-400'
+                      ? 'bg-gray-200' 
+                      : 'bg-gray-100 hover:bg-gray-200'
                   }`}>
                     <div className="flex items-start space-x-3">
-                      <div className={`w-5 h-5 border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      <div className={`w-5 h-5 flex items-center justify-center flex-shrink-0 mt-0.5 ${
                         formData.agreeToTerms
-                          ? 'border-blue-600 bg-blue-600'
-                          : 'border-gray-300 bg-white'
+                          ? 'bg-blue-600'
+                          : 'bg-gray-300'
                       }`}>
                         {formData.agreeToTerms && (
                           <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -1569,7 +1579,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
               <Button
                 onClick={() => goToPreviousStep(8)}
                 variant="outline"
-                className="flex-1 py-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50"
+                className="flex-1 py-4 bg-gray-100 text-gray-900 hover:bg-gray-200"
               >
                 Back
               </Button>

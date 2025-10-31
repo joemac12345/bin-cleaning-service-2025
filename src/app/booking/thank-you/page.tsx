@@ -57,7 +57,7 @@ function ThankYouContent() {
       {/* Success Hero Section - Compact, Left-Aligned */}
       <div className="bg-blue-600">
         <div className="px-4 py-6 max-w-3xl mx-auto">
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4 mb-4">
             {/* Success Icon - Compact */}
             <div className="w-14 h-14 bg-white flex items-center justify-center flex-shrink-0">
               <CheckCircle className="w-8 h-8 text-blue-600" strokeWidth={2.5} />
@@ -71,15 +71,17 @@ function ThankYouContent() {
                 Thank you for your booking
               </p>
             </div>
-
-            {/* Booking Reference - Inline */}
-            {bookingRef && (
-              <div className="bg-white px-4 py-2 text-right">
-                <p className="text-xs text-gray-500 uppercase tracking-wider font-medium">Ref</p>
-                <p className="text-base font-bold text-gray-900 font-mono">{bookingRef}</p>
-              </div>
-            )}
           </div>
+
+          {/* Booking Reference - Below confirmation */}
+          {bookingRef && (
+            <div className="bg-white px-3 py-2">
+              <div className="flex items-center gap-2">
+                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium">Ref:</p>
+                <p className="text-sm font-bold text-gray-900 font-mono">{bookingRef}</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -96,7 +98,7 @@ function ThankYouContent() {
             <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
               <button
                 onClick={() => router.push('/')}
-                className="flex-shrink-0 w-28 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start shadow-md"
+                className="flex-shrink-0 w-28 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start"
               >
                 <Home className="w-3.5 h-3.5" strokeWidth={2} />
                 Home
@@ -104,14 +106,14 @@ function ThankYouContent() {
               
               <button
                 onClick={() => router.push('/booking')}
-                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start shadow-md"
+                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start"
               >
                 Book Again
               </button>
 
               <a
                 href="tel:08001234567"
-                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start shadow-md"
+                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start"
               >
                 <Phone className="w-3.5 h-3.5" strokeWidth={2} />
                 Call Us
@@ -121,7 +123,7 @@ function ThankYouContent() {
                 href="https://wa.me/447000000000"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start shadow-md"
+                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start"
               >
                 <Mail className="w-3.5 h-3.5" strokeWidth={2} />
                 WhatsApp
@@ -129,7 +131,7 @@ function ThankYouContent() {
 
               <a
                 href="mailto:info@binclean.co.uk"
-                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start shadow-md"
+                className="flex-shrink-0 w-28 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2 text-xs transition-colors flex items-center justify-center gap-1.5 snap-start"
               >
                 <Mail className="w-3.5 h-3.5" strokeWidth={2} />
                 Email Us
