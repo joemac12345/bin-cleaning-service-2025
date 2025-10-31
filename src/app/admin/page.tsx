@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Package, MapPin, Calendar, Users, TrendingDown, Clock, Mail } from 'lucide-react';
+import { Package, MapPin, Calendar, Users, UserX, Clock, Mail, Phone } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Bin Cleaning',
@@ -55,22 +55,22 @@ export default function AdminPage() {
             </div>
           </Link>
 
-          {/* Abandoned Forms Analytics */}
-          <Link href="/admin/abandoned-forms-analytics" className="group">
+          {/* Abandoned Forms - Contact Tracking */}
+          <Link href="/admin/abandoned-forms" className="group">
             <div className="bg-zinc-800 rounded-lg border border-zinc-700 p-6 hover:border-red-400 transition-all hover:shadow-lg hover:shadow-red-900/20 h-[220px] flex flex-col">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <TrendingDown className="h-8 w-8 text-red-400 mb-3" />
+                  <UserX className="h-8 w-8 text-red-400 mb-3" />
                   <h3 className="text-lg font-semibold text-white">
                     Abandoned Forms
                   </h3>
                   <p className="text-sm text-zinc-400 mt-2">
-                    Analytics and recovery of incomplete bookings
+                    Recovery leads with email & phone tracking
                   </p>
                 </div>
               </div>
               <div className="inline-flex items-center text-sm text-red-400 font-medium group-hover:gap-2 transition-all mt-auto">
-                <span>View analytics</span>
+                <span>Manage contacts</span>
                 <span>→</span>
               </div>
             </div>
@@ -123,9 +123,20 @@ export default function AdminPage() {
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-white mb-4">Quick Overview</h2>
           <div className="bg-zinc-800 rounded-lg border border-zinc-700 p-6">
-            <p className="text-zinc-400">
-              Welcome to your admin dashboard. Use the Bookings Management section to view and manage customer bookings.
-            </p>
+            <div className="space-y-3">
+              <p className="text-zinc-400">
+                Welcome to your admin dashboard. Manage all aspects of your bin cleaning service from here.
+              </p>
+              <div className="flex items-start gap-3 pt-3 border-t border-zinc-700">
+                <UserX className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-white font-medium text-sm">New: Contact Tracking System</p>
+                  <p className="text-zinc-400 text-sm mt-1">
+                    Abandoned Forms now includes manual email sending, phone call logging, and email open tracking to help you recover more leads.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
