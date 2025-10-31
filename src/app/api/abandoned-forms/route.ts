@@ -33,7 +33,22 @@ export async function GET(request: NextRequest) {
       const formData = form.form_data?.formData || form.form_data || {};
       const postcode = form.form_data?.postcode || '';
       const currentStep = form.form_data?.currentStep || 0;
-      const status = form.form_data?.status || 'abandoned'; // Get status from form_data
+      const contactHistory = form.form_data?.contactHistory || [];
+      
+      // Determine status - check contact history first, then fall back to stored status
+      let status = 'never_contacted';
+      if (contactHistory.length > 0) {
+        const lastContact = contactHistory[contactHistory.length - 1];
+        if (contactHistory.length > 1) {
+          status = 'multiple_attempts';
+        } else if (lastContact.type === 'email') {
+          status = lastContact.emailOpened ? 'responded' : 'email_sent';
+        } else if (lastContact.type === 'phone') {
+          status = lastContact.details?.toLowerCase().includes('interested') ? 'responded' : 'phone_called';
+        }
+      } else {
+        status = form.form_data?.status || 'never_contacted';
+      }
       
       // Calculate completion percentage (assuming 6 total steps)
       const totalSteps = 6;
@@ -58,6 +73,7 @@ export async function GET(request: NextRequest) {
         status: status,
         completionPercentage: completionPercentage,
         potentialValue: potentialValue,
+        contactHistory: contactHistory,
         contactInfo: {
           hasEmail: !!(formData.email && formData.email.trim()),
           hasPhone: !!(formData.phone && formData.phone.trim()),
