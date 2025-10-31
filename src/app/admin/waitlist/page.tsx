@@ -324,32 +324,28 @@ export default function WaitlistAdminPage() {
 
       {/* Detail Modal - Full Page */}
       {selectedEntry && (
-        <div 
-          className="fixed inset-0 bg-zinc-950 z-50 overflow-y-auto"
-        >
-          <div 
-            className="min-h-screen"
-          >
-            {/* Modal Header */}
-            <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedEntry(null)}
-                  className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
-                >
-                  <span className="text-xl">←</span>
-                </button>
-                <h2 className="text-lg font-semibold">Waitlist Details</h2>
-              </div>
+        <div className="fixed inset-0 bg-zinc-950 z-50 flex flex-col">
+          {/* Modal Header */}
+          <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-4 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setSelectedEntry(null)}
                 className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
               >
-                <X className="w-5 h-5" />
+                <span className="text-xl">←</span>
               </button>
+              <h2 className="text-lg font-semibold">Waitlist Details</h2>
             </div>
+            <button
+              onClick={() => setSelectedEntry(null)}
+              className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
 
-            {/* Modal Content */}
+          {/* Modal Content */}
+          <div className="flex-1 overflow-y-auto">
             <div className="p-4 space-y-4 pb-24">
               {/* Status */}
               <div>
@@ -413,7 +409,7 @@ export default function WaitlistAdminPage() {
               </div>
 
               {/* Actions */}
-              <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-4">
+              <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-4 flex-shrink-0">
                 <div className="flex gap-2">
                   <a
                     href={`mailto:${selectedEntry.email}`}
