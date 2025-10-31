@@ -25,23 +25,54 @@ export default function AddPostcodeModal({
   const detectLocationPostcode = async () => {
     setIsDetectingLocation(true);
     try {
+      // Check if geolocation is supported
+      if (!navigator.geolocation) {
+        alert('⚠️ Location services are not supported by your browser.\n\nPlease enter the postcode manually.');
+        return;
+      }
+
       const position = await new Promise<GeolocationCoordinates>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
           (pos) => resolve(pos.coords),
-          (err) => reject(err)
+          (err) => {
+            // Provide specific error messages
+            let errorMessage = '⚠️ Unable to detect location.\n\n';
+            switch(err.code) {
+              case err.PERMISSION_DENIED:
+                errorMessage += 'Location permission denied. Please:\n1. Click the location icon in your browser address bar\n2. Select "Allow" for location access\n3. Try again';
+                break;
+              case err.POSITION_UNAVAILABLE:
+                errorMessage += 'Location information unavailable. Please check your device settings and try again.';
+                break;
+              case err.TIMEOUT:
+                errorMessage += 'Location request timed out. Please try again.';
+                break;
+              default:
+                errorMessage += 'An unknown error occurred. Please enter the postcode manually.';
+            }
+            reject(new Error(errorMessage));
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 0
+          }
         );
       });
 
       const response = await fetch(`/api/postcode?lat=${position.latitude}&lon=${position.longitude}`);
-      if (!response.ok) throw new Error('Failed to detect postcode');
+      if (!response.ok) throw new Error('Failed to detect postcode from coordinates');
 
       const data = await response.json();
       if (data.postcode) {
         setPostcode(data.postcode);
+        alert(`✅ Location detected!\n\nPostcode: ${data.postcode}`);
+      } else {
+        throw new Error('No postcode found for your location');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error detecting location:', error);
-      alert('Unable to detect location. Please enable location services and try again.');
+      alert(error.message || 'Unable to detect location. Please enter the postcode manually.');
     } finally {
       setIsDetectingLocation(false);
     }
