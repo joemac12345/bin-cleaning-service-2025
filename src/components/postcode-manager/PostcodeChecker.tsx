@@ -321,7 +321,7 @@ export default function PostcodeChecker({ onServiceAvailable, onWaitlist }: Post
                 {activePostcodes.map((postcode) => (
                   <span
                     key={postcode}
-                    className="px-3 py-1 bg-gray-100 border border-gray-300 text-gray-700 text-xs font-medium"
+                    className="px-3 py-1 bg-gray-200 text-gray-900 text-xs font-medium"
                   >
                     {postcode}
                   </span>

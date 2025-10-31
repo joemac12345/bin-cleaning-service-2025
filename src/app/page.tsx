@@ -66,51 +66,65 @@ export default function HomePage() {
   return (
     <>
       <TopNavigation />
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <div className="flex-1 flex flex-col max-w-2xl mx-auto w-full">
-          {/* Header Section */}
-          <div className="bg-blue-600 px-6 py-8">
-            <div className="w-16 h-16 bg-white mb-4 flex items-center justify-center">
-              <svg 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                className="text-blue-600"
-              >
-                <path d="M3 6h18"/>
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-              </svg>
+      <div className="min-h-screen bg-white">
+        {/* Compact Hero Section - Following Design System */}
+        <div className="bg-blue-600">
+          <div className="px-4 py-6 max-w-3xl mx-auto">
+            <div className="flex items-center gap-4">
+              {/* Icon - Compact */}
+              <div className="w-14 h-14 bg-white flex items-center justify-center flex-shrink-0">
+                <svg 
+                  width="32" 
+                  height="32" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                  className="text-blue-600"
+                >
+                  <path d="M3 6h18"/>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                </svg>
+              </div>
+              
+              <div className="flex-1">
+                <h1 className="text-xl font-bold text-white mb-1">
+                  Professional Bin Cleaning
+                </h1>
+                <p className="text-sm text-white/90">
+                  Fast, reliable service for your area
+                </p>
+              </div>
             </div>
-            <h1 className="text-2xl font-semibold text-white mb-2">
-              Professional Bin Cleaning Service
-            </h1>
-            <p className="text-blue-100 text-sm">
-              Check service availability in your area
-            </p>
           </div>
+        </div>
 
-          {/* Content Section */}
-          <div className="flex-1 px-6 py-6 overflow-y-auto">
-            {/* Info Box */}
-            <div className="bg-gray-100 border border-gray-200 px-4 py-4 mb-6">
-              <p className="text-gray-700 text-sm leading-relaxed">
-                Enter your postcode to verify service availability and access our marketplace platform.
+        {/* Main Content */}
+        <div className="px-4 py-8 max-w-3xl mx-auto">
+          {/* Info Section */}
+          <div className="mb-8">
+            <div className="bg-gray-100 p-4 shadow-md">
+              <h2 className="text-base font-bold text-gray-900 mb-3">
+                Check Service Availability
+              </h2>
+              <p className="text-sm text-gray-600 leading-relaxed mb-2">
+                Before you book, let's check if we can service your area.
+              </p>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                Simply enter your postcode below to confirm availability and avoid any disappointment. If we're not in your area yet, you can join our waitlist and we'll notify you when we expand.
               </p>
             </div>
+          </div>
 
-            {/* PostcodeChecker Component */}
-            <div className="mb-6">
-              <PostcodeChecker 
-                onServiceAvailable={handleServiceAvailable}
-                onWaitlist={handleWaitlist}
-              />
-            </div>
+          {/* PostcodeChecker Component */}
+          <div className="mb-8">
+            <PostcodeChecker 
+              onServiceAvailable={handleServiceAvailable}
+              onWaitlist={handleWaitlist}
+            />
           </div>
         </div>
 
@@ -118,7 +132,7 @@ export default function HomePage() {
         <div className="fixed bottom-4 right-4 z-20">
           <button
             onClick={() => router.push('/admin/bookings')}
-            className="w-12 h-12 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 flex items-center justify-center transition-colors"
+            className="w-12 h-12 bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors shadow-md"
             title="Admin Dashboard"
           >
             <svg 
@@ -130,7 +144,7 @@ export default function HomePage() {
               strokeWidth="2" 
               strokeLinecap="round" 
               strokeLinejoin="round"
-              className="text-gray-700"
+              className="text-gray-900"
             >
               <circle cx="12" cy="12" r="3"/>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
