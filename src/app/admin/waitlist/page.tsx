@@ -326,51 +326,51 @@ export default function WaitlistAdminPage() {
       {selectedEntry && (
         <div className="fixed inset-0 bg-zinc-950 z-50 flex flex-col">
           {/* Modal Header */}
-          <div className="bg-zinc-900 border-b border-zinc-800 px-4 py-4 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-3">
+          <div className="bg-zinc-900 border-b border-zinc-800 px-3 py-3 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setSelectedEntry(null)}
-                className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+                className="p-1.5 hover:bg-zinc-800 rounded-lg transition-colors"
               >
-                <span className="text-xl">←</span>
+                <span className="text-lg">←</span>
               </button>
-              <h2 className="text-lg font-semibold">Waitlist Details</h2>
+              <h2 className="text-base font-semibold">Waitlist Details</h2>
             </div>
             <button
               onClick={() => setSelectedEntry(null)}
-              className="p-2 hover:bg-zinc-800 rounded-lg transition-colors"
+              className="p-1.5 hover:bg-zinc-800 rounded-lg transition-colors"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Modal Content */}
           <div className="flex-1 overflow-y-auto">
-            <div className="p-4 space-y-4 pb-24">
+            <div className="p-3 space-y-3 pb-16">
               {/* Status */}
               <div>
                 <label className="text-xs text-zinc-500 uppercase tracking-wider mb-1 block">Status</label>
-                <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg ${getStatusColor(selectedEntry.status)} bg-opacity-20`}>
+                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg ${getStatusColor(selectedEntry.status)} bg-opacity-20`}>
                   {getStatusIcon(selectedEntry.status)}
-                  <span className="capitalize font-medium">{selectedEntry.status}</span>
+                  <span className="capitalize text-sm font-medium">{selectedEntry.status}</span>
                 </div>
               </div>
 
               {/* Name */}
               <div>
                 <label className="text-xs text-zinc-500 uppercase tracking-wider mb-1 block">Name</label>
-                <div className="bg-zinc-800 px-4 py-3 rounded-lg">
-                  <p className="text-white">{selectedEntry.name}</p>
+                <div className="bg-zinc-800 px-3 py-2 rounded-lg">
+                  <p className="text-white text-sm">{selectedEntry.name}</p>
                 </div>
               </div>
 
               {/* Email */}
               <div>
                 <label className="text-xs text-zinc-500 uppercase tracking-wider mb-1 block">Email</label>
-                <div className="bg-zinc-800 px-4 py-3 rounded-lg">
+                <div className="bg-zinc-800 px-3 py-2 rounded-lg">
                   <a 
                     href={`mailto:${selectedEntry.email}`}
-                    className="text-blue-400 hover:text-blue-300 break-all"
+                    className="text-blue-400 hover:text-blue-300 break-all text-sm"
                   >
                     {selectedEntry.email}
                   </a>
@@ -380,18 +380,18 @@ export default function WaitlistAdminPage() {
               {/* Postcode */}
               <div>
                 <label className="text-xs text-zinc-500 uppercase tracking-wider mb-1 block">Postcode</label>
-                <div className="bg-zinc-800 px-4 py-3 rounded-lg">
-                  <p className="text-white font-mono">{selectedEntry.postcode}</p>
+                <div className="bg-zinc-800 px-3 py-2 rounded-lg">
+                  <p className="text-white font-mono text-sm">{selectedEntry.postcode}</p>
                 </div>
               </div>
 
               {/* Date */}
               <div>
                 <label className="text-xs text-zinc-500 uppercase tracking-wider mb-1 block">Registered</label>
-                <div className="bg-zinc-800 px-4 py-3 rounded-lg">
+                <div className="bg-zinc-800 px-3 py-2 rounded-lg">
                   <div className="flex items-center gap-2 text-white">
-                    <Calendar className="w-4 h-4 text-zinc-500" />
-                    <span>{new Date(selectedEntry.createdAt).toLocaleString('en-GB')}</span>
+                    <Calendar className="w-3.5 h-3.5 text-zinc-500" />
+                    <span className="text-sm">{new Date(selectedEntry.createdAt).toLocaleString('en-GB')}</span>
                   </div>
                 </div>
               </div>
@@ -399,33 +399,33 @@ export default function WaitlistAdminPage() {
               {/* Notes */}
               <div>
                 <label className="text-xs text-zinc-500 uppercase tracking-wider mb-1 block">Notes</label>
-                <div className="bg-zinc-800 px-4 py-3 rounded-lg min-h-[100px]">
+                <div className="bg-zinc-800 px-3 py-2 rounded-lg min-h-[80px]">
                   {selectedEntry.notes ? (
-                    <p className="text-white">{selectedEntry.notes}</p>
+                    <p className="text-white text-sm">{selectedEntry.notes}</p>
                   ) : (
-                    <p className="text-zinc-600 italic">No notes added</p>
+                    <p className="text-zinc-600 italic text-sm">No notes added</p>
                   )}
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Actions */}
-              <div className="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 p-4 flex-shrink-0">
-                <div className="flex gap-2">
-                  <a
-                    href={`mailto:${selectedEntry.email}`}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <Mail className="w-4 h-4" />
-                    Send Email
-                  </a>
-                  <button
-                    onClick={() => setSelectedEntry(null)}
-                    className="px-6 bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 rounded-lg transition-colors"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
+          {/* Actions - Fixed at bottom */}
+          <div className="flex-shrink-0 bg-zinc-900 border-t border-zinc-800 p-3">
+            <div className="flex gap-2">
+              <a
+                href={`mailto:${selectedEntry.email}`}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                Email
+              </a>
+              <button
+                onClick={() => setSelectedEntry(null)}
+                className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium py-2.5 rounded-lg transition-colors"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>

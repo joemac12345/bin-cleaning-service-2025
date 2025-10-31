@@ -44,11 +44,45 @@ const geistMono = Geist_Mono({
 // This appears in:
 // - Browser tab titles
 // - Google search results
-// - Social media shares
+// - Social media shares (Facebook, Twitter, LinkedIn)
 // - Bookmark titles
 export const metadata: Metadata = {
   title: "Bin Cleaning Service - Professional Wheelie Bin Cleaning",
   description: "Professional bin cleaning service. Get your wheelie bins, recycling bins, and garden waste bins cleaned professionally. Book online now!",
+  
+  // Open Graph tags for Facebook, LinkedIn, WhatsApp
+  openGraph: {
+    title: "Bin Cleaning Service - Professional Wheelie Bin Cleaning",
+    description: "Professional bin cleaning service. Get your wheelie bins cleaned professionally. Book online now!",
+    url: "https://yourdomain.com", // TODO: Replace with your actual domain
+    siteName: "Bin Cleaning Service",
+    type: "website",
+    locale: "en_GB",
+    images: [
+      {
+        url: "/social-preview.jpg", // TODO: Create this image (1200x630px)
+        width: 1200,
+        height: 630,
+        alt: "Professional Bin Cleaning Service",
+      },
+    ],
+  },
+  
+  // Twitter Card tags for X/Twitter
+  twitter: {
+    card: "summary_large_image",
+    title: "Bin Cleaning Service - Professional Wheelie Bin Cleaning",
+    description: "Professional bin cleaning service. Book online now!",
+    images: ["/social-preview.jpg"], // TODO: Create this image
+  },
+  
+  // Additional metadata
+  keywords: ["bin cleaning", "wheelie bin cleaning", "professional cleaning", "bin wash", "bin sanitization"],
+  authors: [{ name: "Bin Cleaning Service" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // Mobile Viewport Configuration

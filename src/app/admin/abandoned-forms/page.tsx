@@ -601,7 +601,14 @@ export default function AbandonedFormsPage() {
                 {selectedForm.contactHistory && selectedForm.contactHistory.length > 0 ? (
                   <div className="space-y-2">
                     {selectedForm.contactHistory.map((activity, index) => (
-                      <div key={index} className="bg-zinc-800 px-4 py-3 rounded-lg">
+                      <div 
+                        key={index} 
+                        className={`px-4 py-3 rounded-lg border-l-4 ${
+                          activity.type === 'email' 
+                            ? 'bg-blue-950/50 border-l-blue-500' 
+                            : 'bg-purple-950/50 border-l-purple-500'
+                        }`}
+                      >
                         <div className="flex items-start gap-3">
                           <div className={`mt-1 ${activity.type === 'email' ? 'text-blue-400' : 'text-purple-400'}`}>
                             {activity.type === 'email' ? <Mail className="w-4 h-4" /> : <Phone className="w-4 h-4" />}
@@ -624,8 +631,8 @@ export default function AbandonedFormsPage() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-xs text-zinc-400">{activity.details}</p>
-                            <p className="text-xs text-zinc-500 mt-1">
+                            <p className="text-xs text-zinc-300">{activity.details}</p>
+                            <p className="text-xs text-zinc-400 mt-1">
                               {new Date(activity.timestamp).toLocaleString('en-GB')}
                             </p>
                           </div>
@@ -641,37 +648,39 @@ export default function AbandonedFormsPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-2 pt-2">
-                {selectedForm.formData.email && (
-                  <button
-                    onClick={() => {
-                      setShowEmailModal(true);
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                    Send Email
-                  </button>
-                )}
-                
-                {selectedForm.formData.phone && (
-                  <button
-                    onClick={() => {
-                      setShowPhoneModal(true);
-                    }}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
-                  >
-                    <PhoneCall className="w-4 h-4" />
-                    Log Phone Call
-                  </button>
-                )}
+              <div className="pt-2">
+                <div className="flex gap-2">
+                  {selectedForm.formData.email && (
+                    <button
+                      onClick={() => {
+                        setShowEmailModal(true);
+                      }}
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      Email
+                    </button>
+                  )}
+                  
+                  {selectedForm.formData.phone && (
+                    <button
+                      onClick={() => {
+                        setShowPhoneModal(true);
+                      }}
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium py-2 rounded-lg flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <PhoneCall className="w-3.5 h-3.5" />
+                      Call
+                    </button>
+                  )}
 
-                <button
-                  onClick={() => setSelectedForm(null)}
-                  className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-3 rounded-lg transition-colors"
-                >
-                  Close
-                </button>
+                  <button
+                    onClick={() => setSelectedForm(null)}
+                    className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium py-2 rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
