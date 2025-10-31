@@ -562,25 +562,6 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
     <FormContainer fullWidthOnMobile={true} className="bg-transparent">
       <FormContent>
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-          {/* Progress Indicator - Corporate Flat Design */}
-          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 -mx-4 px-4 mb-6">
-            <div className="py-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-semibold text-gray-900">
-                  Step {currentStep} of 10
-                </span>
-                <span className="text-xs font-medium text-gray-500">{Math.round((currentStep / 10) * 100)}% Complete</span>
-              </div>
-              {/* Progress Bar - Flat Design */}
-              <div className="w-full h-1.5 bg-gray-200">
-                <div
-                  className="h-full bg-blue-600 transition-all duration-300 ease-out"
-                  style={{ width: `${(currentStep / 10) * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
           <div className="flex-1 space-y-6">
         {/* Step 1: Welcome - Corporate Professional Design */}
         {currentStep === 1 && (
@@ -604,7 +585,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       Information Required:
                     </h4>
                     
-                    <div className="border border-gray-200 p-4 bg-white">
+                    <div className="p-4 bg-gray-100">
                       <div className="flex items-start">
                         <CreditCard className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
                         <div>
@@ -614,7 +595,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       </div>
                     </div>
 
-                    <div className="border border-gray-200 p-4 bg-white">
+                    <div className="p-4 bg-gray-100">
                       <div className="flex items-start">
                         <User className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
                         <div>
@@ -624,7 +605,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       </div>
                     </div>
 
-                    <div className="border border-gray-200 p-4 bg-white">
+                    <div className="p-4 bg-gray-100">
                       <div className="flex items-start">
                         <Trash2 className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
                         <div>
@@ -634,7 +615,7 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       </div>
                     </div>
 
-                    <div className="border border-gray-200 p-4 bg-white">
+                    <div className="p-4 bg-gray-100">
                       <div className="flex items-start">
                         <Calendar className="w-5 h-5 text-blue-600 mr-3 mt-0.5 flex-shrink-0" />
                         <div>
@@ -644,10 +625,10 @@ export default function BookingForm({ postcode, onBack }: BookingFormProps) {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 border border-blue-200 p-4 mt-4">
+                    <div className="bg-gray-900 p-4 mt-4">
                       <div className="flex items-center">
-                        <Clock className="w-5 h-5 mr-3 text-blue-600 flex-shrink-0" />
-                        <p className="text-sm text-gray-900"><span className="font-semibold">2-3 minutes</span> to complete · Instant quote provided</p>
+                        <Clock className="w-5 h-5 mr-3 text-white flex-shrink-0" />
+                        <p className="text-sm text-white"><span className="font-semibold">2-3 minutes</span> to complete · Instant quote provided</p>
                       </div>
                     </div>
                   </div>

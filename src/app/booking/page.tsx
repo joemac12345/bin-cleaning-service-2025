@@ -33,27 +33,14 @@ function BookingContent() {
   return (
     <>
       <TopNavigation />
-      <div className="min-h-screen relative flex items-center justify-center px-2 sm:px-4">
-      {/* Background Image - same as postcode page */}
-      <div 
-        className="absolute inset-0 bg-repeat"
-        style={{
-          backgroundImage: "url('/Backround grey.png')",
-          backgroundSize: "300px 300px",
-        }}
-      />
-      
-      {/* Wallpaper Opacity Overlay */}
-      <div className="absolute inset-0 bg-white/60" />
-      
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-4xl my-4 sm:my-8 flex flex-col items-center">
-
-        <BookingForm 
-          postcode={postcode}
-          onBack={handleBack}
-        />
-      </div>
+      <div className="min-h-screen bg-white">
+        {/* Content */}
+        <div className="w-full max-w-3xl mx-auto px-4 py-8">
+          <BookingForm 
+            postcode={postcode}
+            onBack={handleBack}
+          />
+        </div>
       </div>
     </>
   );
