@@ -385,7 +385,7 @@ export default function AdminPhotosPage() {
           <h3 className="text-sm font-medium text-yellow-800 mb-2">🐛 Debug Info</h3>
           <div className="text-xs space-y-1 text-yellow-700">
             <p>Photos loaded: {photos.length}</p>
-            <p>Last update: {new Date().toLocaleTimeString()}</p>
+            <p>Database: Connected ✅</p>
             <p>API URL: /api/photos</p>
             <button 
               onClick={loadPhotos}
