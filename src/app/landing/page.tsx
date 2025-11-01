@@ -29,26 +29,8 @@ export default function LandingPage() {
   const router = useRouter();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  // Fallback images (in case no database photos are available)
-  const fallbackImages = [
-    {
-      src: '/wallpaper.jpg',
-      alt: 'Professional bin cleaning service in action',
-      caption: 'Professional deep cleaning for all bin types'
-    },
-    {
-      src: '/bin123.png',
-      alt: 'Clean and sanitized wheelie bin',
-      caption: 'Before and after - spotless results'
-    },
-    {
-      src: '/123.png',
-      alt: 'Eco-friendly cleaning process',
-      caption: 'Eco-friendly sanitizers and hot water treatment'
-    }
-  ];
-
-  const [modalImages, setModalImages] = useState<any[]>(fallbackImages); // Start with fallback images
+  // No fallback images - use empty array to show proper empty state
+  const [modalImages, setModalImages] = useState<any[]>([]); // Start with empty array
 
   const openGallery = (index: number) => {
     console.log('🎬 Opening gallery at index:', index);
@@ -65,17 +47,16 @@ export default function LandingPage() {
       console.log('✅ Using database photos for modal');
       setModalImages(photos);
     } else {
-      console.log('⚠️ No database photos, using fallback images');
-      setModalImages(fallbackImages);
+      console.log('⚠️ No database photos, modal will remain empty');
+      setModalImages([]);
     }
   };
 
-  // Fallback safety - ensure we always have images after 3 seconds
+  // Safety check - log if no photos after 3 seconds
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (modalImages.length === 0) {
-        console.log('⏰ Timeout: No photos received, using fallback images');
-        setModalImages(fallbackImages);
+        console.log('⏰ Timeout: No photos received from database - showing empty state');
       }
     }, 3000);
 
