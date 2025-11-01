@@ -35,6 +35,7 @@ export default function AdminPhotosPage() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [newPhoto, setNewPhoto] = useState({
     caption: '',
     type: 'before' as 'before' | 'after' | 'process',
@@ -74,17 +75,34 @@ export default function AdminPhotosPage() {
   };
 
   const handleFileSelect = (files: FileList | null, source: 'upload' | 'camera') => {
-    if (!files) return;
+    if (!files || files.length === 0) {
+      setSelectedFiles(null);
+      setPreviewImage(null);
+      return;
+    }
+    
     setSelectedFiles(files);
     
-    // Show preview
-    if (files[0]) {
+    // Create preview image
+    const file = files[0];
+    if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        // You can add preview logic here if needed
+        if (e.target?.result) {
+          setPreviewImage(e.target.result as string);
+        }
       };
-      reader.readAsDataURL(files[0]);
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
     }
+  };
+
+  const clearPreview = () => {
+    setSelectedFiles(null);
+    setPreviewImage(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
   const uploadPhoto = async () => {
@@ -130,8 +148,8 @@ export default function AdminPhotosPage() {
         // Add the new photo to the beginning of the list
         setPhotos(prev => [result.photo, ...prev]);
         
-        // Reset form
-        setSelectedFiles(null);
+        // Reset form and clear preview
+        clearPreview();
         setNewPhoto({
           caption: '',
           type: 'before',
@@ -139,9 +157,6 @@ export default function AdminPhotosPage() {
           location: '',
           isPublic: true
         });
-        
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        if (cameraInputRef.current) cameraInputRef.current.value = '';
         
         // Reload photos to ensure sync with database
         loadPhotos();
@@ -253,6 +268,32 @@ export default function AdminPhotosPage() {
             onChange={(e) => handleFileSelect(e.target.files, 'upload')}
             className="hidden"
           />
+
+          {/* Photo Preview */}
+          {previewImage && (
+            <div className="mb-6 p-4 border border-gray-200 rounded-xl bg-gray-50">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-lg font-medium text-gray-900">📷 Photo Preview</h3>
+                <button
+                  onClick={clearPreview}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium"
+                >
+                  ✕ Remove
+                </button>
+              </div>
+              <div className="relative">
+                <img
+                  src={previewImage}
+                  alt="Photo preview"
+                  className="w-full max-w-md mx-auto rounded-lg shadow-md object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+                <div className="mt-2 text-xs text-gray-500 text-center">
+                  {selectedFiles?.[0]?.name} ({((selectedFiles?.[0]?.size || 0) / 1024 / 1024).toFixed(1)} MB)
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Photo Details Form */}
           {selectedFiles && (
