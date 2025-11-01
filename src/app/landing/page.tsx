@@ -1,3 +1,18 @@
+/**
+ * LANDING PAGE - Bin Cleaning Service
+ * 
+ * A comprehensive marketing landing page featuring:
+ * - Hero section with CTA
+ * - Image gallery with modal viewer (6 story-style cards)  
+ * - Why Choose Us carousel (3 features)
+ * - How It Works carousel (4 steps)
+ * - Pricing grid (4 bin types)
+ * - Service areas and footer
+ * 
+ * Design: TikTok-inspired with carousels, #3B4044 brand color
+ * Mobile-first responsive design with swipe functionality
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -6,6 +21,9 @@ import { Trash2, Sparkles, Clock, MapPin, CheckCircle, Phone, Mail, ArrowRight }
 import TopNavigation from '@/components/TopNavigation';
 import ImageCarousel from '@/components/ImageCarousel';
 import ImageGalleryModal from '@/components/ImageGalleryModal';
+import { SeeOurWorkSection } from '@/components/Stories';
+import ServicesCarousel from '@/components/ServicesCarousel';
+import SocialMediaCarousel from '@/components/SocialMediaCarousel';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -73,173 +91,85 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
           
           {/* Content */}
-          <div className="relative px-4 py-16 max-w-6xl mx-auto">
-            <div className="text-center max-w-3xl mx-auto">
+          <div className="relative px-4 py-12 max-w-5xl mx-auto">
+            <div className="text-left max-w-2xl">
               {/* Icon */}
-              <div className="w-20 h-20 bg-white mx-auto mb-6 flex items-center justify-center">
-                <Trash2 className="w-12 h-12 text-[#3B4044]" strokeWidth={2.5} />
+              <div className="w-16 h-16 bg-white mb-4 flex items-center justify-center rounded-lg">
+                <Sparkles className="w-10 h-10 text-[#3B4044]" strokeWidth={2.5} />
               </div>
               
               {/* Headline */}
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-md">
-                Professional Bin Cleaning Service
+              <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-md">
+                Welcome to TheBinGy 👋
               </h1>
-              <p className="text-lg md:text-xl text-white/90 mb-8 drop-shadow-sm">
-                Keep your bins fresh, clean, and odor-free with our eco-friendly cleaning service
+              <p className="text-xl md:text-2xl text-white/95 mb-4 drop-shadow-sm font-medium">
+                Your Local Bin Cleaning Experts
+              </p>
+              <p className="text-base md:text-lg text-white/85 mb-6 drop-shadow-sm leading-relaxed">
+                We make your wheelie bins spotless, fresh, and hygienic! Professional cleaning service for homes and businesses across the UK. Say goodbye to smelly, dirty bins forever.
               </p>
               
               {/* CTA Button */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => router.push('/')}
+                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-base px-6 py-3 rounded-lg transition-colors shadow-lg"
+                >
+                  Get Started Today
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => router.push('/booking')}
+                  className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-white hover:bg-white hover:text-[#3B4044] text-white font-bold text-base px-6 py-3 rounded-lg transition-all shadow-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Book Bin Cleaning
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Services Carousel */}
+        <ServicesCarousel />
+
+        {/* CTA Section */}
+        <div className="px-4 py-16 max-w-6xl mx-auto">
+          <div className="bg-[#3B4044] p-8 md:p-12 text-center relative overflow-hidden">
+            {/* Background */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-10"
+              style={{ backgroundImage: 'url(/wallpaper.jpg)' }}
+            />
+            
+            {/* Content */}
+            <div className="relative">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Check Your Availability 📍
+              </h2>
+              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+                See if our professional bin cleaning services run in your area. Join thousands of satisfied customers already enjoying fresh, clean bins every week.
+              </p>
               <button
                 onClick={() => router.push('/')}
-                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-lg px-8 py-4 transition-colors shadow-lg"
+                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-lg px-8 py-4 transition-colors shadow-lg rounded-lg"
               >
+                <MapPin className="w-5 h-5" />
                 Check Your Postcode
                 <ArrowRight className="w-5 h-5" />
               </button>
+              <p className="text-sm text-white/70 mt-4">
+                Enter your postcode to see available services and pricing in your area
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Image Carousel Section */}
-        <div className="py-16">
-          <div className="max-w-6xl mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              See Our Work
-            </h2>
-            <p className="text-sm md:text-base text-gray-600 mb-6">
-              Check out real results from our professional bin cleaning service
-            </p>
-            
-            {/* Horizontal Swipe Carousel */}
-            <div className="relative -mx-4">
-              <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 px-4">
-                {/* Story Card 1 */}
-                <button
-                  onClick={() => openGallery(0)}
-                  className="flex-none w-[160px] snap-start cursor-pointer"
-                >
-                  <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img
-                      src="/wallpaper.jpg"
-                      alt="Professional bin cleaning service in action"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                      <p className="text-xs font-medium leading-tight">Professional deep cleaning</p>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Story Card 2 */}
-                <button
-                  onClick={() => openGallery(1)}
-                  className="flex-none w-[160px] snap-start cursor-pointer"
-                >
-                  <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img
-                      src="/bin123.png"
-                      alt="Clean and sanitized wheelie bin"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                      <p className="text-xs font-medium leading-tight">Before and after results</p>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Story Card 3 */}
-                <button
-                  onClick={() => openGallery(2)}
-                  className="flex-none w-[160px] snap-start cursor-pointer"
-                >
-                  <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img
-                      src="/123.png"
-                      alt="Eco-friendly cleaning process"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                      <p className="text-xs font-medium leading-tight">Eco-friendly treatment</p>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Story Card 4 */}
-                <button
-                  onClick={() => openGallery(3)}
-                  className="flex-none w-[160px] snap-start cursor-pointer"
-                >
-                  <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img
-                      src="/wallpaper.jpg"
-                      alt="Residential bin cleaning service"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                      <p className="text-xs font-medium leading-tight">Residential service</p>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Story Card 5 */}
-                <button
-                  onClick={() => openGallery(4)}
-                  className="flex-none w-[160px] snap-start cursor-pointer"
-                >
-                  <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img
-                      src="/bin123.png"
-                      alt="Multiple bin cleaning"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                      <p className="text-xs font-medium leading-tight">All bin types</p>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Story Card 6 */}
-                <button
-                  onClick={() => openGallery(5)}
-                  className="flex-none w-[160px] snap-start cursor-pointer"
-                >
-                  <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img
-                      src="/123.png"
-                      alt="Fast and efficient service"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-2">
-                      <p className="text-xs font-medium leading-tight">Same-day service</p>
-                    </div>
-                  </div>
-                </button>
-              </div>
-
-              {/* Scroll Indicator */}
-              <div className="flex gap-2 mt-6 px-4">
-                <div className="w-2 h-2 bg-[#3B4044]"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-              </div>
-            </div>
-
-            {/* Swipe Hint - Mobile Only */}
-            <p className="text-sm text-gray-500 mt-4 md:hidden">
-              ← Swipe to see all photos
-            </p>
-          </div>
-        </div>
-
-        <style jsx>{`
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-          }
-        `}</style>
+        {/* See Our Work Section */}
+        <SeeOurWorkSection 
+          galleryImages={galleryImages}
+          onOpenGallery={openGallery}
+        />
 
         {/* Features Section - Carousel */}
         <div className="py-16">
@@ -467,6 +397,9 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* Social Media Carousel */}
+        <SocialMediaCarousel />
+
         {/* Service Areas */}
         <div className="bg-gray-50 px-4 py-16">
           <div className="max-w-6xl mx-auto text-center">
@@ -484,34 +417,6 @@ export default function LandingPage() {
               Check Your Postcode
               <ArrowRight className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="px-4 py-16 max-w-6xl mx-auto">
-          <div className="bg-[#3B4044] p-8 md:p-12 text-center relative overflow-hidden">
-            {/* Background */}
-            <div 
-              className="absolute inset-0 bg-cover bg-center opacity-10"
-              style={{ backgroundImage: 'url(/wallpaper.jpg)' }}
-            />
-            
-            {/* Content */}
-            <div className="relative">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Ready for Cleaner Bins?
-              </h2>
-              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-                Join thousands of satisfied customers enjoying fresh, clean bins every week
-              </p>
-              <button
-                onClick={() => router.push('/')}
-                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-lg px-8 py-4 transition-colors shadow-lg"
-              >
-                Book Your First Clean
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
           </div>
         </div>
 
