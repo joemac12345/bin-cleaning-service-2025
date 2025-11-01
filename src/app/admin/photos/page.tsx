@@ -380,22 +380,6 @@ export default function AdminPhotosPage() {
           )}
         </div>
 
-        {/* Debug Info */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
-          <h3 className="text-sm font-medium text-yellow-800 mb-2">🐛 Debug Info</h3>
-          <div className="text-xs space-y-1 text-yellow-700">
-            <p>Photos loaded: {photos.length}</p>
-            <p>Database: Connected ✅</p>
-            <p>API URL: /api/photos</p>
-            <button 
-              onClick={loadPhotos}
-              className="mt-2 px-3 py-1 bg-yellow-200 hover:bg-yellow-300 rounded text-yellow-800 text-xs"
-            >
-              🔄 Force Reload Photos
-            </button>
-          </div>
-        </div>
-
         {/* Photos Gallery */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">
