@@ -123,22 +123,10 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
     <div className="py-16">
       <div className="max-w-6xl mx-auto px-4">
         {/* Section Header */}
-        <div className="flex justify-between items-start mb-2">
+        <div className="mb-2">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
             From Disgusting to Spotless! 🤢➡️✨
           </h2>
-          {!galleryImages && (
-            <button
-              onClick={() => {
-                console.log('🔘 Manual refresh clicked');
-                loadPhotosFromDB();
-              }}
-              className="text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded transition-colors"
-              disabled={isLoading}
-            >
-              {isLoading ? '🔄' : '↻'} Refresh
-            </button>
-          )}
         </div>
         <p className="text-sm md:text-base text-gray-600 mb-6">
           Real transformations from customers just like you. These bins went from health hazards to hygienically clean in just one visit. Tap any photo to see the full before & after story!
