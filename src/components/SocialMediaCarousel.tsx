@@ -5,7 +5,7 @@
  * - Instagram, Facebook, TikTok, Twitter/X
  * - Follow buttons and engagement stats
  * - Mobile-responsive with snap scrolling
- * - Matches TheBinGy brand design
+ * - Matches TheBinGuy brand design
  * 
  * Design: TikTok-inspired carousel with social cards
  */
@@ -32,53 +32,53 @@ const socialPlatforms: SocialPlatform[] = [
   {
     id: 'instagram',
     name: 'Instagram',
-    handle: '@thebingy',
+    handle: '@thebinguy',
     description: 'See amazing before & after bin transformations, behind-the-scenes cleaning action, and customer success stories!',
     icon: <Instagram className="w-8 h-8" />,
     color: '#E4405F',
     bgColor: 'bg-gradient-to-br from-purple-400 via-pink-500 to-red-500',
     followers: '2.5K+',
     engagement: '1.2K',
-    url: 'https://instagram.com/thebingy',
+    url: 'https://instagram.com/thebinguy',
     callToAction: 'Follow for Before & After'
   },
   {
     id: 'facebook',
     name: 'Facebook',
-    handle: '@TheBinGyUK',
+    handle: '@TheBinGuyUK',
     description: 'Join our community for cleaning tips, customer reviews, local service updates, and exclusive offers for your area!',
     icon: <Facebook className="w-8 h-8" />,
     color: '#1877F2',
     bgColor: 'bg-gradient-to-br from-blue-500 to-blue-600',
     followers: '1.8K+',
     engagement: '850',
-    url: 'https://facebook.com/thebingyuk',
+    url: 'https://facebook.com/thebinguyuk',
     callToAction: 'Like for Local Updates'
   },
   {
     id: 'tiktok',
     name: 'TikTok',
-    handle: '@thebingy_uk',
+    handle: '@thebinguy_uk',
     description: 'Watch satisfying cleaning videos, quick bin maintenance tips, and fun cleaning hacks that go viral!',
     icon: <MessageCircle className="w-8 h-8" />,
     color: '#000000',
     bgColor: 'bg-gradient-to-br from-gray-800 via-gray-900 to-black',
     followers: '5.2K+',
     engagement: '3.1K',
-    url: 'https://tiktok.com/@thebingy_uk',
+    url: 'https://tiktok.com/@thebinguy_uk',
     callToAction: 'Follow for Satisfying Videos'
   },
   {
     id: 'twitter',
     name: 'Twitter/X',
-    handle: '@TheBinGy',
+    handle: '@TheBinGuy',
     description: 'Get real-time service updates, cleaning industry news, quick tips, and connect with our team directly!',
     icon: <Twitter className="w-8 h-8" />,
     color: '#1DA1F2',
     bgColor: 'bg-gradient-to-br from-blue-400 to-blue-500',
     followers: '920+',
     engagement: '450',
-    url: 'https://twitter.com/thebingy',
+    url: 'https://twitter.com/thebinguy',
     callToAction: 'Follow for Updates'
   }
 ];
@@ -161,20 +161,7 @@ export default function SocialMediaCarousel() {
               </div>
             ))}
           </div>
-
-          {/* Scroll Indicators */}
-          <div className="flex gap-2 mt-6 px-4">
-            <div className="w-2 h-2 bg-[#3B4044] rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-          </div>
         </div>
-
-        {/* Swipe Hint - Mobile Only */}
-        <p className="text-sm text-gray-500 mt-4 md:hidden text-left">
-          ← Swipe to see all platforms
-        </p>
       </div>
 
       {/* Scrollbar Hide Styles */}

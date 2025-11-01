@@ -23,6 +23,14 @@ export default function ImageGalleryModal({
 }: ImageGalleryModalProps) {
   const router = useRouter();
 
+  // Debug logging
+  console.log('🖼️ ImageGalleryModal render:', {
+    isOpen,
+    imagesCount: images.length,
+    initialIndex,
+    images: images
+  });
+
   // Close on escape key and prevent body scroll
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

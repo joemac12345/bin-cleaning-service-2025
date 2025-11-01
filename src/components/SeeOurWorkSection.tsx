@@ -69,11 +69,6 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery }: SeeO
             <div className="w-2 h-2 bg-gray-300"></div>
           </div>
         </div>
-
-        {/* Swipe Hint - Mobile Only */}
-        <p className="text-sm text-gray-500 mt-4 md:hidden">
-          ← Swipe to see all photos
-        </p>
       </div>
 
       {/* Scrollbar Hide Styles */}

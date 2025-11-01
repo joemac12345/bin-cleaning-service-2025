@@ -108,10 +108,10 @@ export default function ServicesCarousel() {
       <div className="max-w-6xl mx-auto px-4">
         {/* Section Header */}
         <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 text-left">
-          Our Services
+          What we can offer
         </h2>
         <p className="text-sm md:text-base text-gray-600 mb-4 text-left">
-          Professional cleaning services for your home and business
+          Professional cleaning services for your home business
         </p>
         
         {/* Expandable Description */}
@@ -221,19 +221,7 @@ export default function ServicesCarousel() {
               </div>
             ))}
           </div>
-
-          {/* Scroll Indicators */}
-          <div className="flex gap-2 mt-6 px-4">
-            <div className="w-2 h-2 bg-[#3B4044] rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-            <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-          </div>
         </div>
-
-        {/* Swipe Hint - Mobile Only */}
-        <p className="text-sm text-gray-500 mt-4 md:hidden text-left">
-          ← Swipe to see all services
-        </p>
       </div>
 
       {/* Scrollbar Hide Styles */}

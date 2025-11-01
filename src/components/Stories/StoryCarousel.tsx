@@ -36,16 +36,6 @@ export default function StoryCarousel({ children, itemCount }: StoryCarouselProp
         {children}
       </div>
 
-      {/* Scroll Indicators */}
-      <div className="flex gap-2 mt-6 px-4 justify-center md:justify-start">
-        {indicators}
-      </div>
-
-      {/* Swipe Hint - Mobile Only */}
-      <p className="text-sm text-gray-500 mt-4 md:hidden text-center">
-        ← Swipe to see all photos
-      </p>
-
       {/* Scrollbar Hide Styles */}
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {

@@ -11,7 +11,8 @@ import {
   Users, 
   BarChart3,
   MapPin,
-  ChevronRight
+  ChevronRight,
+  Camera
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -33,6 +34,12 @@ const navigationItems: NavigationItem[] = [
     href: '/admin/bookings',
     icon: Package,
     description: 'Manage customer bookings'
+  },
+  {
+    name: 'Photo Gallery',
+    href: '/admin/photos',
+    icon: Camera,
+    description: 'Upload and manage work photos'
   },
   {
     name: 'Abandoned Forms',

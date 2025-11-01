@@ -15,7 +15,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Sparkles, Clock, MapPin, CheckCircle, Phone, Mail, ArrowRight } from 'lucide-react';
 import TopNavigation from '@/components/TopNavigation';
@@ -29,8 +29,8 @@ export default function LandingPage() {
   const router = useRouter();
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-
-  const galleryImages = [
+  // Fallback images (in case no database photos are available)
+  const fallbackImages = [
     {
       src: '/wallpaper.jpg',
       alt: 'Professional bin cleaning service in action',
@@ -45,28 +45,42 @@ export default function LandingPage() {
       src: '/123.png',
       alt: 'Eco-friendly cleaning process',
       caption: 'Eco-friendly sanitizers and hot water treatment'
-    },
-    {
-      src: '/wallpaper.jpg',
-      alt: 'Residential bin cleaning service',
-      caption: 'Serving homes across the UK'
-    },
-    {
-      src: '/bin123.png',
-      alt: 'Multiple bin cleaning',
-      caption: 'We handle all types of waste bins'
-    },
-    {
-      src: '/123.png',
-      alt: 'Fast and efficient service',
-      caption: 'Same-day collection service available'
     }
   ];
 
+  const [modalImages, setModalImages] = useState<any[]>(fallbackImages); // Start with fallback images
+
   const openGallery = (index: number) => {
+    console.log('🎬 Opening gallery at index:', index);
+    console.log('📷 Current modalImages:', modalImages);
     setSelectedImageIndex(index);
     setIsGalleryOpen(true);
   };
+
+  // Callback to receive photos from SeeOurWorkSection
+  const handlePhotosLoaded = (photos: any[]) => {
+    console.log('📸 Landing page received photos for modal:', photos);
+    console.log('📊 Photos count:', photos.length);
+    if (photos.length > 0) {
+      console.log('✅ Using database photos for modal');
+      setModalImages(photos);
+    } else {
+      console.log('⚠️ No database photos, using fallback images');
+      setModalImages(fallbackImages);
+    }
+  };
+
+  // Fallback safety - ensure we always have images after 3 seconds
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (modalImages.length === 0) {
+        console.log('⏰ Timeout: No photos received, using fallback images');
+        setModalImages(fallbackImages);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <>
@@ -76,7 +90,7 @@ export default function LandingPage() {
       <ImageGalleryModal
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
-        images={galleryImages}
+        images={modalImages}
         initialIndex={selectedImageIndex}
       />
       
@@ -100,7 +114,7 @@ export default function LandingPage() {
               
               {/* Headline */}
               <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-md">
-                Welcome to TheBinGy 👋
+                Welcome to TheBinGuy
               </h1>
               <p className="text-xl md:text-2xl text-white/95 mb-4 drop-shadow-sm font-medium">
                 Your Local Bin Cleaning Experts
@@ -115,13 +129,6 @@ export default function LandingPage() {
                   onClick={() => router.push('/')}
                   className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-base px-6 py-3 rounded-lg transition-colors shadow-lg"
                 >
-                  Get Started Today
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => router.push('/booking')}
-                  className="inline-flex items-center justify-center gap-2 bg-transparent border-2 border-white hover:bg-white hover:text-[#3B4044] text-white font-bold text-base px-6 py-3 rounded-lg transition-all shadow-lg"
-                >
                   <Trash2 className="w-4 h-4" />
                   Book Bin Cleaning
                 </button>
@@ -135,7 +142,7 @@ export default function LandingPage() {
 
         {/* CTA Section */}
         <div className="px-4 py-16 max-w-6xl mx-auto">
-          <div className="bg-[#3B4044] p-8 md:p-12 text-center relative overflow-hidden">
+          <div className="bg-[#3B4044] p-8 md:p-12 text-left relative overflow-hidden">
             {/* Background */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -145,10 +152,10 @@ export default function LandingPage() {
             {/* Content */}
             <div className="relative">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Check Your Availability 📍
+                Before You Keep Scrolling... 📍
               </h2>
-              <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-                See if our professional bin cleaning services run in your area. Join thousands of satisfied customers already enjoying fresh, clean bins every week.
+              <p className="text-lg text-white/90 mb-8 max-w-2xl">
+                We don't want to disappoint you! Please check your service area first - we don't service the whole UK yet. Make sure we're available in your postcode before getting excited about our services.
               </p>
               <button
                 onClick={() => router.push('/')}
@@ -165,10 +172,10 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* See Our Work Section */}
+        {/* See Our Work Section - Loads photos from database */}
         <SeeOurWorkSection 
-          galleryImages={galleryImages}
           onOpenGallery={openGallery}
+          onPhotosLoaded={handlePhotosLoaded}
         />
 
         {/* Features Section - Carousel */}
@@ -232,19 +239,7 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Scroll Indicator */}
-              <div className="flex gap-2 mt-6 px-4">
-                <div className="w-2 h-2 bg-[#3B4044]"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-              </div>
             </div>
-
-            {/* Swipe Hint - Mobile Only */}
-            <p className="text-sm text-gray-500 mt-4 md:hidden">
-              ← Swipe to see all features
-            </p>
           </div>
         </div>
 
@@ -318,20 +313,8 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Scroll Indicator */}
-              <div className="flex gap-2 mt-6 px-4">
-                <div className="w-2 h-2 bg-[#3B4044]"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-                <div className="w-2 h-2 bg-gray-300"></div>
-              </div>
             </div>
 
-            {/* Swipe Hint - Mobile Only */}
-            <p className="text-sm text-gray-500 mt-4 md:hidden">
-              ← Swipe to see all steps
-            </p>
           </div>
         </div>
 

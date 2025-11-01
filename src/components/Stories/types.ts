@@ -21,6 +21,8 @@ export interface StoryGalleryProps {
   galleryImages: GalleryImage[];
   /** Function to open gallery modal at specific index */
   onOpenGallery: (index: number) => void;
+  /** Callback function to send loaded photos to parent component */
+  onPhotosLoaded?: (photos: GalleryImage[]) => void;
 }
 
 export interface StoryCardData {

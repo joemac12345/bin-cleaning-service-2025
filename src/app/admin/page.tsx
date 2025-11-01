@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { Package, MapPin, Calendar, Users, UserX, Clock, Mail, Phone } from 'lucide-react';
+import { Package, MapPin, Calendar, Users, UserX, Clock, Mail, Phone, Camera } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Bin Cleaning',
@@ -60,6 +60,29 @@ export default function AdminPage() {
               </p>
               <div className="inline-flex items-center text-sm text-green-400 font-medium">
                 <span>Manage postcodes</span>
+                <span className="ml-1">→</span>
+              </div>
+            </div>
+          </Link>
+
+          {/* Photo Gallery */}
+          <Link href="/admin/photos" className="group">
+            <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-4 hover:border-purple-500 transition-all active:scale-95">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                  <Camera className="w-5 h-5 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-semibold text-white">
+                    Photo Gallery
+                  </h3>
+                </div>
+              </div>
+              <p className="text-sm text-zinc-400 mb-3">
+                Upload before & after photos for website gallery
+              </p>
+              <div className="inline-flex items-center text-sm text-purple-400 font-medium">
+                <span>Manage photos</span>
                 <span className="ml-1">→</span>
               </div>
             </div>

@@ -29,7 +29,7 @@ export default function Logo({ size = 'medium', clickable = false, className = '
       className={`font-bold tracking-wide ${sizeClasses[size]} ${clickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''} ${className}`}
     >
       <span className="text-white">The</span>
-      <span className="text-blue-500">bingy</span>
+      <span className="text-blue-500">binguy</span>
     </div>
   );
 }

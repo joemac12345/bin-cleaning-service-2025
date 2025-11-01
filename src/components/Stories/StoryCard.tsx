@@ -30,7 +30,7 @@ export default function StoryCard({ src, alt, caption, index, onClick }: StoryCa
       onClick={() => onClick(index)}
       className="flex-none w-[160px] snap-start cursor-pointer group"
     >
-      <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02]">
+      <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] rounded-2xl">
         <img
           src={src}
           alt={alt}
