@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Only allow YouTube videos
+    // Only allow YouTube videos (including Shorts)
     if (platform !== 'youtube' && !(url.includes('youtube.com') || url.includes('youtu.be'))) {
       console.log('Non-YouTube video rejected:', { url, platform });
       return NextResponse.json({ 

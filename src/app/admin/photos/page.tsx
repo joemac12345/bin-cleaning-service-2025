@@ -132,7 +132,7 @@ export default function AdminPhotosPage() {
   const processSocialMediaUrl = (url: string) => {
     const trimmedUrl = url.trim();
     
-    // Only allow YouTube videos
+    // Only allow YouTube videos (including Shorts)
     if (trimmedUrl.includes('youtube.com') || trimmedUrl.includes('youtu.be')) {
       const videoId = extractYouTubeId(trimmedUrl);
       return {
@@ -162,8 +162,13 @@ export default function AdminPhotosPage() {
   };
 
   const extractYouTubeId = (url: string) => {
+    // Handle YouTube Shorts URLs
+    let match = url.match(/\/shorts\/([a-zA-Z0-9_-]{11})/);
+    if (match) return match[1];
+    
+    // Handle regular YouTube URLs (watch, youtu.be, embed)
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
+    match = url.match(regExp);
     return (match && match[7].length === 11) ? match[7] : null;
   };
 
