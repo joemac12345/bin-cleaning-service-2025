@@ -14,6 +14,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { MapPin, ArrowRight } from 'lucide-react';
 import StoryCard from './StoryCard';
 import StoryCarousel from './StoryCarousel';
 import { getShortCaption } from './utils';
@@ -34,6 +36,7 @@ interface DatabasePhoto {
 export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhotosLoaded }: Partial<StoryGalleryProps>) {
   const [dbPhotos, setDbPhotos] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   // Load photos from database if no galleryImages provided
   useEffect(() => {
@@ -86,7 +89,8 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
         const convertedPhotos: GalleryImage[] = publicPhotos.map((photo: DatabasePhoto) => ({
           src: photo.url,
           alt: `${photo.type} cleaning photo${photo.customer_name ? ` for ${photo.customer_name}` : ''}`,
-          caption: photo.caption + (photo.location ? ` - ${photo.location}` : '')
+          caption: photo.caption,
+          postcode: photo.location // Extract postcode from location field
         }));
         
         console.log('✅ Converted photos for display:', convertedPhotos);
@@ -151,6 +155,7 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
                 caption={getShortCaption(image.caption)}
                 index={index}
                 onClick={handleOpenGallery}
+                postcode={image.postcode}
               />
             ))}
           </StoryCarousel>
@@ -158,9 +163,23 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
         
         {/* Photo Count */}
         {!isLoading && photosToDisplay.length > 0 && (
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs text-gray-500 mb-6">
             Showing {photosToDisplay.length} customer transformation{photosToDisplay.length !== 1 ? 's' : ''}
           </p>
+        )}
+        
+        {/* Postcode Checker Button */}
+        {!isLoading && photosToDisplay.length > 0 && (
+          <div className="flex justify-start mt-8">
+            <button
+              onClick={() => router.push('/postcode')}
+              className="group bg-[#3B4044] hover:bg-[#2a2d30] text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
+            >
+              <MapPin className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span>Check If We Service Your Area</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         )}
         
         {/* Empty State */}

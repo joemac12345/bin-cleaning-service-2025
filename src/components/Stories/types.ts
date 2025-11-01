@@ -14,6 +14,8 @@ export interface GalleryImage {
   alt: string;
   /** Full caption for modal, short caption derived from this */
   caption: string;
+  /** Optional postcode for location tag */
+  postcode?: string;
 }
 
 export interface StoryGalleryProps {
