@@ -11,6 +11,10 @@ interface ImageGalleryModalProps {
     src: string;
     alt: string;
     caption?: string;
+    type?: 'image' | 'video';
+    thumbnail?: string;
+    platform?: string;
+    videoId?: string;
   }[];
   initialIndex?: number;
 }
@@ -80,30 +84,62 @@ export default function ImageGalleryModal({
       {/* Scrollable Image Container */}
       <div className="overflow-y-auto h-[calc(100vh-73px)] pb-32">
         <div className="max-w-4xl mx-auto px-4 space-y-6 pt-6">
-          {images.map((image, index) => (
-            <div
-              key={index}
-              id={`gallery-image-${index}`}
-              className="bg-gray-900 shadow-2xl overflow-hidden relative"
-            >
-              <img
-                src={image.src}
-                alt={image.alt}
-                className="w-full h-auto object-contain max-h-[80vh]"
-              />
+          {images.map((image, index) => {
+            const isVideo = image.type === 'video';
+            const isEmbedVideo = isVideo && (image.src.includes('/embed') || image.src.includes('youtube.com/embed') || image.src.includes('tiktok.com/embed'));
+            
+            return (
+              <div
+                key={index}
+                id={`gallery-image-${index}`}
+                className="bg-gray-900 shadow-2xl overflow-hidden relative"
+              >
+                {isVideo ? (
+                  isEmbedVideo ? (
+                    // Embedded social media video
+                    <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+                      <iframe
+                        src={image.src}
+                        title={image.alt}
+                        className="w-full h-full"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : (
+                    // Direct video file
+                    <video
+                      src={image.src}
+                      poster={image.thumbnail}
+                      controls
+                      className="w-full h-auto object-contain max-h-[80vh]"
+                      preload="metadata"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  )
+                ) : (
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-auto object-contain max-h-[80vh]"
+                  />
+                )}
 
-              {image.caption && (
-                <div className="bg-gradient-to-t from-black/80 to-transparent p-4">
-                  <p className="text-white text-base md:text-lg font-medium">
-                    {image.caption}
-                  </p>
-                  <p className="text-white/60 text-sm mt-1">
-                    Image {index + 1} of {images.length}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+                {image.caption && (
+                  <div className="bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <p className="text-white text-base md:text-lg font-medium">
+                      {image.caption}
+                    </p>
+                    <p className="text-white/60 text-sm mt-1">
+                      {isVideo ? 'Video' : 'Image'} {index + 1} of {images.length}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

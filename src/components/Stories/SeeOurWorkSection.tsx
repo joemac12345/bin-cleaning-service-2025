@@ -32,6 +32,8 @@ interface DatabasePhoto {
   created_at: string; // Database field name
   is_public: boolean; // Database uses snake_case
   media_type?: 'image' | 'video'; // Database field for media type
+  platform?: string; // Social media platform (youtube, tiktok, instagram, facebook)
+  video_id?: string; // Platform-specific video ID
 }
 
 export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhotosLoaded }: Partial<StoryGalleryProps>) {
@@ -87,14 +89,58 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
         console.log('📋 Public photos:', publicPhotos);
         
         // Convert database photos to GalleryImage format
-        const convertedPhotos: GalleryImage[] = publicPhotos.map((photo: DatabasePhoto) => ({
-          src: photo.url,
-          alt: `${photo.type} cleaning ${photo.media_type || 'photo'}${photo.customer_name ? ` for ${photo.customer_name}` : ''}`,
-          caption: photo.caption,
-          postcode: photo.location, // Extract postcode from location field
-          type: photo.media_type || 'image',
-          thumbnail: photo.thumbnail
-        }));
+        const convertedPhotos: GalleryImage[] = publicPhotos.map((photo: DatabasePhoto) => {
+          console.log('🔄 Processing photo:', photo);
+          let embedUrl = photo.url;
+          let thumbnailUrl = photo.thumbnail;
+          
+          // Convert social media URLs to embeddable format
+          if (photo.platform && photo.video_id) {
+            switch (photo.platform) {
+              case 'youtube':
+                embedUrl = `https://www.youtube.com/embed/${photo.video_id}?autoplay=0&mute=1&rel=0`;
+                thumbnailUrl = thumbnailUrl || `https://img.youtube.com/vi/${photo.video_id}/maxresdefault.jpg`;
+                break;
+              case 'tiktok':
+                embedUrl = `https://www.tiktok.com/embed/v2/${photo.video_id}`;
+                thumbnailUrl = thumbnailUrl || photo.url;
+                break;
+              case 'instagram':
+                embedUrl = `https://www.instagram.com/p/${photo.video_id}/embed`;
+                thumbnailUrl = thumbnailUrl || photo.url;
+                break;
+              case 'facebook':
+                // Facebook videos often can't be embedded due to privacy settings
+                // Use original URL and show a link instead
+                embedUrl = photo.url;
+                thumbnailUrl = thumbnailUrl || photo.url;
+                break;
+              default:
+                // Keep original URL for direct uploads or unknown platforms
+                break;
+            }
+          } else if (photo.media_type === 'video' && photo.url.includes('youtube.com')) {
+            // Fallback: try to extract YouTube ID from URL if platform data is missing
+            const match = photo.url.match(/[?&]v=([^&]+)/);
+            if (match) {
+              embedUrl = `https://www.youtube.com/embed/${match[1]}?autoplay=0&mute=1&rel=0`;
+              thumbnailUrl = `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+            }
+          }
+
+          const result = {
+            src: embedUrl,
+            alt: `${photo.type} cleaning ${photo.media_type || 'photo'}${photo.customer_name ? ` for ${photo.customer_name}` : ''}`,
+            caption: photo.caption,
+            postcode: photo.location, // Extract postcode from location field
+            type: photo.media_type || 'image',
+            thumbnail: thumbnailUrl,
+            platform: photo.platform,
+            videoId: photo.video_id
+          };
+          console.log('✅ Converted photo:', result);
+          return result;
+        });
         
         console.log('✅ Converted photos for display:', convertedPhotos);
         setDbPhotos(convertedPhotos);
@@ -122,9 +168,10 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
   
   console.log('🎯 SeeOurWorkSection render:', {
     galleryImages: galleryImages?.length || 0,
-    dbPhotos: dbPhotos.length,
+    dbPhotosCount: dbPhotos.length,
     photosToDisplay: photosToDisplay.length,
-    isLoading
+    isLoading,
+    dbPhotosData: dbPhotos
   });
   return (
     <div className="py-16">
@@ -161,6 +208,8 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
                 postcode={image.postcode}
                 type={image.type}
                 thumbnail={image.thumbnail}
+                platform={image.platform}
+                videoId={image.videoId}
               />
             ))}
           </StoryCarousel>

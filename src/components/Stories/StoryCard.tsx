@@ -31,11 +31,18 @@ interface StoryCardProps {
   type?: 'image' | 'video';
   /** Optional thumbnail URL for videos */
   thumbnail?: string;
+  /** Social media platform (youtube, tiktok, instagram, facebook) */
+  platform?: string;
+  /** Platform-specific video ID */
+  videoId?: string;
 }
 
 export default function StoryCard({ src, alt, caption, index, onClick, postcode, type = 'image', thumbnail }: StoryCardProps) {
   const isVideo = type === 'video';
   const displaySrc = isVideo && thumbnail ? thumbnail : src;
+  
+  // Check if this is a social media embed URL
+  const isEmbedVideo = isVideo && (src.includes('/embed') || src.includes('youtube.com/embed') || src.includes('tiktok.com/embed'));
 
   return (
     <button
@@ -44,14 +51,24 @@ export default function StoryCard({ src, alt, caption, index, onClick, postcode,
     >
       <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] rounded-2xl">
         {isVideo ? (
-          <video
-            src={src}
-            poster={thumbnail}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            muted
-            playsInline
-            preload="metadata"
-          />
+          isEmbedVideo ? (
+            // Use thumbnail for social media videos, actual embed will be in modal
+            <img
+              src={thumbnail || src}
+              alt={alt}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            // Use video tag for direct video files
+            <video
+              src={src}
+              poster={thumbnail}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              muted
+              playsInline
+              preload="metadata"
+            />
+          )
         ) : (
           <img
             src={displaySrc}

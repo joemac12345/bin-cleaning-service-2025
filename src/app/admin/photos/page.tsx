@@ -34,6 +34,7 @@ interface Photo {
 export default function AdminPhotosPage() {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [newPhoto, setNewPhoto] = useState({
@@ -43,6 +44,8 @@ export default function AdminPhotosPage() {
     location: '',
     isPublic: true
   });
+  const [videoUrl, setVideoUrl] = useState('');
+  const [isUrlMode, setIsUrlMode] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,11 +84,28 @@ export default function AdminPhotosPage() {
       return;
     }
     
+    const file = files[0];
+    
+    // Check file size (50MB limit)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      alert(`File too large. Please select a file smaller than 50MB. Current file: ${(file.size / 1024 / 1024).toFixed(1)}MB`);
+      return;
+    }
+    
+    // Check file type
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (!isImage && !isVideo) {
+      alert('Please select an image or video file');
+      return;
+    }
+    
     setSelectedFiles(files);
     
-    // Create preview image
-    const file = files[0];
-    if (file && file.type.startsWith('image/')) {
+    // Create preview for images
+    if (isImage) {
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
@@ -94,6 +114,7 @@ export default function AdminPhotosPage() {
       };
       reader.readAsDataURL(file);
     } else {
+      // For videos, we'll show a video icon or thumbnail
       setPreviewImage(null);
     }
   };
@@ -101,13 +122,98 @@ export default function AdminPhotosPage() {
   const clearPreview = () => {
     setSelectedFiles(null);
     setPreviewImage(null);
+    setVideoUrl('');
+    setIsUrlMode(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
+  // Function to validate and process social media URLs
+  const processSocialMediaUrl = (url: string) => {
+    const trimmedUrl = url.trim();
+    
+    // YouTube
+    if (trimmedUrl.includes('youtube.com') || trimmedUrl.includes('youtu.be')) {
+      const videoId = extractYouTubeId(trimmedUrl);
+      return {
+        platform: 'youtube',
+        videoId,
+        embedUrl: `https://www.youtube.com/embed/${videoId}`,
+        thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        isValid: !!videoId
+      };
+    }
+    
+    // TikTok
+    if (trimmedUrl.includes('tiktok.com')) {
+      return {
+        platform: 'tiktok',
+        videoId: extractTikTokId(trimmedUrl),
+        embedUrl: trimmedUrl,
+        thumbnail: null, // TikTok thumbnails require API
+        isValid: true
+      };
+    }
+    
+    // Instagram
+    if (trimmedUrl.includes('instagram.com')) {
+      return {
+        platform: 'instagram',
+        videoId: extractInstagramId(trimmedUrl),
+        embedUrl: trimmedUrl + 'embed/',
+        thumbnail: null,
+        isValid: true
+      };
+    }
+    
+    // Facebook
+    if (trimmedUrl.includes('facebook.com') || trimmedUrl.includes('fb.watch')) {
+      return {
+        platform: 'facebook',
+        videoId: extractFacebookId(trimmedUrl),
+        embedUrl: trimmedUrl,
+        thumbnail: null,
+        isValid: true
+      };
+    }
+    
+    return { platform: 'unknown', isValid: false };
+  };
+
+  const extractYouTubeId = (url: string) => {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+  };
+
+  const extractTikTokId = (url: string) => {
+    const match = url.match(/\/video\/(\d+)/);
+    return match ? match[1] : url.split('/').pop();
+  };
+
+  const extractInstagramId = (url: string) => {
+    const match = url.match(/\/p\/([^\/]+)/);
+    return match ? match[1] : url.split('/').pop();
+  };
+
+  const extractFacebookId = (url: string) => {
+    // Handle different Facebook URL formats
+    let match = url.match(/\/videos\/(\d+)/); // Old format
+    if (match) return match[1];
+    
+    match = url.match(/\/share\/v\/([^\/\?]+)/); // New share format
+    if (match) return match[1];
+    
+    match = url.match(/\/reel\/([^\/\?]+)/); // Reels format
+    if (match) return match[1];
+    
+    // Fallback to last part of URL
+    return url.split('/').pop()?.replace(/\?.*/, '') || null;
+  };
+
   const uploadPhoto = async () => {
     if (!selectedFiles || selectedFiles.length === 0) {
-      alert('Please select a photo first');
+      alert('Please select a file first');
       return;
     }
     
@@ -116,33 +222,70 @@ export default function AdminPhotosPage() {
       return;
     }
     
+    const file = selectedFiles[0];
+    const isVideo = file.type.startsWith('video/');
+    
     setIsUploading(true);
+    setUploadProgress(0);
     
     try {
-      console.log('Starting photo upload...');
+      console.log(`Starting ${isVideo ? 'video' : 'photo'} upload...`, {
+        name: file.name,
+        size: `${(file.size / 1024 / 1024).toFixed(1)}MB`,
+        type: file.type
+      });
+
       const formData = new FormData();
-      formData.append('photo', selectedFiles[0]);
+      formData.append('photo', file);
       formData.append('caption', newPhoto.caption);
       formData.append('type', newPhoto.type);
       formData.append('customerName', newPhoto.customerName);
       formData.append('location', newPhoto.location);
       formData.append('isPublic', newPhoto.isPublic.toString());
+      formData.append('media_type', isVideo ? 'video' : 'image');
       
-      console.log('Sending request to /api/photos');
-      const response = await fetch('/api/photos', {
-        method: 'POST',
-        body: formData,
+      // Create XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+      
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = Math.round((event.loaded / event.total) * 100);
+            setUploadProgress(progress);
+            console.log(`Upload progress: ${progress}%`);
+          }
+        };
+        
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            try {
+              const result = JSON.parse(xhr.responseText);
+              resolve(result);
+            } catch (e) {
+              reject(new Error('Invalid response format'));
+            }
+          } else {
+            reject(new Error(`Upload failed with status: ${xhr.status}`));
+          }
+        };
+        
+        xhr.onerror = () => reject(new Error('Network error during upload'));
+        xhr.ontimeout = () => reject(new Error('Upload timeout'));
+        
+        xhr.open('POST', '/api/photos');
+        xhr.timeout = 120000; // 2 minute timeout
+        xhr.send(formData);
       });
       
-      console.log('Response status:', response.status);
-      const result = await response.json();
-      console.log('Response data:', result);
+      const result = await uploadPromise as any;
+      console.log('Upload response:', result);
       
-      if (response.ok && result.success) {
+      if (result.success) {
         // Show success message
+        const fileType = isVideo ? 'Video' : 'Photo';
         const successMessage = newPhoto.isPublic 
-          ? 'Photo uploaded successfully! It will appear on the website automatically.' 
-          : 'Photo uploaded successfully and saved as private.';
+          ? `${fileType} uploaded successfully! It will appear on the website automatically.` 
+          : `${fileType} uploaded successfully and saved as private.`;
         alert(successMessage);
         
         // Add the new photo to the beginning of the list
@@ -166,6 +309,73 @@ export default function AdminPhotosPage() {
       }
     } catch (error) {
       console.error('Upload error:', error);
+      alert(`Upload error: ${error}`);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  const uploadVideoUrl = async () => {
+    if (!videoUrl.trim()) {
+      alert('Please enter a video URL');
+      return;
+    }
+    
+    if (!newPhoto.caption.trim()) {
+      alert('Please add a caption');
+      return;
+    }
+
+    const processedUrl = processSocialMediaUrl(videoUrl);
+    if (!processedUrl.isValid) {
+      alert('Please enter a valid YouTube, TikTok, Instagram, or Facebook video URL');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      console.log('Uploading video URL:', processedUrl);
+
+      const videoData = {
+        url: processedUrl.embedUrl || videoUrl,
+        thumbnail: processedUrl.thumbnail || videoUrl,
+        caption: newPhoto.caption,
+        type: newPhoto.type,
+        customerName: newPhoto.customerName,
+        location: newPhoto.location,
+        isPublic: newPhoto.isPublic,
+        media_type: 'video',
+        platform: processedUrl.platform,
+        video_id: processedUrl.videoId
+      };
+
+      const response = await fetch('/api/photos/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(videoData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('Video URL added successfully!');
+        setPhotos(prev => [result.photo, ...prev]);
+        clearPreview();
+        setNewPhoto({
+          caption: '',
+          type: 'before',
+          customerName: '',
+          location: '',
+          isPublic: true
+        });
+        loadPhotos();
+      } else {
+        alert(`Upload failed: ${result.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Video URL upload error:', error);
       alert(`Upload error: ${error}`);
     } finally {
       setIsUploading(false);
@@ -323,14 +533,16 @@ export default function AdminPhotosPage() {
         className="hidden"
       />
 
-      {/* Photo Upload Modal - appears when photo is selected */}
-      {selectedFiles && (
+      {/* Photo Upload Modal - appears when photo is selected or URL mode */}
+      {(selectedFiles || isUrlMode) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               {/* Header */}
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-gray-900">Add Photo Details</h3>
+                <h3 className="text-xl font-bold text-gray-900">
+                  {isUrlMode ? 'Add Video URL' : 'Add Photo Details'}
+                </h3>
                 <button
                   onClick={clearPreview}
                   className="text-gray-500 hover:text-gray-700"
@@ -339,14 +551,67 @@ export default function AdminPhotosPage() {
                 </button>
               </div>
 
-              {/* Photo Preview */}
-              {previewImage && (
+              {/* Video URL Input */}
+              {isUrlMode && (
                 <div className="mb-4">
-                  <img
-                    src={previewImage}
-                    alt="Preview"
-                    className="w-full h-48 object-cover rounded-lg"
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Video URL (YouTube, TikTok, Instagram, Facebook)
+                  </label>
+                  <input
+                    type="url"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    placeholder="https://youtube.com/watch?v=... or https://tiktok.com/@user/video/..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#3B4044] focus:border-[#3B4044]"
                   />
+                  {videoUrl && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded text-sm">
+                      <strong>Platform:</strong> {processSocialMediaUrl(videoUrl).platform || 'Unknown'}
+                      <br />
+                      <strong>Valid:</strong> {processSocialMediaUrl(videoUrl).isValid ? '✅ Yes' : '❌ No'}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* File Preview */}
+              {selectedFiles && (
+                <div className="mb-4">
+                  {previewImage ? (
+                    <img
+                      src={previewImage}
+                      alt="Preview"
+                      className="w-full h-48 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gray-300 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                          📹
+                        </div>
+                        <p className="text-sm text-gray-600">{selectedFiles[0]?.name}</p>
+                        <p className="text-xs text-gray-500">
+                          {((selectedFiles[0]?.size || 0) / 1024 / 1024).toFixed(1)} MB
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Upload Progress */}
+              {isUploading && (
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm text-gray-600">Uploading...</span>
+                    <span className="text-sm text-gray-600">{uploadProgress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-[#3B4044] h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
                 </div>
               )}
 
@@ -429,11 +694,11 @@ export default function AdminPhotosPage() {
                   Cancel
                 </button>
                 <button
-                  onClick={uploadPhoto}
-                  disabled={isUploading || !newPhoto.caption.trim()}
+                  onClick={isUrlMode ? uploadVideoUrl : uploadPhoto}
+                  disabled={isUploading || !newPhoto.caption.trim() || (isUrlMode && !videoUrl.trim())}
                   className="flex-1 bg-[#3B4044] hover:bg-[#2a2d30] disabled:bg-gray-400 text-white px-4 py-3 rounded-lg transition-colors"
                 >
-                  {isUploading ? 'Uploading...' : 'Save Photo'}
+                  {isUploading ? 'Saving...' : (isUrlMode ? 'Save Video URL' : 'Save Photo')}
                 </button>
               </div>
             </div>
@@ -471,6 +736,18 @@ export default function AdminPhotosPage() {
             title="Upload Photo"
           >
             <Upload className="w-5 h-5" />
+          </button>
+          
+          {/* Video URL Button */}
+          <button
+            onClick={() => {
+              setIsUrlMode(true);
+              setVideoUrl('');
+            }}
+            className="flex items-center justify-center w-12 h-12 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-colors shadow-md"
+            title="Add Video URL"
+          >
+            🔗
           </button>
           
           {/* Photo Count Badge */}

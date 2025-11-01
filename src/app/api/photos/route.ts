@@ -76,14 +76,19 @@ export async function POST(request: NextRequest) {
     const customerName = formData.get('customerName') as string;
     const location = formData.get('location') as string;
     const isPublic = formData.get('isPublic') === 'true';
+    const mediaType = formData.get('media_type') as string || 'image';
 
     console.log('Form data:', { 
-      hasFile: !!photoFile, 
+      hasFile: !!photoFile,
+      fileName: photoFile?.name,
+      fileSize: `${((photoFile?.size || 0) / 1024 / 1024).toFixed(1)}MB`,
+      fileType: photoFile?.type,
       caption, 
       type, 
       customerName, 
       location, 
-      isPublic 
+      isPublic,
+      mediaType 
     });
 
     if (!photoFile) {
@@ -141,6 +146,7 @@ export async function POST(request: NextRequest) {
       customer_name: customerName || null,
       location: location || null,
       is_public: isPublic,
+      media_type: mediaType,
       created_at: new Date().toISOString(),
       file_path: filePath
     };

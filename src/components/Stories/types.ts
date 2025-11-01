@@ -20,6 +20,10 @@ export interface GalleryImage {
   type?: 'image' | 'video';
   /** Optional thumbnail URL for videos */
   thumbnail?: string;
+  /** Social media platform (youtube, tiktok, instagram, facebook) */
+  platform?: string;
+  /** Platform-specific video ID */
+  videoId?: string;
 }
 
 export interface StoryGalleryProps {
