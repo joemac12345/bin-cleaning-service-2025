@@ -17,7 +17,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Upload, Trash2, Edit, Save, X, Eye, MapPin, Calendar, User } from 'lucide-react';
+import { Camera, Upload, Trash2, Edit, Save, X, Eye, MapPin, Calendar, User, Filter, Search } from 'lucide-react';
 
 interface Photo {
   id: string;
@@ -48,6 +48,14 @@ export default function AdminPhotosPage() {
   const [isUrlMode, setIsUrlMode] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   
+  // Filter and search state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'before' | 'after' | 'process'>('all');
+  const [filterMediaType, setFilterMediaType] = useState<'all' | 'image' | 'video'>('all');
+  const [filterVisibility, setFilterVisibility] = useState<'all' | 'public' | 'private'>('all');
+  const [filterDate, setFilterDate] = useState<'all' | 'today' | 'week' | 'month'>('all');
+  const [showFilters, setShowFilters] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -55,6 +63,52 @@ export default function AdminPhotosPage() {
   useEffect(() => {
     loadPhotos();
   }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl/Cmd + F to focus search
+      if ((event.ctrlKey || event.metaKey) && event.key === 'f') {
+        event.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+        searchInput?.focus();
+      }
+      
+      // Number keys for quick filter
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case '1':
+            event.preventDefault();
+            setFilterType(filterType === 'before' ? 'all' : 'before');
+            break;
+          case '2':
+            event.preventDefault();
+            setFilterType(filterType === 'after' ? 'all' : 'after');
+            break;
+          case '3':
+            event.preventDefault();
+            setFilterType(filterType === 'process' ? 'all' : 'process');
+            break;
+          case '4':
+            event.preventDefault();
+            setFilterMediaType(filterMediaType === 'image' ? 'all' : 'image');
+            break;
+          case '5':
+            event.preventDefault();
+            setFilterMediaType(filterMediaType === 'video' ? 'all' : 'video');
+            break;
+        }
+      }
+      
+      // Escape to clear filters
+      if (event.key === 'Escape' && !searchTerm) {
+        clearAllFilters();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [filterType, filterMediaType, searchTerm]);
 
   const loadPhotos = async () => {
     try {
@@ -377,6 +431,68 @@ export default function AdminPhotosPage() {
     }
   };
 
+  // Filter and search logic
+  const filteredPhotos = photos.filter(photo => {
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        photo.caption.toLowerCase().includes(searchLower) ||
+        photo.customerName?.toLowerCase().includes(searchLower) ||
+        photo.location?.toLowerCase().includes(searchLower);
+      if (!matchesSearch) return false;
+    }
+
+    // Type filter (before/after/process)
+    if (filterType !== 'all' && photo.type !== filterType) {
+      return false;
+    }
+
+    // Media type filter (image/video)
+    if (filterMediaType !== 'all') {
+      const isVideo = photo.url.includes('youtube.com') || photo.url.includes('youtu.be') || 
+                      photo.url.includes('tiktok.com') || photo.url.includes('instagram.com');
+      if (filterMediaType === 'video' && !isVideo) return false;
+      if (filterMediaType === 'image' && isVideo) return false;
+    }
+
+    // Visibility filter (public/private)
+    if (filterVisibility !== 'all') {
+      if (filterVisibility === 'public' && !photo.isPublic) return false;
+      if (filterVisibility === 'private' && photo.isPublic) return false;
+    }
+
+    // Date filter
+    if (filterDate !== 'all') {
+      const photoDate = new Date(photo.date);
+      const now = new Date();
+      const diffTime = now.getTime() - photoDate.getTime();
+      const diffDays = diffTime / (1000 * 3600 * 24);
+
+      switch (filterDate) {
+        case 'today':
+          if (diffDays > 1) return false;
+          break;
+        case 'week':
+          if (diffDays > 7) return false;
+          break;
+        case 'month':
+          if (diffDays > 30) return false;
+          break;
+      }
+    }
+
+    return true;
+  });
+
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setFilterType('all');
+    setFilterMediaType('all');
+    setFilterVisibility('all');
+    setFilterDate('all');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-4xl mx-auto">
@@ -401,20 +517,238 @@ export default function AdminPhotosPage() {
           </div>
         </div>
 
+        {/* Search and Filters */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <div className="flex flex-col space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search by caption, customer, or location... (Ctrl+F to focus)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setSearchTerm('');
+                  }
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-[#3B4044] focus:border-[#3B4044]"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Quick Filter Buttons */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setFilterMediaType(filterMediaType === 'image' ? 'all' : 'image')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  filterMediaType === 'image'
+                    ? 'bg-blue-100 text-blue-800 border-2 border-blue-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                📸 Photos Only
+              </button>
+              <button
+                onClick={() => setFilterMediaType(filterMediaType === 'video' ? 'all' : 'video')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  filterMediaType === 'video'
+                    ? 'bg-purple-100 text-purple-800 border-2 border-purple-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                🎥 Videos Only
+              </button>
+              <button
+                onClick={() => setFilterVisibility(filterVisibility === 'public' ? 'all' : 'public')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  filterVisibility === 'public'
+                    ? 'bg-green-100 text-green-800 border-2 border-green-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                👁️ Public Only
+              </button>
+              <button
+                onClick={() => setFilterVisibility(filterVisibility === 'private' ? 'all' : 'private')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  filterVisibility === 'private'
+                    ? 'bg-orange-100 text-orange-800 border-2 border-orange-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                🔒 Private Only
+              </button>
+              <button
+                onClick={() => setFilterDate(filterDate === 'today' ? 'all' : 'today')}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                  filterDate === 'today'
+                    ? 'bg-yellow-100 text-yellow-800 border-2 border-yellow-300'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                📅 Today
+              </button>
+            </div>
+
+            {/* Filter Toggle Button */}
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <Filter className="w-4 h-4" />
+                <span>Filters</span>
+                {(filterType !== 'all' || filterMediaType !== 'all' || filterVisibility !== 'all' || filterDate !== 'all') && (
+                  <span className="bg-[#3B4044] text-white text-xs px-2 py-1 rounded-full">Active</span>
+                )}
+              </button>
+              
+              <div className="flex items-center gap-3">
+                {(searchTerm || filterType !== 'all' || filterMediaType !== 'all' || filterVisibility !== 'all' || filterDate !== 'all') && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-sm text-gray-600 hover:text-gray-800 underline"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
+                
+                {/* Keyboard Shortcuts Help */}
+                <div className="relative group">
+                  <button className="text-sm text-gray-500 hover:text-gray-700">
+                    ⌨️ Shortcuts
+                  </button>
+                  <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 w-48">
+                    <div className="text-xs text-gray-600 space-y-1">
+                      <div><kbd className="bg-gray-100 px-1 rounded">Ctrl+F</kbd> Search</div>
+                      <div><kbd className="bg-gray-100 px-1 rounded">Ctrl+1</kbd> Before</div>
+                      <div><kbd className="bg-gray-100 px-1 rounded">Ctrl+2</kbd> After</div>
+                      <div><kbd className="bg-gray-100 px-1 rounded">Ctrl+3</kbd> Process</div>
+                      <div><kbd className="bg-gray-100 px-1 rounded">Ctrl+4</kbd> Photos</div>
+                      <div><kbd className="bg-gray-100 px-1 rounded">Ctrl+5</kbd> Videos</div>
+                      <div><kbd className="bg-gray-100 px-1 rounded">Esc</kbd> Clear</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Options */}
+            {showFilters && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+                {/* Photo Type Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Photo Type</label>
+                  <select
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value as any)}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="before">Before</option>
+                    <option value="after">After</option>
+                    <option value="process">Process</option>
+                  </select>
+                </div>
+
+                {/* Media Type Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Media Type</label>
+                  <select
+                    value={filterMediaType}
+                    onChange={(e) => setFilterMediaType(e.target.value as any)}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  >
+                    <option value="all">All Media</option>
+                    <option value="image">📸 Photos Only</option>
+                    <option value="video">🎥 Videos Only</option>
+                  </select>
+                </div>
+
+                {/* Visibility Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Visibility</label>
+                  <select
+                    value={filterVisibility}
+                    onChange={(e) => setFilterVisibility(e.target.value as any)}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  >
+                    <option value="all">All</option>
+                    <option value="public">👁️ Public</option>
+                    <option value="private">🔒 Private</option>
+                  </select>
+                </div>
+
+                {/* Date Filter */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                  <select
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value as any)}
+                    className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  >
+                    <option value="all">All Time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Photos Gallery */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Photo Gallery ({photos.length} photos)
-          </h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold text-gray-900">
+              Photo Gallery 
+            </h2>
+            <div className="text-sm text-gray-600">
+              <div className="flex flex-col md:flex-row md:items-center gap-2">
+                <span>Showing {filteredPhotos.length} of {photos.length} items</span>
+                <div className="flex gap-4 text-xs">
+                  <span>📸 {filteredPhotos.filter(p => !(p.url.includes('youtube.com') || p.url.includes('youtu.be') || p.url.includes('tiktok.com') || p.url.includes('instagram.com'))).length} Photos</span>
+                  <span>🎥 {filteredPhotos.filter(p => p.url.includes('youtube.com') || p.url.includes('youtu.be') || p.url.includes('tiktok.com') || p.url.includes('instagram.com')).length} Videos</span>
+                  <span>👁️ {filteredPhotos.filter(p => p.isPublic).length} Public</span>
+                  <span>🔒 {filteredPhotos.filter(p => !p.isPublic).length} Private</span>
+                </div>
+              </div>
+            </div>
+          </div>
           
           {photos.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
               <Camera className="w-16 h-16 mx-auto mb-4 text-gray-300" />
               <p>No photos yet. Start by taking your first before & after photos!</p>
             </div>
+          ) : filteredPhotos.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Filter className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p>No photos match your current filters.</p>
+              <button
+                onClick={clearAllFilters}
+                className="mt-2 text-[#3B4044] hover:underline font-medium"
+              >
+                Clear all filters
+              </button>
+            </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {photos.map((photo) => (
+              {filteredPhotos.map((photo) => {
+                const isVideo = photo.url.includes('youtube.com') || photo.url.includes('youtu.be') || 
+                               photo.url.includes('tiktok.com') || photo.url.includes('instagram.com');
+                
+                return (
                 <div key={photo.id} className="relative group">
                   <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
                     <img
@@ -423,6 +757,15 @@ export default function AdminPhotosPage() {
                       className="w-full h-full object-cover"
                     />
                     
+                    {/* Video Indicator */}
+                    {isVideo && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="bg-black/70 rounded-full p-3">
+                          <span className="text-white text-2xl">▶️</span>
+                        </div>
+                      </div>
+                    )}
+                    
                     {/* Photo Type Badge */}
                     <div className={`absolute top-2 left-2 px-2 py-1 text-xs font-medium rounded ${
                       photo.type === 'before' ? 'bg-red-100 text-red-800' :
@@ -430,6 +773,15 @@ export default function AdminPhotosPage() {
                       'bg-blue-100 text-blue-800'
                     }`}>
                       {photo.type}
+                    </div>
+
+                    {/* Media Type Badge */}
+                    <div className="absolute top-2 right-12">
+                      <div className={`px-2 py-1 text-xs font-medium rounded ${
+                        isVideo ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {isVideo ? '🎥' : '📸'}
+                      </div>
                     </div>
 
                     {/* Public/Private Badge */}
@@ -482,7 +834,8 @@ export default function AdminPhotosPage() {
                     </p>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

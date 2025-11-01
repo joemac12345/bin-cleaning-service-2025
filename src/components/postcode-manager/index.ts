@@ -1,5 +1,4 @@
 // Postcode Manager Components
-export { default as PostcodeChecker } from './PostcodeChecker';
 export { default as AdminPostcodeManager } from './AdminPostcodeManager';
 export { default as AdminDashboard } from './AdminDashboard';
 export { default as InvalidPostcodeAnalytics } from './InvalidPostcodeAnalytics';

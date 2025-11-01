@@ -24,6 +24,8 @@ import ImageGalleryModal from '@/components/ImageGalleryModal';
 import { SeeOurWorkSection } from '@/components/Stories';
 import ServicesCarousel from '@/components/ServicesCarousel';
 import SocialMediaCarousel from '@/components/SocialMediaCarousel';
+import CompactPostcodeChecker from '@/components/CompactPostcodeChecker';
+import InlinePostcodeChecker from '@/components/InlinePostcodeChecker';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -31,6 +33,15 @@ export default function LandingPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   // No fallback images - use empty array to show proper empty state
   const [modalImages, setModalImages] = useState<any[]>([]); // Start with empty array
+
+  // Postcode checker handlers
+  const handleServiceAvailable = (postcode: string) => {
+    router.push(`/booking?postcode=${encodeURIComponent(postcode)}`);
+  };
+
+  const handleWaitlist = (postcode: string) => {
+    router.push(`/waitlist?postcode=${encodeURIComponent(postcode)}`);
+  };
 
   const openGallery = (index: number) => {
     console.log('🎬 Opening gallery at index:', index);
@@ -86,33 +97,49 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
           
           {/* Content */}
-          <div className="relative px-4 py-12 max-w-5xl mx-auto">
-            <div className="text-left max-w-2xl">
-              {/* Icon */}
-              <div className="w-16 h-16 bg-white mb-4 flex items-center justify-center rounded-lg">
-                <Sparkles className="w-10 h-10 text-[#3B4044]" strokeWidth={2.5} />
+          <div className="relative px-4 py-12 max-w-6xl mx-auto">
+            {/* Mascot Image - Top of Hero */}
+            <div className="w-30 h-30 mb-4 mt-8 relative z-50">
+              <img 
+                src="/image1234.png" 
+                alt="TheBinGuy Mascot" 
+                className="w-50 h-50 object-contain relative "
+              />
+            </div>
+            
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8 lg:mt-12">
+              <div className="text-left px-2 sm:px-0">
+              {/* Headline */}
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 lg:mb-4 drop-shadow-md leading-tight">
+                👋 Welcome
+              </h1>
+              
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/85 mb-4 lg:mb-6 drop-shadow-sm leading-relaxed max-w-lg">
+                Before you say goodbye to dirty bins. Please check we serve your area by using the postcode checker below.👇 
+              </p>
+              
+              {/* Quick Postcode Check */}
+              <div className="mt-4 lg:mt-6">
+                
+                <div className="max-w-sm sm:max-w-md bg-white rounded-xl p-3 sm:p-4 shadow-lg">
+                  <InlinePostcodeChecker
+                    onServiceAvailable={handleServiceAvailable}
+                    onWaitlist={handleWaitlist}
+                    size="md"
+                    theme="light"
+                  />
+                </div>
+                <p className="text-white/75 text-xs sm:text-sm mt-2 lg:mt-3 max-w-sm">
+                  ⚡ Instant booking if available • 📝 Join waitlist if not yet serviced
+                </p>
+              </div>
               </div>
               
-              {/* Headline */}
-              <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 drop-shadow-md">
-                Welcome to TheBinGuy
-              </h1>
-              <p className="text-xl md:text-2xl text-white/95 mb-4 drop-shadow-sm font-medium">
-                Your Local Bin Cleaning Experts
-              </p>
-              <p className="text-base md:text-lg text-white/85 mb-6 drop-shadow-sm leading-relaxed">
-                We make your wheelie bins spotless, fresh, and hygienic! Professional cleaning service for homes and businesses across the UK. Say goodbye to smelly, dirty bins forever.
-              </p>
-              
-              {/* CTA Button */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => router.push('/')}
-                  className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-base px-6 py-3 rounded-lg transition-colors shadow-lg"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Book Bin Cleaning
-                </button>
+              {/* Optional: Add an image or illustration on the right side */}
+              <div className="lg:flex justify-center items-center hidden">
+                <div className="w-80 h-80 bg-white/10 rounded-full flex items-center justify-center">
+                  <Trash2 className="w-32 h-32 text-white/30" strokeWidth={1} />
+                </div>
               </div>
             </div>
           </div>
@@ -121,9 +148,94 @@ export default function LandingPage() {
         {/* Services Carousel */}
         <ServicesCarousel />
 
-        {/* CTA Section */}
+        {/* What We Offer Section */}
         <div className="px-4 py-16 max-w-6xl mx-auto">
-          <div className="bg-[#3B4044] p-8 md:p-12 text-left relative overflow-hidden">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Mascot Image */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="w-48 h-48 md:w-64 md:h-64">
+                <img 
+                  src="/image1234.png" 
+                  alt="TheBinGuy Mascot" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+            
+            {/* Service Description */}
+            <div className="text-left">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+                What We Offer
+              </h2>
+              <p className="text-lg md:text-xl text-gray-700 mb-6 leading-relaxed">
+                Professional cleaning services for your home and business
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-[#3B4044] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600">Complete wheelie bin cleaning and sanitization</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-[#3B4044] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600">Food waste and recycling bin services</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-[#3B4044] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600">Eco-friendly cleaning products and methods</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-[#3B4044] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600">Reliable scheduled service at your convenience</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-[#3B4044] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-600">Affordable rates with no hidden fees or contracts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Inline Check */}
+        <div className="px-4 py-8 max-w-4xl mx-auto">
+          <div className="text-center mb-6">
+            <p className="text-gray-600 text-sm mb-4">
+              💡 <strong>Quick Tip:</strong> Check if we service your area before reading more
+            </p>
+            <div className="max-w-md mx-auto">
+              <InlinePostcodeChecker
+                onServiceAvailable={handleServiceAvailable}
+                onWaitlist={handleWaitlist}
+                size="sm"
+                theme="light"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Service Area Check Section */}
+        <div className="px-4 py-16 max-w-6xl mx-auto">
+          <div className="bg-[#3B4044] p-8 md:p-12 text-left relative overflow-hidden rounded-xl">
             {/* Background */}
             <div 
               className="absolute inset-0 bg-cover bg-center opacity-10"
@@ -138,17 +250,24 @@ export default function LandingPage() {
               <p className="text-lg text-white/90 mb-8 max-w-2xl">
                 We don't want to disappoint you! Please check your service area first - we don't service the whole UK yet. Make sure we're available in your postcode before getting excited about our services.
               </p>
-              <button
-                onClick={() => router.push('/')}
-                className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-[#3B4044] font-bold text-lg px-8 py-4 transition-colors shadow-lg rounded-lg"
-              >
-                <MapPin className="w-5 h-5" />
-                Check Your Postcode
-                <ArrowRight className="w-5 h-5" />
-              </button>
-              <p className="text-sm text-white/70 mt-4">
-                Enter your postcode to see available services and pricing in your area
-              </p>
+              {/* Integrated Postcode Checker */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-2xl">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Check Your Service Area
+                </h3>
+                <div className="bg-white rounded-lg p-4">
+                  <CompactPostcodeChecker
+                    onServiceAvailable={handleServiceAvailable}
+                    onWaitlist={handleWaitlist}
+                    placeholder="Enter your postcode (e.g. SW1A 1AA)"
+                    buttonText="Check Availability"
+                  />
+                </div>
+                <p className="text-sm text-white/80 mt-3">
+                  ✅ Available areas get instant booking • ⏳ Not available? Join our waitlist
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -436,6 +555,22 @@ export default function LandingPage() {
                     info@binclean.co.uk
                   </li>
                 </ul>
+              </div>
+            </div>
+
+            {/* Quick Postcode Check - Footer */}
+            <div className="border-t border-gray-800 pt-8 pb-8">
+              <div className="max-w-md mx-auto">
+                <h4 className="text-white font-bold mb-3 text-center">Quick Service Check</h4>
+                <InlinePostcodeChecker
+                  onServiceAvailable={handleServiceAvailable}
+                  onWaitlist={handleWaitlist}
+                  size="sm"
+                  theme="dark"
+                />
+                <p className="text-gray-400 text-xs text-center mt-2">
+                  Enter your postcode to check availability
+                </p>
               </div>
             </div>
 

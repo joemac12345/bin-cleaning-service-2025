@@ -18,6 +18,8 @@ import { useRouter } from 'next/navigation';
 import { MapPin, ArrowRight } from 'lucide-react';
 import StoryCard from './StoryCard';
 import StoryCarousel from './StoryCarousel';
+import StoryGalleryModal from './StoryGalleryModal';
+import TitleSubtitle from '../TitleSubtitle';
 import { getShortCaption } from './utils';
 import type { StoryGalleryProps, GalleryImage } from './types';
 
@@ -39,6 +41,8 @@ interface DatabasePhoto {
 export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhotosLoaded }: Partial<StoryGalleryProps>) {
   const [dbPhotos, setDbPhotos] = useState<GalleryImage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const router = useRouter();
 
   // Load photos from database if no galleryImages provided
@@ -63,11 +67,11 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
   // Add periodic refresh to check for new photos
   useEffect(() => {
     if (!galleryImages) {
-      // Refresh every 30 seconds to check for new photos
+      // Refresh every hour (3600000ms) to check for new photos
       const interval = setInterval(() => {
         console.log('⏰ Periodic refresh triggered');
         loadPhotosFromDB();
-      }, 30000);
+      }, 3600000); // 1 hour = 60 minutes × 60 seconds × 1000 milliseconds
 
       return () => clearInterval(interval);
     }
@@ -147,7 +151,22 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
 
   // Use provided galleryImages or loaded dbPhotos
   const photosToDisplay = galleryImages || dbPhotos;
-  const handleOpenGallery = onOpenGallery || (() => {});
+  
+  // Handle opening gallery modal
+  const handleOpenGallery = (index: number) => {
+    console.log('📸 Opening gallery at index:', index);
+    setSelectedImageIndex(index);
+    setIsModalOpen(true);
+    
+    // Call parent handler if provided
+    if (onOpenGallery) {
+      onOpenGallery(index);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   
   console.log('🎯 SeeOurWorkSection render:', {
     galleryImages: galleryImages?.length || 0,
@@ -157,18 +176,8 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
     dbPhotosData: dbPhotos
   });
   return (
-    <div className="py-16">
+    <div className="pb-16">
       <div className="max-w-6xl mx-auto px-4">
-        {/* Section Header */}
-        <div className="mb-2">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            From Disgusting to Spotless! 🤢➡️✨
-          </h2>
-        </div>
-        <p className="text-sm md:text-base text-gray-600 mb-6">
-          Real transformations from customers just like you. These bins went from health hazards to hygienically clean in just one visit. Tap any photo to see the full before & after story!
-        </p>
-        
         {/* Loading State */}
         {isLoading && (
           <div className="text-center py-8">
@@ -205,20 +214,6 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
           </p>
         )}
         
-        {/* Postcode Checker Button */}
-        {!isLoading && photosToDisplay.length > 0 && (
-          <div className="flex justify-start mt-8">
-            <button
-              onClick={() => router.push('/postcode')}
-              className="group bg-[#3B4044] hover:bg-[#2a2d30] text-white px-8 py-4 rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-3"
-            >
-              <MapPin className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              <span>Check If We Service Your Area</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
-        )}
-        
         {/* Empty State */}
         {!isLoading && photosToDisplay.length === 0 && (
           <div className="text-center py-12 text-gray-500">
@@ -227,6 +222,14 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
           </div>
         )}
       </div>
+
+      {/* Story Gallery Modal */}
+      <StoryGalleryModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        images={photosToDisplay}
+        initialIndex={selectedImageIndex}
+      />
     </div>
   );
 }

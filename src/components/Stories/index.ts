@@ -9,6 +9,7 @@
 export { default as SeeOurWorkSection } from './SeeOurWorkSection';
 export { default as StoryCard } from './StoryCard';
 export { default as StoryCarousel } from './StoryCarousel';
+export { default as StoryGalleryModal } from './StoryGalleryModal';
 
 // Types and Interfaces
 export type { 
