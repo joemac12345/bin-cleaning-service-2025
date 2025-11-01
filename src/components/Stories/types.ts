@@ -8,7 +8,7 @@
  */
 
 export interface GalleryImage {
-  /** Image source URL */
+  /** Image or video source URL */
   src: string;
   /** Alt text for accessibility */
   alt: string;
@@ -16,6 +16,10 @@ export interface GalleryImage {
   caption: string;
   /** Optional postcode for location tag */
   postcode?: string;
+  /** Media type - image or video */
+  type?: 'image' | 'video';
+  /** Optional thumbnail URL for videos */
+  thumbnail?: string;
 }
 
 export interface StoryGalleryProps {

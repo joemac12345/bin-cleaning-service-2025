@@ -15,7 +15,7 @@
 import Logo from '../Logo';
 
 interface StoryCardProps {
-  /** Image source URL */
+  /** Image or video source URL */
   src: string;
   /** Alt text for accessibility */
   alt: string;
@@ -27,20 +27,38 @@ interface StoryCardProps {
   onClick: (index: number) => void;
   /** Optional postcode for location tag */
   postcode?: string;
+  /** Media type - image or video */
+  type?: 'image' | 'video';
+  /** Optional thumbnail URL for videos */
+  thumbnail?: string;
 }
 
-export default function StoryCard({ src, alt, caption, index, onClick, postcode }: StoryCardProps) {
+export default function StoryCard({ src, alt, caption, index, onClick, postcode, type = 'image', thumbnail }: StoryCardProps) {
+  const isVideo = type === 'video';
+  const displaySrc = isVideo && thumbnail ? thumbnail : src;
+
   return (
     <button
       onClick={() => onClick(index)}
       className="flex-none w-[160px] snap-start cursor-pointer group"
     >
       <div className="relative h-[280px] bg-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] rounded-2xl">
-        <img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {isVideo ? (
+          <video
+            src={src}
+            poster={thumbnail}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            muted
+            playsInline
+            preload="metadata"
+          />
+        ) : (
+          <img
+            src={displaySrc}
+            alt={alt}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
         
         {/* Logo Overlay - Top Right */}
         <div className="absolute top-3 right-3">
@@ -69,6 +87,15 @@ export default function StoryCard({ src, alt, caption, index, onClick, postcode 
             <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
           </div>
         </div>
+        
+        {/* Video Play Icon - Always visible for videos */}
+        {isVideo && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-16 h-16 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center">
+              <div className="w-0 h-0 border-l-[12px] border-l-white border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
+            </div>
+          </div>
+        )}
       </div>
     </button>
   );

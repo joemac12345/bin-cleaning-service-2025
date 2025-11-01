@@ -31,6 +31,7 @@ interface DatabasePhoto {
   location?: string;
   created_at: string; // Database field name
   is_public: boolean; // Database uses snake_case
+  media_type?: 'image' | 'video'; // Database field for media type
 }
 
 export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhotosLoaded }: Partial<StoryGalleryProps>) {
@@ -88,9 +89,11 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
         // Convert database photos to GalleryImage format
         const convertedPhotos: GalleryImage[] = publicPhotos.map((photo: DatabasePhoto) => ({
           src: photo.url,
-          alt: `${photo.type} cleaning photo${photo.customer_name ? ` for ${photo.customer_name}` : ''}`,
+          alt: `${photo.type} cleaning ${photo.media_type || 'photo'}${photo.customer_name ? ` for ${photo.customer_name}` : ''}`,
           caption: photo.caption,
-          postcode: photo.location // Extract postcode from location field
+          postcode: photo.location, // Extract postcode from location field
+          type: photo.media_type || 'image',
+          thumbnail: photo.thumbnail
         }));
         
         console.log('✅ Converted photos for display:', convertedPhotos);
@@ -156,6 +159,8 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
                 index={index}
                 onClick={handleOpenGallery}
                 postcode={image.postcode}
+                type={image.type}
+                thumbnail={image.thumbnail}
               />
             ))}
           </StoryCarousel>
