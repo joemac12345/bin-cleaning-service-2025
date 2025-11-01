@@ -88,37 +88,16 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
         console.log('🔍 Public photos found:', publicPhotos.length);
         console.log('📋 Public photos:', publicPhotos);
         
-        // Convert database photos to GalleryImage format
+        // Convert database photos to GalleryImage format (filter out unsupported platforms)
         const convertedPhotos: GalleryImage[] = publicPhotos.map((photo: DatabasePhoto) => {
           console.log('🔄 Processing photo:', photo);
           let embedUrl = photo.url;
           let thumbnailUrl = photo.thumbnail;
           
-          // Convert social media URLs to embeddable format
-          if (photo.platform && photo.video_id) {
-            switch (photo.platform) {
-              case 'youtube':
-                embedUrl = `https://www.youtube.com/embed/${photo.video_id}?autoplay=0&mute=1&rel=0`;
-                thumbnailUrl = thumbnailUrl || `https://img.youtube.com/vi/${photo.video_id}/maxresdefault.jpg`;
-                break;
-              case 'tiktok':
-                embedUrl = `https://www.tiktok.com/embed/v2/${photo.video_id}`;
-                thumbnailUrl = thumbnailUrl || photo.url;
-                break;
-              case 'instagram':
-                embedUrl = `https://www.instagram.com/p/${photo.video_id}/embed`;
-                thumbnailUrl = thumbnailUrl || photo.url;
-                break;
-              case 'facebook':
-                // Facebook videos often can't be embedded due to privacy settings
-                // Use original URL and show a link instead
-                embedUrl = photo.url;
-                thumbnailUrl = thumbnailUrl || photo.url;
-                break;
-              default:
-                // Keep original URL for direct uploads or unknown platforms
-                break;
-            }
+          // Only support YouTube videos - convert to embeddable format
+          if (photo.platform === 'youtube' && photo.video_id) {
+            embedUrl = `https://www.youtube.com/embed/${photo.video_id}?autoplay=0&mute=1&rel=0`;
+            thumbnailUrl = thumbnailUrl || `https://img.youtube.com/vi/${photo.video_id}/maxresdefault.jpg`;
           } else if (photo.media_type === 'video' && photo.url.includes('youtube.com')) {
             // Fallback: try to extract YouTube ID from URL if platform data is missing
             const match = photo.url.match(/[?&]v=([^&]+)/);
@@ -126,6 +105,10 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
               embedUrl = `https://www.youtube.com/embed/${match[1]}?autoplay=0&mute=1&rel=0`;
               thumbnailUrl = `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
             }
+          } else if (photo.media_type === 'video' && photo.platform && photo.platform !== 'youtube' && photo.platform !== 'direct_upload' && photo.platform !== 'file_upload') {
+            // Skip unsupported video platforms
+            console.warn(`⚠️ Unsupported video platform: ${photo.platform}. Only YouTube videos are supported.`);
+            return null; // This will be filtered out
           }
 
           const result = {
@@ -140,7 +123,7 @@ export default function SeeOurWorkSection({ galleryImages, onOpenGallery, onPhot
           };
           console.log('✅ Converted photo:', result);
           return result;
-        });
+        }).filter(Boolean); // Remove null values (unsupported platforms)
         
         console.log('✅ Converted photos for display:', convertedPhotos);
         setDbPhotos(convertedPhotos);

@@ -41,8 +41,8 @@ export default function StoryCard({ src, alt, caption, index, onClick, postcode,
   const isVideo = type === 'video';
   const displaySrc = isVideo && thumbnail ? thumbnail : src;
   
-  // Check if this is a social media embed URL
-  const isEmbedVideo = isVideo && (src.includes('/embed') || src.includes('youtube.com/embed') || src.includes('tiktok.com/embed'));
+  // Check if this is a YouTube embed URL
+  const isEmbedVideo = isVideo && src.includes('youtube.com/embed');
 
   return (
     <button

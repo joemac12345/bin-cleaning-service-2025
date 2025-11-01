@@ -86,7 +86,7 @@ export default function ImageGalleryModal({
         <div className="max-w-4xl mx-auto px-4 space-y-6 pt-6">
           {images.map((image, index) => {
             const isVideo = image.type === 'video';
-            const isEmbedVideo = isVideo && (image.src.includes('/embed') || image.src.includes('youtube.com/embed') || image.src.includes('tiktok.com/embed'));
+            const isEmbedVideo = isVideo && image.src.includes('youtube.com/embed');
             
             return (
               <div

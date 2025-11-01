@@ -128,11 +128,11 @@ export default function AdminPhotosPage() {
     if (cameraInputRef.current) cameraInputRef.current.value = '';
   };
 
-  // Function to validate and process social media URLs
+  // Function to validate YouTube URLs only
   const processSocialMediaUrl = (url: string) => {
     const trimmedUrl = url.trim();
     
-    // YouTube
+    // Only allow YouTube videos
     if (trimmedUrl.includes('youtube.com') || trimmedUrl.includes('youtu.be')) {
       const videoId = extractYouTubeId(trimmedUrl);
       return {
@@ -140,44 +140,25 @@ export default function AdminPhotosPage() {
         videoId,
         embedUrl: `https://www.youtube.com/embed/${videoId}`,
         thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-        isValid: !!videoId
+        isValid: !!videoId,
+        error: videoId ? null : 'Invalid YouTube URL format'
       };
     }
     
-    // TikTok
+    // Reject all other platforms with specific error messages
     if (trimmedUrl.includes('tiktok.com')) {
-      return {
-        platform: 'tiktok',
-        videoId: extractTikTokId(trimmedUrl),
-        embedUrl: trimmedUrl,
-        thumbnail: null, // TikTok thumbnails require API
-        isValid: true
-      };
+      return { platform: 'tiktok', isValid: false, error: 'TikTok videos are not supported. Please use YouTube videos only.' };
     }
     
-    // Instagram
     if (trimmedUrl.includes('instagram.com')) {
-      return {
-        platform: 'instagram',
-        videoId: extractInstagramId(trimmedUrl),
-        embedUrl: trimmedUrl + 'embed/',
-        thumbnail: null,
-        isValid: true
-      };
+      return { platform: 'instagram', isValid: false, error: 'Instagram videos are not supported. Please use YouTube videos only.' };
     }
     
-    // Facebook
     if (trimmedUrl.includes('facebook.com') || trimmedUrl.includes('fb.watch')) {
-      return {
-        platform: 'facebook',
-        videoId: extractFacebookId(trimmedUrl),
-        embedUrl: trimmedUrl,
-        thumbnail: null,
-        isValid: true
-      };
+      return { platform: 'facebook', isValid: false, error: 'Facebook videos are not supported. Please use YouTube videos only.' };
     }
     
-    return { platform: 'unknown', isValid: false };
+    return { platform: 'unknown', isValid: false, error: 'Only YouTube video URLs are supported. Please provide a valid YouTube URL.' };
   };
 
   const extractYouTubeId = (url: string) => {
@@ -186,30 +167,8 @@ export default function AdminPhotosPage() {
     return (match && match[7].length === 11) ? match[7] : null;
   };
 
-  const extractTikTokId = (url: string) => {
-    const match = url.match(/\/video\/(\d+)/);
-    return match ? match[1] : url.split('/').pop();
-  };
-
-  const extractInstagramId = (url: string) => {
-    const match = url.match(/\/p\/([^\/]+)/);
-    return match ? match[1] : url.split('/').pop();
-  };
-
-  const extractFacebookId = (url: string) => {
-    // Handle different Facebook URL formats
-    let match = url.match(/\/videos\/(\d+)/); // Old format
-    if (match) return match[1];
-    
-    match = url.match(/\/share\/v\/([^\/\?]+)/); // New share format
-    if (match) return match[1];
-    
-    match = url.match(/\/reel\/([^\/\?]+)/); // Reels format
-    if (match) return match[1];
-    
-    // Fallback to last part of URL
-    return url.split('/').pop()?.replace(/\?.*/, '') || null;
-  };
+  // Removed TikTok, Instagram, and Facebook extraction functions
+  // Only YouTube is supported
 
   const uploadPhoto = async () => {
     if (!selectedFiles || selectedFiles.length === 0) {
@@ -329,7 +288,7 @@ export default function AdminPhotosPage() {
 
     const processedUrl = processSocialMediaUrl(videoUrl);
     if (!processedUrl.isValid) {
-      alert('Please enter a valid YouTube, TikTok, Instagram, or Facebook video URL');
+      alert(processedUrl.error || 'Please enter a valid YouTube video URL');
       return;
     }
 
