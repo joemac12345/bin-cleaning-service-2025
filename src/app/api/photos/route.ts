@@ -202,3 +202,45 @@ export async function POST(request: NextRequest) {
     }, { status: 500 });
   }
 }
+
+// DELETE - Clear all photos (for testing/reset)
+export async function DELETE(request: NextRequest) {
+  try {
+    const url = new URL(request.url);
+    const clearAll = url.searchParams.get('clear_all');
+    
+    if (clearAll !== 'true') {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Add ?clear_all=true to confirm deletion of all photos' 
+      }, { status: 400 });
+    }
+
+    console.log('🗑️ DELETE /api/photos - Clearing all photos from database');
+    
+    // Delete all photos from database
+    const { error } = await supabase
+      .from('photos')
+      .delete()
+      .gte('created_at', '1970-01-01'); // This matches all rows (created after 1970)
+    
+    if (error) {
+      console.error('❌ Database deletion error:', error);
+      throw error;
+    }
+
+    console.log('✅ All photos cleared from database');
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'All photos have been deleted from the database' 
+    });
+  } catch (error) {
+    console.error('Error clearing photos:', error);
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Failed to clear photos',
+      details: error 
+    }, { status: 500 });
+  }
+}
