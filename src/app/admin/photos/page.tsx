@@ -314,6 +314,133 @@ export default function AdminPhotosPage() {
         </div>
       </div>
       
+      {/* Hidden file inputs for bottom menu */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,video/*"
+        onChange={(e) => handleFileSelect(e.target.files, 'upload')}
+        className="hidden"
+      />
+
+      {/* Photo Upload Modal - appears when photo is selected */}
+      {selectedFiles && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-gray-900">Add Photo Details</h3>
+                <button
+                  onClick={clearPreview}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Photo Preview */}
+              {previewImage && (
+                <div className="mb-4">
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+
+              {/* Form */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Photo Type
+                  </label>
+                  <select
+                    value={newPhoto.type}
+                    onChange={(e) => setNewPhoto(prev => ({ ...prev, type: e.target.value as any }))}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  >
+                    <option value="before">Before Cleaning</option>
+                    <option value="after">After Cleaning</option>
+                    <option value="process">During Process</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Customer Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newPhoto.customerName}
+                    onChange={(e) => setNewPhoto(prev => ({ ...prev, customerName: e.target.value }))}
+                    placeholder="Customer name (optional)"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location/Postcode
+                  </label>
+                  <input
+                    type="text"
+                    value={newPhoto.location}
+                    onChange={(e) => setNewPhoto(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="Area or postcode"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Caption
+                  </label>
+                  <textarea
+                    value={newPhoto.caption}
+                    onChange={(e) => setNewPhoto(prev => ({ ...prev, caption: e.target.value }))}
+                    placeholder="Describe the transformation..."
+                    rows={3}
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-[#3B4044] focus:border-[#3B4044]"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isPublic"
+                    checked={newPhoto.isPublic}
+                    onChange={(e) => setNewPhoto(prev => ({ ...prev, isPublic: e.target.checked }))}
+                    className="w-4 h-4 text-[#3B4044] border-gray-300 rounded focus:ring-[#3B4044]"
+                  />
+                  <label htmlFor="isPublic" className="ml-2 text-sm text-gray-700">
+                    Show on website
+                  </label>
+                </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex space-x-3 mt-6">
+                <button
+                  onClick={clearPreview}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={uploadPhoto}
+                  disabled={isUploading || !newPhoto.caption.trim()}
+                  className="flex-1 bg-[#3B4044] hover:bg-[#2a2d30] disabled:bg-gray-400 text-white px-4 py-3 rounded-lg transition-colors"
+                >
+                  {isUploading ? 'Uploading...' : 'Save Photo'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Bottom Menu - Fixed position for all devices */}
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-white dark:bg-gray-800 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 flex items-center px-4 py-2 space-x-4">
