@@ -12,10 +12,10 @@ import { supabase } from '@/lib/supabaseStorage';
 // PUT - Update photo metadata
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     
     const updateData: any = {};
@@ -69,10 +69,10 @@ export async function PUT(
 // DELETE - Remove photo
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // First get the photo to find the file path
     const { data: photo, error: fetchError } = await supabase
