@@ -8,6 +8,7 @@
  * - Dynamic photo loading from database
  * 
  * Usage: Can be used with or without galleryImages prop (will load from DB if not provided)
+ * Updated: 2025-11-01 - Netlify deployment ready
  */
 
 'use client';
