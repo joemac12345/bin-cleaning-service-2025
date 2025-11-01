@@ -489,10 +489,10 @@ export default function CoolDemoPage() {
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Simple Title Examples</h3>
                 <div className="space-y-6">
-                  <TitleSubtitle title="Welcome to Our Service" />
-                  <TitleSubtitle title="Professional Bin Cleaning" />
-                  <TitleSubtitle title="Clean & Reliable Service" />
-                  <TitleSubtitle title="Your Local Cleaning Experts" />
+                  <TitleSubtitle header="Welcome to Our Service" />
+                  <TitleSubtitle header="Professional Bin Cleaning" />
+                  <TitleSubtitle header="Clean & Reliable Service" />
+                  <TitleSubtitle header="Your Local Cleaning Experts" />
                 </div>
               </div>
 
@@ -500,9 +500,9 @@ export default function CoolDemoPage() {
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Text Alignment</h3>
                 <div className="space-y-4">
-                  <TitleSubtitle title="Left Aligned Title" />
-                  <TitleSubtitle title="Center Aligned Title" className="text-center" />
-                  <TitleSubtitle title="Right Aligned Title" className="text-right" />
+                  <TitleSubtitle header="Left Aligned Title" />
+                  <TitleSubtitle header="Center Aligned Title" className="text-center" />
+                  <TitleSubtitle header="Right Aligned Title" className="text-right" />
                 </div>
               </div>
 
@@ -510,7 +510,7 @@ export default function CoolDemoPage() {
               <div>
                 <h3 className="text-lg font-medium text-gray-900 mb-4">Title Only (No Subtitle)</h3>
                 <TitleSubtitle 
-                  title="Standalone Title"
+                  header="Standalone Title"
                   className="text-center"
                 />
               </div>
@@ -528,8 +528,8 @@ export default function CoolDemoPage() {
             {activeTab === 'titles' && (
               <div className="space-y-8">
                 <TitleSubtitle 
-                  title="" 
-                  subtitle=""
+                  header="" 
+                  postedBy=""
                 />
               </div>
             )}
